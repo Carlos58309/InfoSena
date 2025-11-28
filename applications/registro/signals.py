@@ -1,0 +1,58 @@
+from django.db.models.signals import post_save, post_delete
+from django.dispatch import receiver
+from .models import Aprendiz, Instructor, Bienestar
+from applications.usuarios.models import Usuario
+
+
+# ======================================
+#  CREAR AUTOMÁTICAMENTE UN USUARIO
+# ======================================
+@receiver(post_save, sender=Aprendiz)
+def crear_usuario_aprendiz(sender, instance, created, **kwargs):
+    if created:
+        Usuario.objects.create(
+            tipo="aprendiz",
+            documento=instance.numero_documento,
+            nombre=instance.nombre,
+            email=instance.email,
+        )
+
+
+@receiver(post_save, sender=Instructor)
+def crear_usuario_instructor(sender, instance, created, **kwargs):
+    if created:
+        Usuario.objects.create(
+            tipo="instructor",
+            documento=instance.numero_documento,
+            nombre=instance.nombre,
+            email=instance.email,
+        )
+
+
+@receiver(post_save, sender=Bienestar)
+def crear_usuario_bienestar(sender, instance, created, **kwargs):
+    if created:
+        Usuario.objects.create(
+            tipo="bienestar",
+            documento=instance.numero_documento,
+            nombre=instance.nombre,
+            email=instance.email,
+        )
+
+
+# ======================================
+#  ELIMINAR USUARIO AL ELIMINAR REGISTRO
+# ======================================
+@receiver(post_delete, sender=Aprendiz)
+def eliminar_usuario_aprendiz(sender, instance, **kwargs):
+    Usuario.objects.filter(documento=instance.numero_documento).delete()
+
+
+@receiver(post_delete, sender=Instructor)
+def eliminar_usuario_instructor(sender, instance, **kwargs):
+    Usuario.objects.filter(documento=instance.numero_documento).delete()
+
+
+@receiver(post_delete, sender=Bienestar)
+def eliminar_usuario_bienestar(sender, instance, **kwargs):
+    Usuario.objects.filter(documento=instance.numero_documento).delete()

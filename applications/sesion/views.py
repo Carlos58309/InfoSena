@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from ..registro.models import Aprendiz, Instructor, Bienestar
+from applications.registro.models import Aprendiz, Instructor, Bienestar
 from .models import Sesion
 
 def login_view(request):
@@ -12,7 +12,7 @@ def login_view(request):
         if not documento or not password:
             messages.warning(request, "Por favor ingresa tu documento y contraseña.")
             return render(request, "login.html")
-
+        
         # Buscar en Aprendiz
         aprendiz = Aprendiz.objects.filter(numero_documento=documento).first()
         if aprendiz and aprendiz.contrasena == password:
@@ -20,7 +20,9 @@ def login_view(request):
             messages.success(request, f"Bienvenido {aprendiz.nombre} (Aprendiz)")
             request.session["rol"] = "Aprendiz"
             request.session["nombre"] = aprendiz.nombre
-            return redirect("sesion:dashboard")
+            request.session["usuario_id"] = documento   # guarda el documento como ID
+            request.session["tipo_usuario"] = "aprendiz"  # o "instructor", "bienestar" según caso
+            return redirect("sesion:home")
 
         # Buscar en Instructor
         instructor = Instructor.objects.filter(numero_documento=documento).first()
@@ -29,7 +31,9 @@ def login_view(request):
             messages.success(request, f"Bienvenido {instructor.nombre} (Instructor)")
             request.session["rol"] = "Instructor"
             request.session["nombre"] = instructor.nombre
-            return redirect("sesion:dashboard")
+            request.session["usuario_id"] = documento   # guarda el documento como ID
+            request.session["tipo_usuario"] = "instructor"  # o "instructor", "bienestar" según caso
+            return redirect("sesion:home")
 
         # Buscar en Bienestar
         bienestar = Bienestar.objects.filter(numero_documento=documento).first()
@@ -38,7 +42,9 @@ def login_view(request):
             messages.success(request, f"Bienvenido {bienestar.nombre} (Bienestar)")
             request.session["rol"] = "Bienestar"
             request.session["nombre"] = bienestar.nombre
-            return redirect("sesion:dashboard")
+            request.session["usuario_id"] = documento   # guarda el documento como ID
+            request.session["tipo_usuario"] = "bienestar"  # o "instructor", "bienestar" según caso
+            return redirect("sesion:home")
 
         # Si no coincide nada
         Sesion.objects.create(numero_documento=documento, rol="Desconocido", exito=False)
@@ -59,4 +65,6 @@ def dashboard_view(request):
         "nombre": request.session.get("nombre"),
         "rol": request.session.get("rol"),
     }
-    return render(request, "dashboard.html", contexto)
+    return render(request, "home.html", contexto)
+def amigos_view(request):
+    return render(request, 'amigos.html')

@@ -22,4 +22,6 @@ urlpatterns = [
     path('', include('applications.index.urls')),                      # Página principal
     path('sesion/', include(('applications.sesion.urls', 'sesion'))),  # login, dashboard, etc.
     path('registro/', include(('applications.registro.urls', 'registro'))),  # registrar usuarios
+    path('perfil/', include('applications.perfil.urls')),  # tu app perfil
+    path('chat/', include('applications.chat.urls')),
 ]

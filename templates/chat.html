@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InfoSena</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-200">
+    {% if messages %}
+    <div class="messages-container fixed top-20 left-1/2 transform -translate-x-1/2 z-50 w-11/12 md:w-1/3">
+        {% for message in messages %}
+        <div class="p-4 mb-3 rounded-xl text-white font-semibold shadow-lg
+                    {% if message.tags == 'success' %} bg-green-500
+                    {% elif message.tags == 'error' %} bg-red-500
+                    {% elif message.tags == 'warning' %} bg-yellow-500
+                    {% else %} bg-blue-500 {% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- ========================= -->
+    <!--        HEADER FIJO        -->
+    <!-- ========================= -->
+    <header class="hero bg-gradient-to-r from-[#0d3604] to-[#2b9e15] shadow-lg sticky top-0 z-50">
+
+        <nav class="container mx-auto px-2 py-2 relative">
+            <div class="flex justify-between items-center">
+
+                <!-- LOGO -->
+                <div class="flex flex-row-reverse items-center">
+                    {% load static %}
+                    <img src="{% static 'img/logo2.png' %}" width="200px" />
+                </div>
+
+                <!-- INPUT (solo desktop) -->
+                <div class="hidden md:flex items-center w-full max-w-md bg-white rounded-full px-4 py-2 shadow-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#777"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 mr-3">
+                        <circle cx="11" cy="11" r="7"></circle>
+                        <line x1="16" y1="16" x2="21" y2="21"></line>
+                    </svg>
+
+                    <input type="text" placeholder="Search..."
+                        class="flex-1 outline-none text-gray-700 placeholder-gray-400" />
+
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#777" class="w-5 h-5 ml-3">
+                        <circle cx="12" cy="5" r="1.5" />
+                        <circle cx="12" cy="12" r="1.5" />
+                        <circle cx="12" cy="19" r="1.5" />
+                    </svg>
+                </div>
+
+
+                <!-- ICONOS DESKTOP -->
+                <div class="hidden md:flex items-center space-x-6">
+
+                    <!-- Home -->
+                    <a href="home.html">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white"
+                            stroke-width="2" class="w-10 h-10">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 9.75L12 3l9 6.75V21H3V9.75z" />
+                        </svg>
+                    </a>
+                    <!-- Bell -->
+                    <a href="{% url 'perfil:perfiles' %}">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white"
+                            stroke-width="2" class="w-10 h-10">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M12 12a5 5 0 100-10 5 5 0 000 10zm7 8c0-4-3-7-7-7s-7 3-7 7" />
+                        </svg>
+                    </a>
+                    <!-- User -->
+                    <a href="">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white"
+                            stroke-width="2" class="w-10 h-10">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M12 12a5 5 0 100-10 5 5 0 000 10zm7 8c0-4-3-7-7-7s-7 3-7 7" />
+                        </svg>
+                    </a>
+                </div>
+
+
+                <!-- BOTONES MOBILE -->
+                <div class="flex md:hidden items-center space-x-4">
+                    <!-- Botón lupa -->
+                    <button id="btnSearch">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="white" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" class="w-8 h-8">
+                            <circle cx="11" cy="11" r="7"></circle>
+                            <line x1="16" y1="16" x2="21" y2="21"></line>
+                        </svg>
+                    </button>
+
+                    <!-- Botón menú -->
+                    <button id="btnMenu">
+                        <svg fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round"
+                            stroke-linejoin="round" class="w-10 h-10">
+                            <path d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+                </div>
+
+            </div>
+
+
+            <!-- INPUT MOBILE DESPLEGABLE -->
+            <div id="searchBox" class="hidden mt-3 bg-white rounded-full px-4 py-2 shadow-lg md:hidden">
+                <input type="text" placeholder="Search..."
+                    class="w-full outline-none text-gray-700 placeholder-gray-400" />
+            </div>
+
+            <!-- MENU MOBILE DESPLEGABLE -->
+            <div id="mobileMenu" class="hidden mt-3 flex flex-col space-y-3 md:hidden">
+
+                <a href="home.html" class="flex items-center space-x-3 bg-white/20 p-3 rounded-xl text-white">
+                    <span>Home</span>
+                </a>
+
+                <a class="flex items-center space-x-3 bg-white/20 p-3 rounded-xl text-white">
+                    <span>Notifications</span>
+                </a>
+
+                <a href="{% url 'perfil:perfiles' %}"
+                    class="flex items-center space-x-3 bg-white/20 p-3 rounded-xl text-white">
+                    <span>Profile</span>
+                </a>
+
+                <a class="flex items-center space-x-3 bg-white/20 p-3 rounded-xl text-white">
+                    <span>Chat</span>
+                </a>
+
+                <a href="amigos.html" class="flex items-center space-x-3 bg-white/20 p-3 rounded-xl text-white">
+                    <span>Amigos</span>
+                </a>
+
+
+            </div>
+
+        </nav>
+    </header>
+
+    <!-- ========================= -->
+    <!--   CONTENEDOR PRINCIPAL    -->
+    <!-- ========================= -->
+
+    <div class="pt-20 grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 h-screen">
+
+        <!-- ========================= -->
+        <!--     COLUMNA IZQUIERDA    -->
+        <!-- ========================= -->
+        <aside
+            class="hidden md:block md:col-span-1 bg-transparent overflow-y-auto h-[calc(100vh-5rem)] sticky top-20 p-4">
+
+            <div class="space-y-4">
+                <a href="{% url 'perfil:perfiles' %}"
+                    class="flex items-center space-x-3 bg-white p-3 rounded-xl shadow hover:bg-green-200 hover:text-green-700 transition cursor-pointer">
+                    <div class="w-10 h-10 bg-gray-300 rounded-full"></div>
+                    <span>Mi perfil</span>
+                </a>
+
+                <a href="home.html"
+                    class="flex items-center space-x-3 bg-white  p-3 rounded-xl shadow hover:bg-green-200 hover:text-green-700">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M3 9.75L12 3l9 6.75V21H3V9.75z"></path>
+                    </svg>
+                    <span>Inicio</span>
+                </a>
+
+                <a href="{% url 'lista_chats' %}" 
+                    class="flex items-center space-x-3 bg-white p-3 rounded-xl shadow hover:bg-green-200 hover:text-green-700 transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="1"
+                        stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6">
+                        <path
+                            d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6A8.38 8.38 0 0111.5 3h1a8.5 8.5 0 018.5 8.5z" />
+
+                    </svg>
+                    <span>Chat</span>
+                </a>
+
+                <a href="amigos.html"
+                    class="flex items-center space-x-3 bg-white p-3 rounded-xl shadow hover:bg-green-200 hover:text-green-700 transition">
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="1"
+                        stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" class="w-6 h-6">
+
+                        <!-- Persona 1 -->
+                        <circle cx="7" cy="7" r="4"></circle>
+                        <path d="M1 21v-2a6 6 0 016-6h0a6 6 0 016 6v2"></path>
+
+                        <!-- Persona 2 -->
+                        <circle cx="17" cy="9" r="3.5"></circle>
+                        <path d="M14 21v-2a4 4 0 014-4h0a4 4 0 014 4v2"></path>
+
+                    </svg>
+
+                    <span>Amigos</span>
+                </a>
+
+        </aside>
+
+        <!-- ========================= -->
+        <!--       FEED CENTRAL        -->
+        <!-- ========================= -->
+        <div class="flex h-screen">
+
+            <!-- LISTA DE CHATS -->
+            <div class="w-1/4 bg-gray-100 border-r overflow-y-auto">
+                <h2 class="text-xl font-bold p-4">Chats</h2>
+
+                {% for c in chats %}
+                <a href="{% url 'chat_room' c.id %}">
+                    <div class="flex items-center gap-3 p-4 hover:bg-gray-200 cursor-pointer 
+                    {% if c.id == chat.id %}bg-gray-300{% endif %}">
+
+                        <div class="w-10 h-10 bg-gray-400 rounded-full"></div>
+
+                        <div>
+                            <p class="font-bold">
+                                {% if c.is_group %}
+                                {{ c.nombre_grupo }}
+                                {% else %}
+                                {{ c.participantes.exclude(id=request.user.id).first.nombre }}
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+
+            <!-- PANEL DE CHAT -->
+            <div class="w-3/4 flex flex-col">
+
+                <!-- HEADER -->
+                <div class="p-4 border-b bg-white font-bold flex items-center gap-3">
+                    <div class="w-10 h-10 bg-gray-400 rounded-full"></div>
+
+                    {% if chat.is_group %}
+                    {{ chat.nombre_grupo }}
+                    {% else %}
+                    {{ chat.participantes.exclude(id=request.user.id).first.nombre }}
+                    {% endif %}
+                </div>
+
+                <!-- MENSAJES -->
+                <div id="messages" class="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50">
+
+                    {% for msg in mensajes %}
+                    <div class="{% if msg.autor.id == request.user.id %}text-right{% endif %}">
+                        <div class="inline-block px-4 py-2 rounded-2xl 
+                        {% if msg.autor.id == request.user.id %}
+                            bg-blue-600 text-white
+                        {% else %}
+                            bg-gray-300 text-black
+                        {% endif %}">
+                            {{ msg.contenido }}
+                        </div>
+                    </div>
+                    {% endfor %}
+
+                </div>
+
+                <!-- INPUT -->
+                <form action="{% url 'send_message' chat.id %}" method="POST" class="p-4 bg-white border-t flex gap-3">
+                    {% csrf_token %}
+                    <input name="contenido" class="flex-1 border rounded-full px-4 py-2"
+                        placeholder="Escribe un mensaje..." required>
+                    <button class="px-4 py-2 bg-blue-500 text-white rounded-full">Enviar</button>
+                </form>
+
+            </div>
+        </div>
+
+        {% extends "base.html" %}
+{% block content %}
+
+<div class="chat-container">
+
+    <h2>Chat con {{ otro.nombre }}</h2>
+
+    <div class="chat-box">
+        {% for m in mensajes %}
+            <div class="{% if m.autor == yo %}msg-me{% else %}msg-other{% endif %}">
+                <p>{{ m.contenido }}</p>
+                <small>{{ m.enviado }}</small>
+            </div>
+        {% endfor %}
+    </div>
+
+    <form method="POST">
+        {% csrf_token %}
+        <input type="text" name="mensaje" placeholder="Escribe un mensaje..." required>
+        <button type="submit">Enviar</button>
+    </form>
+
+</div>
+
+<style>
+.chat-box {
+    height: 400px;
+    overflow-y: scroll;
+    background: #f1f1f1;
+    padding: 10px;
+    border-radius: 10px;
+}
+
+.msg-me {
+    text-align: right;
+    background: #d1ffd1;
+    margin: 5px 0;
+    padding: 8px;
+    border-radius: 10px;
+}
+
+.msg-other {
+    text-align: left;
+    background: #fff;
+    margin: 5px 0;
+    padding: 8px;
+    border-radius: 10px;
+}
+</style>
+
+{% endblock %}
+
+    </div>
+    <script>
+        const btnSearch = document.getElementById("btnSearch");
+        const btnMenu = document.getElementById("btnMenu");
+        const searchBox = document.getElementById("searchBox");
+        const mobileMenu = document.getElementById("mobileMenu");
+
+        btnSearch.onclick = () => {
+            searchBox.classList.toggle("hidden");
+            mobileMenu.classList.add("hidden");
+        };
+
+        btnMenu.onclick = () => {
+            mobileMenu.classList.toggle("hidden");
+            searchBox.classList.add("hidden");
+        };
+
+        // ==== Ocultar mensajes después de 5 segundos ====
+        setTimeout(() => {
+            const messages = document.querySelectorAll('.messages-container div');
+            messages.forEach(msg => {
+                msg.style.transition = 'opacity 0.6s ease';
+                msg.style.opacity = '0';
+                setTimeout(() => msg.remove(), 600);
+            });
+        }, 4000);
+
+
+    </script>
+    <script>
+        const sendBtn = document.getElementById("sendBtn");
+        const messageInput = document.getElementById("messageInput");
+        const chatMessages = document.getElementById("chatMessages");
+
+        sendBtn.addEventListener("click", enviarMensaje);
+        messageInput.addEventListener("keypress", (e) => {
+            if (e.key === "Enter") enviarMensaje();
+        });
+
+        function enviarMensaje() {
+            const texto = messageInput.value.trim();
+            if (texto === "") return;
+
+            const mensajeDiv = document.createElement("div");
+            mensajeDiv.classList.add("mb-4", "flex", "justify-end");
+            mensajeDiv.innerHTML = `
+      <div class="bg-green-600 text-white p-3 rounded-lg max-w-xs">
+        ${texto}
+      </div>
+    `;
+            chatMessages.appendChild(mensajeDiv);
+
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            messageInput.value = "";
+        }
+    </script>
+
+</body>

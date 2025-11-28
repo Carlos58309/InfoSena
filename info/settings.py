@@ -46,7 +46,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    'applications.registro',
+    'applications.registro.apps.IndexConfig',
     'applications.sesion',
     'applications.index',
     'applications.usuarios',
@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     'applications.chat',
     'applications.mensaje',
     'applications.ficha',
+    'applications.perfil',
 ]
 
 MIDDLEWARE = [

@@ -6,3 +6,4 @@ app_name = 'registro'
 urlpatterns = [
     path('', views.registro_view, name='registro'),
 ]
+

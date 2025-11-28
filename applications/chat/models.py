@@ -1,16 +1,11 @@
 from django.db import models
+from applications.usuarios.models import Usuario
 
 class Chat(models.Model):
-    id_amistad = models.ForeignKey(
-        'amistades.Amistad',   # Nombre de la app y modelo
-        on_delete=models.CASCADE,
-        related_name='chats'
-    )
-
-    class Meta:
-        verbose_name = 'Chat'
-        verbose_name_plural = 'Chats'
+    is_group = models.BooleanField(default=False)
+    nombre_grupo = models.CharField(max_length=150, null=True, blank=True)
+    participantes = models.ManyToManyField(Usuario, related_name="chats")
+    creado = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Chat de la amistad #{self.id_amistad.id}"
-
+        return f"Chat {'grupo' if self.is_group else 'privado'} {self.id}"

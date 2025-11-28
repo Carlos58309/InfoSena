@@ -1,10 +1,3 @@
-{% if messages %}
-  <div class="messages-container">
-    {% for message in messages %}
-      <p class="message message-{{ message.tags }}">{{ message }}</p>
-    {% endfor %}
-  </div>
-{% endif %}
 {% load static %}
 
 <!DOCTYPE html>
@@ -280,6 +273,18 @@
 </head>
 
 <body>
+
+    {% if messages %}
+<div class="messages-container">
+    {% for message in messages %}
+        <div class="message message-{{ message.tags }}">
+            {{ message }}
+        </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+
     <div class="header">
         <div class="logo">
             {% load static %}
@@ -302,7 +307,8 @@
 
 
         <!-- Formulario de login -->
-        <form method="POST" action="">
+        <form method="POST" action="{% url 'sesion:login' %}">
+
             {% csrf_token %}
             <div class="form-group">
                 <div class="input-wrapper">
@@ -328,17 +334,7 @@
     });
     </script>
 
-    <script>
-            // Auto-ocultar mensajes después de 5 segundos
-        setTimeout(() => {
-            const messages = document.querySelectorAll('.message');
-            messages.forEach(msg => {
-                msg.style.transition = 'opacity 0.5s';
-                msg.style.opacity = '0';
-                setTimeout(() => msg.remove(), 500);
-            });
-        }, 5000);
-    </script>
+
 </body>
 
 </html>

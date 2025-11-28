@@ -1,50 +1,92 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
+from django.contrib.auth.hashers import make_password
+from django.db import IntegrityError
 from .models import Aprendiz, Bienestar, Instructor
+
 
 def registro_view(request):
     if request.method == 'POST':
-        rol = request.POST.get('rol')
-        nombre = request.POST.get('nombre')
-        email = request.POST.get('email')
-        numero_documento = request.POST.get('numero_documento')
-        region = request.POST.get('region')
-        contrasena = request.POST.get('password')
+        # Obtener datos del formulario
+        rol = request.POST.get('rol', '').strip()
+        nombre = request.POST.get('nombre', '').strip()
+        email = request.POST.get('email', '').strip()
+        numero_documento = request.POST.get('numero_documento', '').strip()
+        region = request.POST.get('region', '').strip()
+        contrasena = request.POST.get('password', '').strip()
+        tipo_documento = request.POST.get('tipo_documento', '').strip()
+        centro_formativo = request.POST.get('centro_formativo', '').strip()
+
+        # Validaciones básicas
+        if not all([rol, nombre, email, numero_documento, region, contrasena, tipo_documento]):
+            messages.error(request, '⚠️ Todos los campos son obligatorios.')
+            return render(request, 'registrar.html')
+
+        # Validar número de documento
+        if not numero_documento.isdigit():
+            messages.error(request, '❌ El número de documento solo puede contener números.')
+            return render(request, 'registrar.html')
+
+        if not (8 <= len(numero_documento) <= 12):
+            messages.error(request, '❌ El número de documento debe tener entre 8 y 12 dígitos.')
+            return render(request, 'registrar.html')
+
+        # Validar contraseña
+        if not (8 <= len(contrasena) <= 12):
+            messages.error(request, '❌ La contraseña debe tener entre 8 y 12 caracteres.')
+            return render(request, 'registrar.html')
+
+       
 
         try:
+            # Crear registro según el rol
             if rol == 'aprendiz':
+                jornada = request.POST.get('jornada', '').strip()
+                ficha = request.POST.get('ficha', '').strip()
+                
+                if not all([jornada, ficha, centro_formativo]):
+                    messages.error(request, '⚠️ Complete todos los campos de aprendiz.')
+                    return render(request, 'registrar.html')
+                
                 Aprendiz.objects.create(
                     nombre=nombre,
-                    tipo_documento=request.POST.get('tipo_documento'),
+                    tipo_documento=tipo_documento,
                     numero_documento=numero_documento,
                     email=email,
-                    centro_formativo=request.POST.get('centro_formativo'),
-                    jornada=request.POST.get('jornada'),
-                    ficha=request.POST.get('ficha'),
+                    centro_formativo=centro_formativo,
+                    jornada=jornada,
+                    ficha=ficha,
                     region=region,
                     contrasena=contrasena
                 )
                 messages.success(request, '✅ Aprendiz registrado correctamente.')
 
             elif rol == 'bienestar':
+                if not centro_formativo:
+                    centro_formativo = "Centro desconocido"
+                
                 Bienestar.objects.create(
                     nombre=nombre,
-                    tipo_documento=request.POST.get('tipo_documento'),
+                    tipo_documento=tipo_documento,
                     numero_documento=numero_documento,
                     email=email,
-                    centro_formativo=request.POST.get('centro_formativo'),
+                    centro_formativo=centro_formativo,
                     region=region,
                     contrasena=contrasena
                 )
                 messages.success(request, '✅ Bienestar registrado correctamente.')
 
             elif rol == 'instructor':
+                if not centro_formativo:
+                    messages.error(request, '⚠️ El centro formativo es obligatorio para instructores.')
+                    return render(request, 'registrar.html')
+                
                 Instructor.objects.create(
                     nombre=nombre,
-                    tipo_documento=request.POST.get('tipo_documento'),
+                    tipo_documento=tipo_documento,
                     numero_documento=numero_documento,
                     email=email,
-                    centro_formativo=request.POST.get('centro_formativo'),
+                    centro_formativo=centro_formativo,
                     region=region,
                     contrasena=contrasena
                 )
@@ -52,14 +94,24 @@ def registro_view(request):
 
             else:
                 messages.error(request, '❌ Rol no válido.')
+                return render(request, 'registrar.html')
 
-            return redirect('registro:registro')
+            # Redirigir al home después del registro exitoso
+            return redirect('home')  # Ajusta según tu configuración de URLs
 
-
+        except IntegrityError as e:
+            if 'numero_documento' in str(e):
+                messages.error(request, '❌ El número de documento ya está registrado.')
+            elif 'email' in str(e):
+                messages.error(request, '❌ El email ya está registrado.')
+            else:
+                messages.error(request, '❌ Error: Este registro ya existe.')
+            return render(request, 'registrar.html')
+        
         except Exception as e:
-            messages.error(request, f'⚠️ Error al registrar: {e}')
-            # 👇 Este return faltaba
+            messages.error(request, f'⚠️ Error inesperado al registrar: {str(e)}')
             return render(request, 'registrar.html')
 
-    # Si no es POST, simplemente mostrar el formulario
+    # GET request
     return render(request, 'registrar.html')
+

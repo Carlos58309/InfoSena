@@ -1,9 +1,11 @@
 from django.urls import path
-from . import views
+from .views import login_view, dashboard_view, amigos_view
 
-app_name = 'sesion'
+app_name = "sesion"
 
 urlpatterns = [
-    path('login/', views.login_view, name='login'),
-    path('dashboard/', views.dashboard_view, name='dashboard'),  # 👈 Asegúrate de tener esta línea
+    path("login/", login_view, name="login"),
+    path("home/", dashboard_view, name="home"),
+    path("amigos/", amigos_view, name="amigos"),
 ]
+

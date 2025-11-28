@@ -1,10 +1,4 @@
-{% if messages %}
-  <div class="messages-container">
-    {% for message in messages %}
-      <p class="message message-{{ message.tags }}">{{ message }}</p>
-    {% endfor %}
-  </div>
-{% endif %}
+
 {% load static %}
 
 <!DOCTYPE html>
@@ -73,6 +67,7 @@
                 opacity: 0;
                 transform: translateY(-20px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -227,6 +222,7 @@
                 opacity: 0;
                 transform: translateY(10px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -275,6 +271,23 @@
         .help-link a:hover {
             background: #4CAF50;
             color: white;
+        }
+
+        /* 🔶 Advertencias visuales integradas */
+        small.validation-warning {
+            display: none;
+            background-color: #fff4e0;
+            border-left: 4px solid #ffb84d;
+            color: #b36b00;
+            padding: 8px 10px;
+            border-radius: 6px;
+            margin-top: 6px;
+            font-size: 14px;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        small.validation-warning::before {
+            content: "⚠️ ";
         }
     </style>
 </head>
@@ -326,10 +339,6 @@
                         <select name="centro_formativo" class="custom-select" required>
                             <option value="" disabled selected>Centro formativo</option>
                             <option value="centro1">CENTRO AGROEMPRESARIAL Y DESARROLLO PECUARIO DEL HUILA</option>
-                            <option value="centro2">CENTRO DE DESARROLLO AGROEMPRESARIAL Y TURÍSTICO DEL HUILA</option>
-                            <option value="centro3">CENTRO DE FORMACIÓN AGROINDUSTRIAL</option>
-                            <option value="centro4">CENTRO DE GESTIÓN Y DESARROLLO SOSTENIBLE SURCOLOMBIANO</option>
-                            <option value="centro5">CENTRO DE LA INDUSTRIA, LA EMPRESA Y LOS SERVICIOS​</option>
                         </select>
                     </div>
                 </div>
@@ -360,21 +369,29 @@
                 <div class="form-group">
                     <label>Nombre completo:</label>
                     <div class="input-wrapper">
-                        <input type="text" name="nombre" class="custom-input" placeholder="Nombre del instructor" required />
+                        <input type="text" name="nombre" class="custom-input" placeholder="Nombre del instructor"
+                            required pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+" title="Solo se permiten letras y espacios." />
+                        <small class="validation-warning">⚠️ Solo se permiten letras y espacios.</small> 
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label>Número de documento:</label>
                     <div class="input-wrapper">
-                        <input type="text" name="numero_documento" class="custom-input" placeholder="Número del documento" required />
+                        <input type="number" name="numero_documento" class="custom-input"
+                            placeholder="Número del documento" required min="10000000" max="999999999999"
+                            title="Debe tener entre 8 y 12 números." />
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label>Contraseña:</label>
                     <div class="input-wrapper">
-                        <input type="password" name="password" class="custom-input" placeholder="Contraseña" required />
+                        <input type="password" id="password" name="password" class="custom-input"
+                            placeholder="Contraseña" minlength="8" maxlength="12" required />
+                        <small id="password-warning" style="color:red; display:none;">
+                            ⚠️ Debe tener entre 8 y 12 caracteres.
+                        </small>
                     </div>
                 </div>
 
@@ -400,10 +417,6 @@
                         <select name="centro_formativo" class="custom-select" required>
                             <option value="" disabled selected>Centro formativo</option>
                             <option value="centro1">CENTRO AGROEMPRESARIAL Y DESARROLLO PECUARIO DEL HUILA</option>
-                            <option value="centro2">CENTRO DE DESARROLLO AGROEMPRESARIAL Y TURÍSTICO DEL HUILA</option>
-                            <option value="centro3">CENTRO DE FORMACIÓN AGROINDUSTRIAL</option>
-                            <option value="centro4">CENTRO DE GESTIÓN Y DESARROLLO SOSTENIBLE SURCOLOMBIANO</option>
-                            <option value="centro5">CENTRO DE LA INDUSTRIA, LA EMPRESA Y LOS SERVICIOS​</option>
                         </select>
                     </div>
                 </div>
@@ -441,14 +454,20 @@
                 <div class="form-group">
                     <label>Número de documento:</label>
                     <div class="input-wrapper">
-                        <input type="text" name="numero_documento" class="custom-input" placeholder="Número del documento" required />
+                        <input type="number" name="numero_documento" class="custom-input"
+                            placeholder="Número del documento" required min="10000000" max="999999999999"
+                            title="Debe tener entre 8 y 12 números." />
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label>Contraseña:</label>
                     <div class="input-wrapper">
-                        <input type="password" name="password" class="custom-input" placeholder="Contraseña" required />
+                        <input type="password" id="password" name="password" class="custom-input"
+                            placeholder="Contraseña" minlength="8" maxlength="12" required />
+                        <small id="password-warning" style="color:red; display:none;">
+                            ⚠️ Debe tener entre 8 y 12 caracteres.
+                        </small>
                     </div>
                 </div>
 
@@ -473,11 +492,8 @@
                     <div class="input-wrapper has-select">
                         <select name="centro_formativo" class="custom-select" required>
                             <option value="" disabled selected>Centro formativo</option>
-                            <option value="centro_agroempresarial_y_desarrollo_pecuario_del_huila">CENTRO AGROEMPRESARIAL Y DESARROLLO PECUARIO DEL HUILA</option>
-                            <option value="centro_de_desarrollo_agroempresarial_y_turistico_del_huila">CENTRO DE DESARROLLO AGROEMPRESARIAL Y TURÍSTICO DEL HUILA</option>
-                            <option value="centro_de_formacion_agroindustrial">CENTRO DE FORMACIÓN AGROINDUSTRIAL</option>
-                            <option value="centro_de_gestion_y_desarrollo_sostenible_surcolombiano">CENTRO DE GESTIÓN Y DESARROLLO SOSTENIBLE SURCOLOMBIANO</option>
-                            <option value="centro_de_la_industria_la_empresa_y_los_servicios">CENTRO DE LA INDUSTRIA, LA EMPRESA Y LOS SERVICIOS​</option>
+                            <option value="centro_agroempresarial_y_desarrollo_pecuario_del_huila">CENTRO
+                                AGROEMPRESARIAL Y DESARROLLO PECUARIO DEL HUILA</option>
                         </select>
                     </div>
                 </div>
@@ -504,7 +520,7 @@
                         </select>
                     </div>
                 </div>
-                    <div class="form-group">
+                <div class="form-group">
                     <label>Jornada:</label>
                     <div class="input-wrapper has-select">
                         <select name="jornada" class="custom-select" required>
@@ -526,14 +542,20 @@
                 <div class="form-group">
                     <label>Número de documento:</label>
                     <div class="input-wrapper">
-                        <input type="text" name="numero_documento" class="custom-input" placeholder="Número del documento" required />
+                        <input type="number" name="numero_documento" class="custom-input"
+                            placeholder="Número del documento" required min="10000000" max="999999999999"
+                            title="Debe tener entre 8 y 12 números." />
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label>Contraseña:</label>
                     <div class="input-wrapper">
-                        <input type="password" name="password" class="custom-input" placeholder="Contraseña" required />
+                        <input type="password" id="password" name="password" class="custom-input"
+                            placeholder="Contraseña" minlength="8" maxlength="12" required />
+                        <small id="password-warning" style="color:red; display:none;">
+                            ⚠️ Debe tener entre 8 y 12 caracteres.
+                        </small>
                     </div>
                 </div>
 
@@ -543,7 +565,7 @@
                         <input type="email" name="email" class="custom-input" placeholder="Email" required />
                     </div>
                 </div>
-                    <div class="form-group">
+                <div class="form-group">
                     <label>Numero de Ficha:</label>
                     <div class="input-wrapper">
                         <input type="text" name="ficha" class="custom-input" placeholder="Ficha" required />
@@ -555,31 +577,55 @@
     </div>
 
     <script>
+        // Mostrar formulario según el rol seleccionado
         const rolSelect = document.getElementById('rolSelect');
         const forms = document.querySelectorAll('.rol-form');
-
-        rolSelect.addEventListener('change', function () {
-            const selected = this.value;
+        rolSelect.addEventListener('change', () => {
             forms.forEach(form => {
-                form.style.display = form.querySelector('input[name="rol"]').value === selected ? 'block' : 'none';
+                form.style.display = form.querySelector('input[name="rol"]').value === rolSelect.value ? 'block' : 'none';
             });
         });
 
-        // Mostrar el formulario correcto si ya hay valor en el select
-        if (rolSelect.value) {
-            rolSelect.dispatchEvent(new Event('change'));
-        }
+        // Validaciones dinámicas
+        document.querySelectorAll('input[name="password"]').forEach(input => {
+            const warning = input.parentElement.querySelector('.validation-warning');
+            input.addEventListener('input', () => {
+                warning.style.display = (input.value.length < 8 || input.value.length > 12) ? 'block' : 'none';
+            });
+        });
 
-        // Auto-ocultar mensajes después de 5 segundos
+        document.querySelectorAll('input[name="numero_documento"]').forEach(input => {
+            const warning = input.parentElement.querySelector('.validation-warning');
+            input.addEventListener('input', () => {
+                const len = input.value.length;
+                warning.style.display = (len < 8 || len > 12) ? 'block' : 'none';
+            });
+        });
+
+        document.querySelectorAll('input[name="nombre"]').forEach(input => {
+            const warning = input.parentElement.querySelector('.validation-warning');
+            input.addEventListener('input', function () {
+                // Expresión regular: solo letras (mayúsculas/minúsculas), acentos y espacios
+                const soloLetras = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
+                if (this.value && !soloLetras.test(this.value)) {
+                    warning.style.display = 'block';
+                    this.value = this.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñ\s]/g, ''); // elimina números o símbolos
+                } else {
+                    warning.style.display = 'none';
+                }
+            });
+        });
+
+        // Ocultar mensajes Django automáticamente
         setTimeout(() => {
-            const messages = document.querySelectorAll('.message');
-            messages.forEach(msg => {
+            document.querySelectorAll('.message').forEach(msg => {
                 msg.style.transition = 'opacity 0.5s';
                 msg.style.opacity = '0';
                 setTimeout(() => msg.remove(), 500);
             });
         }, 5000);
     </script>
+
 </body>
 
 </html>
