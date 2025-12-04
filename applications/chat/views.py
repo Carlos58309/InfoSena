@@ -1,5 +1,3 @@
-
-
 # Create your views here.
 from django.shortcuts import render, redirect, get_object_or_404
 from django.db.models import Q
@@ -12,48 +10,42 @@ from django.contrib.auth.models import User
 
 @login_required
 def lista_chats(request):
-    """Mostrar todos los chats del usuario."""
-    usuario = request.user
 
-    chats = Chat.objects.filter(user1=usuario) | Chat.objects.filter(user2=usuario)
+    # Asegurar que el usuario tenga perfil
+    usuario, created = Usuario.objects.get_or_create(user=request.user)
 
-    return render(request, "chat.html", {
-        "chats": chats,
-    })
+    chats = Chat.objects.filter(participantes=usuario)
+
+    return render(request, 'lista_chats.html', {'chats': chats})
 
 
 @login_required
-def ver_chat(request, user_id):
-    """Abrir un chat con un usuario."""
-    usuario = request.user
-    receptor = get_object_or_404(User, id=user_id)
+def ver_chat(request, usuario_id):
+    yo = get_object_or_404(Usuario, email=request.user.email)
+    otro = get_object_or_404(Usuario, id=usuario_id)
 
-    # Verificar si el chat existe
-    chat = Chat.objects.filter(
-        user1=usuario, user2=receptor
-    ).first() or Chat.objects.filter(
-        user1=receptor, user2=usuario
-    ).first()
+    # Buscar si ya hay chat
+    chat = Chat.objects.filter(participantes=yo).filter(participantes=otro).first()
 
-    # Si no existe, se crea
     if not chat:
-        chat = Chat.objects.create(user1=usuario, user2=receptor)
+        chat = Chat.objects.create()
+        chat.participantes.add(yo, otro)
 
-    # Enviar mensaje
     if request.method == "POST":
-        mensaje = request.POST.get("mensaje")
-        if mensaje:
+        contenido = request.POST.get("mensaje")
+        if contenido:
             Mensaje.objects.create(
                 chat=chat,
-                sender=usuario,
-                text=mensaje
+                autor=yo,
+                contenido=contenido
             )
-        return redirect("ver_chat", user_id=receptor.id)
+        return redirect("chat:ver_chat", usuario_id=otro.id)
 
-    mensajes = Mensaje.objects.filter(chat=chat)
+    mensajes = Mensaje.objects.filter(chat=chat).order_by("enviado")
 
     return render(request, "chat.html", {
         "chat": chat,
         "mensajes": mensajes,
-        "receptor": receptor,
+        "otro": otro,
+        "yo": yo,
     })

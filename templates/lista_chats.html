@@ -2,19 +2,15 @@
 
 <ul>
     {% for c in chats %}
-        {% if c.usuario1 == yo %}
-            {% with otro=c.usuario2 %}
-        {% else %}
-            {% with otro=c.usuario1 %}
-        {% endif %}
-
-        <li>
-            <a href="{% url 'ver_chat' otro.id %}">
-                Chat con {{ otro.nombre }}
-            </a>
-        </li>
-
-        {% endwith %}
+        {% for p in c.participantes.all %}
+            {% if p != yo %}
+                <li>
+                    <a href="{% url 'chat:ver_chat' p.id %}">
+                        Chat con {{ p.nombre }}
+                    </a>
+                </li>
+            {% endif %}
+        {% endfor %}
     {% empty %}
         <p>No tienes chats todavía.</p>
     {% endfor %}

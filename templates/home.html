@@ -163,7 +163,7 @@
                     <span>Mi perfil</span>
                 </a>
 
-                <a href="home.html"
+                <a href="{% url 'sesion:home' %}"
                     class="flex items-center space-x-3 bg-white  p-3 rounded-xl shadow hover:bg-green-200 hover:text-green-700">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path d="M3 9.75L12 3l9 6.75V21H3V9.75z"></path>
@@ -171,7 +171,7 @@
                     <span>Inicio</span>
                 </a>
 
-                <a
+                <a href="{% url 'chat:lista_chats' %}"
                     class="flex items-center space-x-3 bg-white p-3 rounded-xl shadow hover:bg-green-200 hover:text-green-700 transition">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="1"
                         stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6">
@@ -182,7 +182,7 @@
                     <span>Chat</span>
                 </a>
 
-                <a href="amigos.html"
+                <a href="{% url 'sesion:amigos' %}"
                     class="flex items-center space-x-3 bg-white p-3 rounded-xl shadow hover:bg-green-200 hover:text-green-700 transition">
 
 

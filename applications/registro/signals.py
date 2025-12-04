@@ -2,7 +2,7 @@ from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from .models import Aprendiz, Instructor, Bienestar
 from applications.usuarios.models import Usuario
-
+from django.contrib.auth.models import User
 
 # ======================================
 #  CREAR AUTOMÁTICAMENTE UN USUARIO
@@ -10,7 +10,13 @@ from applications.usuarios.models import Usuario
 @receiver(post_save, sender=Aprendiz)
 def crear_usuario_aprendiz(sender, instance, created, **kwargs):
     if created:
+        user = User.objects.create_user(
+            username=instance.email,
+            email=instance.email,
+            password=instance.contrasena
+        )
         Usuario.objects.create(
+            user=user, 
             tipo="aprendiz",
             documento=instance.numero_documento,
             nombre=instance.nombre,
@@ -21,7 +27,13 @@ def crear_usuario_aprendiz(sender, instance, created, **kwargs):
 @receiver(post_save, sender=Instructor)
 def crear_usuario_instructor(sender, instance, created, **kwargs):
     if created:
+        user = User.objects.create_user(
+            username=instance.email,
+            email=instance.email,
+            password=instance.contrasena
+        )
         Usuario.objects.create(
+            user=user, 
             tipo="instructor",
             documento=instance.numero_documento,
             nombre=instance.nombre,
@@ -32,7 +44,13 @@ def crear_usuario_instructor(sender, instance, created, **kwargs):
 @receiver(post_save, sender=Bienestar)
 def crear_usuario_bienestar(sender, instance, created, **kwargs):
     if created:
+        user = User.objects.create_user(
+            username=instance.email,
+            email=instance.email,
+            password=instance.contrasena
+        )
         Usuario.objects.create(
+            user=user, 
             tipo="bienestar",
             documento=instance.numero_documento,
             nombre=instance.nombre,
