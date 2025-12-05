@@ -1,3 +1,5 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -10,263 +12,124 @@
 
 <body class="bg-gray-200">
 
-    <!-- ========================= -->
-    <!--        HEADER FIJO        -->
-    <!-- ========================= -->
-    <header class="hero bg-gradient-to-r from-[#0d3604] to-[#2b9e15] shadow-lg sticky top-0 z-50">
+<header class="hero bg-gradient-to-r from-[#0d3604] to-[#2b9e15] shadow-lg sticky top-0 z-50">
+    <nav class="container mx-auto px-2 py-2 relative">
+        <div class="flex justify-between items-center">
 
-        <nav class="container mx-auto px-2 py-2 relative">
-            <div class="flex justify-between items-center">
-
-                <!-- LOGO -->
-                <div class="flex flex-row-reverse items-center">
-                    <img src="image.png" width="200px" />
-                </div>
-
-                <!-- INPUT (solo desktop) -->
-                <div class="hidden md:flex items-center w-full max-w-md bg-white rounded-full px-4 py-2 shadow-lg">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#777"
-                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 mr-3">
-                        <circle cx="11" cy="11" r="7"></circle>
-                        <line x1="16" y1="16" x2="21" y2="21"></line>
-                    </svg>
-
-                    <input type="text" placeholder="Search..."
-                        class="flex-1 outline-none text-gray-700 placeholder-gray-400" />
-
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#777" class="w-5 h-5 ml-3">
-                        <circle cx="12" cy="5" r="1.5" />
-                        <circle cx="12" cy="12" r="1.5" />
-                        <circle cx="12" cy="19" r="1.5" />
-                    </svg>
-                </div>
-
-
-                <!-- ICONOS DESKTOP -->
-                <div class="hidden md:flex items-center space-x-6">
-
-                    <!-- Home -->
-                    <a href="home.html">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white"
-                            stroke-width="2" class="w-10 h-10">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 9.75L12 3l9 6.75V21H3V9.75z" />
-                        </svg>
-                    </a>
-                    <!-- Bell -->
-                    <a href="">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white"
-                            stroke-width="1.5" class="w-12 h-12">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M12 22a2 2 0 002-2H10a2 2 0 002 2zm6-6V11a6 6 0 10-12 0v5l-1.5 2.5h15L18 16z" />
-                        </svg>
-                    </a>
-                    <!-- User -->
-                    <a href="">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white"
-                            stroke-width="2" class="w-10 h-10">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M12 12a5 5 0 100-10 5 5 0 000 10zm7 8c0-4-3-7-7-7s-7 3-7 7" />
-                        </svg>
-                    </a>
-                </div>
-
-
-                <!-- BOTONES MOBILE -->
-                <div class="flex md:hidden items-center space-x-4">
-                    <!-- Botón lupa -->
-                    <button id="btnSearch">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="white" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" class="w-8 h-8">
-                            <circle cx="11" cy="11" r="7"></circle>
-                            <line x1="16" y1="16" x2="21" y2="21"></line>
-                        </svg>
-                    </button>
-
-                    <!-- Botón menú -->
-                    <button id="btnMenu">
-                        <svg fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round"
-                            stroke-linejoin="round" class="w-10 h-10">
-                            <path d="M4 6h16M4 12h16M4 18h16" />
-                        </svg>
-                    </button>
-                </div>
-
+            <div class="flex flex-row-reverse items-center">
+                <img src="{% static 'image.png' %}" width="200px" />
             </div>
 
-
-            <!-- INPUT MOBILE DESPLEGABLE -->
-            <div id="searchBox" class="hidden mt-3 bg-white rounded-full px-4 py-2 shadow-lg md:hidden">
+            <div class="hidden md:flex items-center w-full max-w-md bg-white rounded-full px-4 py-2 shadow-lg">
                 <input type="text" placeholder="Search..."
-                    class="w-full outline-none text-gray-700 placeholder-gray-400" />
+                    class="flex-1 outline-none text-gray-700 placeholder-gray-400" />
             </div>
+        </div>
+    </nav>
+</header>
 
-            <!-- MENU MOBILE DESPLEGABLE -->
-            <div id="mobileMenu" class="hidden mt-3 flex flex-col space-y-3 md:hidden">
+<div class="pt-20 grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 h-screen">
 
-                <a href="home.html" class="flex items-center space-x-3 bg-white/20 p-3 rounded-xl text-white">
-                    <span>Home</span>
-                </a>
+    <aside class="hidden md:block md:col-span-1 bg-transparent overflow-y-auto h-[calc(100vh-5rem)] sticky top-20 p-4">
+        <div class="space-y-4">
 
-                <a class="flex items-center space-x-3 bg-white/20 p-3 rounded-xl text-white">
-                    <span>Notifications</span>
-                </a>
+            <a href="{% url 'sesion:perfil' %}" class="flex items-center space-x-3 bg-white p-3 rounded-xl shadow">
+                <div class="w-10 h-10 bg-gray-300 rounded-full"></div>
+                <span>Mi perfil</span>
+            </a>
 
-                <a class="flex items-center space-x-3 bg-white/20 p-3 rounded-xl text-white">
-                    <span>Profile</span>
-                </a>
+            <a href="{% url 'sesion:home' %}"
+                class="flex items-center space-x-3 bg-white p-3 rounded-xl shadow hover:bg-green-200 hover:text-green-700">
+                <span>Inicio</span>
+            </a>
 
-                <a class="flex items-center space-x-3 bg-white/20 p-3 rounded-xl text-white">
-                    <span>Chat</span>
-                </a>
+            <a href="{% url 'sesion:amigos' %}"
+                class="flex items-center space-x-3 bg-green-200 p-3 rounded-xl shadow text-green-700 font-bold">
+                <span>Amigos</span>
+            </a>
 
-                <a href="amigos.html" class="flex items-center space-x-3 bg-white/20 p-3 rounded-xl text-white">
-                    <span>Amigos</span>
-                </a>
+            <a href="{% url 'sesion:chat' %}"
+                class="flex items-center space-x-3 bg-white p-3 rounded-xl shadow hover:bg-green-200 hover:text-green-700">
+                <span>Chat</span>
+            </a>
 
-            </div>
+        </div>
+    </aside>
 
-        </nav>
-    </header>
-    <div class="pt-20 grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 h-screen">
+    <main class="col-span-4 lg:col-span-4 p-4">
 
-        <!-- MENÚ IZQUIERDO -->
-        <aside
-            class="hidden md:block md:col-span-1 bg-transparent overflow-y-auto h-[calc(100vh-5rem)] sticky top-20 p-4">
-            <div class="space-y-4">
-                <a href="perfil.html" class="flex items-center space-x-3 bg-white p-3 rounded-xl shadow">
-                    <div class="w-10 h-10 bg-gray-300 rounded-full"></div>
-                    <span>Mi perfil</span>
-                </a>
-                <a href="home.html"
-                    class="flex items-center space-x-3 bg-white p-3 rounded-xl shadow hover:bg-green-200 hover:text-green-700">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path d="M3 9.75L12 3l9 6.75V21H3V9.75z"></path>
-                    </svg>
-                    <span>Inicio</span>
-                </a>
-                <a
-                    class="flex items-center space-x-3 bg-white p-3 rounded-xl shadow hover:bg-green-200 hover:text-green-700 transition">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="1"
-                        stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6">
-                        <path
-                            d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6A8.38 8.38 0 0111.5 3h1a8.5 8.5 0 018.5 8.5z" />
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-2xl font-bold text-gray-800">Amigos</h2>
+        </div>
 
-                    </svg>
-                    <span>Chat</span>
-                </a>
-                <a href="amigos.html"
-                    class="flex items-center space-x-3 bg-green-200 p-3 rounded-xl shadow text-green-700 font-bold">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="1"
-                        stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" class="w-6 h-6">
-                        <circle cx="7" cy="7" r="4"></circle>
-                        <path d="M1 21v-2a6 6 0 016-6h0a6 6 0 016 6v2"></path>
-                        <circle cx="17" cy="9" r="3.5"></circle>
-                        <path d="M14 21v-2a4 4 0 014-4h0a4 4 0 014 4v2"></path>
-                    </svg>
-                    <span>Amigos</span>
-                </a>
-            </div>
-        </aside>
+        <div class="flex space-x-4 mb-6 border-b pb-2">
+            <button id="btnSolicitudes"
+                class="px-4 py-2 rounded-xl bg-green-600 text-white font-semibold hover:bg-green-700 transition">
+                Solicitudes de amistad
+            </button>
 
-        <!-- SECCIÓN CENTRAL (tarjetas de amigos) -->
-        <main class="col-span-4 lg:col-span-4 p-4">
-            <!-- Encabezado -->
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-2xl font-bold text-gray-800">Amigos</h2>
-            </div>
+            <button id="btnAgregados"
+                class="px-4 py-2 rounded-xl bg-gray-300 text-gray-800 font-semibold hover:bg-gray-400 transition">
+                Amigos agregados
+            </button>
+        </div>
 
-            <!-- Botones de pestañas -->
-            <div class="flex space-x-4 mb-6 border-b pb-2">
-                <button id="btnSolicitudes"
-                    class="px-4 py-2 rounded-xl bg-green-600 text-white font-semibold hover:bg-green-700 transition">
-                    Solicitudes de amistad
+        <div id="solicitudesSection" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+
+            {% for u in usuarios %}
+            <div class="bg-white rounded-xl shadow p-4 text-center">
+
+                <div class="w-24 h-24 mx-auto bg-gray-300 rounded-full mb-3"></div>
+
+                <p class="font-semibold text-lg">{{ u.nombre }}</p>
+
+                <p class="text-gray-400 text-sm mb-3">{{ u.email }}</p>
+
+                <p class="text-xs text-gray-500 italic mb-2">{{ u.modelo }}</p>
+
+                <div class="border-t border-gray-300 mb-3"></div>
+
+                <button class="w-full bg-green-600 text-white py-1.5 rounded-lg mb-2 hover:bg-green-700">
+                    Agregar amigo
                 </button>
-                <button id="btnAgregados"
-                    class="px-4 py-2 rounded-xl bg-gray-300 text-gray-800 font-semibold hover:bg-gray-400 transition">
-                    Amigos agregados
+
+                <button class="w-full bg-gray-500 text-white py-1.5 rounded-lg hover:bg-gray-600">
+                    Ver perfil
                 </button>
+
             </div>
+            {% empty %}
+            <p class="text-gray-500">No hay usuarios registrados.</p>
+            {% endfor %}
 
-            <!-- Contenedor de tarjetas -->
-            <div id="solicitudesSection" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-                <!-- Tarjeta ejemplo -->
-                <div class="bg-white rounded-xl shadow p-4 text-center">
-                    <div class="w-24 h-24 mx-auto bg-gray-300 rounded-full mb-3"></div>
-                    <p class="font-semibold text-lg">Nombre del amigo</p>
-                    <p class="text-gray-400 text-sm mb-3">Instructor SENA</p>
-                    <div class="border-t border-gray-300 mb-3"></div>
-                    <button
-                        class="w-full bg-green-600 text-white py-1.5 rounded-lg mb-2 hover:bg-green-700">Aceptar</button>
-                    <button class="w-full bg-gray-500 text-white py-1.5 rounded-lg hover:bg-gray-600">Eliminar</button>
-                </div>
-                <!-- Más tarjetas aquí -->
+        </div>
+
+        <div id="agregadosSection" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 hidden">
+            <div class="bg-white rounded-xl shadow p-4 text-center">
+                <div class="w-24 h-24 mx-auto bg-gray-300 rounded-full mb-3"></div>
+                <h3 class="font-semibold text-lg mb-2">Amigo agregado</h3>
             </div>
+        </div>
 
-            <!-- Sección de amigos agregados (oculta por defecto) -->
-            <div id="agregadosSection" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 hidden">
-                <!-- Tarjeta ejemplo -->
-                <div class="bg-white rounded-xl shadow p-4 text-center">
-                    <div class="w-24 h-24 mx-auto bg-gray-300 rounded-full mb-3"></div>
-                    <h3 class="font-semibold text-lg mb-2">Amigo agregado</h3>
-                    <div class="border-t border-gray-300 mb-3"></div>
-                    <button
-                        class="w-full bg-green-600 text-white py-1.5 rounded-lg mb-2 hover:bg-green-700">Chatear</button>
-                    <button class="w-full bg-red-600 text-white rounded-lg py-1.5 hover:bg-red-700 transition">Eliminar
-                        amigo</button>
-                </div>
-            </div>
-        </main>
-    </div>
-    <script>
-        const btnSearch = document.getElementById("btnSearch");
-        const btnMenu = document.getElementById("btnMenu");
-        const searchBox = document.getElementById("searchBox");
-        const mobileMenu = document.getElementById("mobileMenu");
+    </main>
+</div>
 
-        btnSearch.onclick = () => {
-            searchBox.classList.toggle("hidden");
-            mobileMenu.classList.add("hidden");
-        };
+<script>
+    const btnSolicitudes = document.getElementById("btnSolicitudes");
+    const btnAgregados = document.getElementById("btnAgregados");
+    const solicitudesSection = document.getElementById("solicitudesSection");
+    const agregadosSection = document.getElementById("agregadosSection");
 
-        btnMenu.onclick = () => {
-            mobileMenu.classList.toggle("hidden");
-            searchBox.classList.add("hidden");
-        };
+    btnSolicitudes.addEventListener("click", () => {
+        solicitudesSection.classList.remove("hidden");
+        agregadosSection.classList.add("hidden");
+    });
 
-        const btnSolicitudes = document.getElementById("btnSolicitudes");
-        const btnAgregados = document.getElementById("btnAgregados");
-        const solicitudesSection = document.getElementById("solicitudesSection");
-        const agregadosSection = document.getElementById("agregadosSection");
+    btnAgregados.addEventListener("click", () => {
+        agregadosSection.classList.remove("hidden");
+        solicitudesSection.classList.add("hidden");
+    });
+</script>
 
-        function activarSolicitudes() {
-            solicitudesSection.classList.remove("hidden");
-            agregadosSection.classList.add("hidden");
-
-            // Activar botón de solicitudes
-            btnSolicitudes.classList.remove("bg-gray-300", "text-gray-800", "hover:bg-gray-400");
-            btnSolicitudes.classList.add("bg-green-600", "text-white", "hover:bg-green-700");
-
-            // Desactivar botón de amigos
-            btnAgregados.classList.remove("bg-green-600", "text-white", "hover:bg-green-700");
-            btnAgregados.classList.add("bg-gray-300", "text-gray-800", "hover:bg-gray-400");
-        }
-
-        function activarAgregados() {
-            agregadosSection.classList.remove("hidden");
-            solicitudesSection.classList.add("hidden");
-
-            // Activar botón de amigos
-            btnAgregados.classList.remove("bg-gray-300", "text-gray-800", "hover:bg-gray-400");
-            btnAgregados.classList.add("bg-green-600", "text-white", "hover:bg-green-700");
-
-            // Desactivar botón de solicitudes
-            btnSolicitudes.classList.remove("bg-green-600", "text-white", "hover:bg-green-700");
-            btnSolicitudes.classList.add("bg-gray-300", "text-gray-800", "hover:bg-gray-400");
-        }
-
-        btnSolicitudes.addEventListener("click", activarSolicitudes);
-        btnAgregados.addEventListener("click", activarAgregados);
-    </script>
 </body>
-
 </html>

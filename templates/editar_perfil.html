@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Perfil - InfoSena</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-200">
+
+    <!-- HEADER -->
+    <header class="hero bg-gradient-to-r from-[#0d3604] to-[#2b9e15] shadow-lg sticky top-0 z-50">
+        <nav class="container mx-auto px-2 py-2 relative">
+            <div class="flex justify-between items-center">
+                <div class="flex flex-row-reverse items-center">
+                    {% load static %}
+                    <img src="{% static 'img/logo2.png' %}" width="200px" />
+                </div>
+                <div class="hidden md:flex items-center space-x-6">
+                    <a href="{% url 'perfil:perfiles' %}">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white"
+                            stroke-width="2" class="w-10 h-10">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 9.75L12 3l9 6.75V21H3V9.75z" />
+                        </svg>
+                    </a>
+                    <a href="">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white"
+                            stroke-width="1.5" class="w-12 h-12">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M12 22a2 2 0 002-2H10a2 2 0 002 2zm6-6V11a6 6 0 10-12 0v5l-1.5 2.5h15L18 16z" />
+                        </svg>
+                    </a>
+                    <a href="{% url 'perfil:perfiles' %}">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white"
+                            stroke-width="2" class="w-10 h-10">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M12 12a5 5 0 100-10 5 5 0 000 10zm7 8c0-4-3-7-7-7s-7 3-7 7" />
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- CONTENIDO DEL FORMULARIO DE EDICIÓN -->
+    <div class="container mx-auto px-4 py-8">
+        <div class="bg-white rounded-3xl shadow-lg overflow-hidden max-w-4xl mx-auto">
+            
+            <!-- Banner superior -->
+            <div class="h-48 bg-gradient-to-r from-[#0d3604] to-[#2b9e15] relative">
+                <div class="absolute bottom-4 left-8 text-white">
+                    <h1 class="text-3xl font-bold">Editar Perfil</h1>
+                    <p class="text-green-100">Actualiza tu información personal</p>
+                </div>
+            </div>
+
+            <!-- Formulario de edición -->
+            <div class="px-8 pb-8">
+                
+                <!-- Foto de perfil -->
+                <div class="relative -mt-20 mb-8">
+                    <div class="w-40 h-40 bg-gray-300 rounded-full border-8 border-white shadow-lg flex items-center justify-center text-6xl">
+                        {% if tipo_perfil == 'instructor' %}
+                        👨‍🏫
+                        {% elif tipo_perfil == 'bienestar' %}
+                        🏥
+                        {% elif tipo_perfil == 'aprendiz' %}
+                        🎓
+                        {% endif %}
+                    </div>
+                    <button class="absolute bottom-2 right-2 bg-green-600 text-white p-3 rounded-full shadow-lg hover:bg-green-700 transition">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-5 h-5">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Formulario -->
+                <form method="POST" action="{% url 'perfil:editar_perfil' %}" class="space-y-6">
+                    {% csrf_token %}
+
+                    <!-- Información básica -->
+                    <div class="border-b border-gray-200 pb-6">
+                        <h2 class="text-xl font-semibold text-gray-800 mb-4">Información básica</h2>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Nombre completo
+                                </label>
+                                <input type="text" name="nombre" value="{{ usuario.nombre }}" 
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                    required>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Correo electrónico
+                                </label>
+                                <input type="email" name="email" value="{{ usuario.email }}" 
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                    required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Información de identificación -->
+                    <div class="border-b border-gray-200 pb-6">
+                        <h2 class="text-xl font-semibold text-gray-800 mb-4">Identificación</h2>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Tipo de documento
+                                </label>
+                                <select name="tipo_documento" 
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                    required>
+                                    <option value="CC" {% if usuario.tipo_documento == 'CC' %}selected{% endif %}>Cédula de Ciudadanía</option>
+                                    <option value="TI" {% if usuario.tipo_documento == 'TI' %}selected{% endif %}>Tarjeta de Identidad</option>
+                                    <option value="CE" {% if usuario.tipo_documento == 'CE' %}selected{% endif %}>Cédula de Extranjería</option>
+                                    <option value="PAS" {% if usuario.tipo_documento == 'PAS' %}selected{% endif %}>Pasaporte</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Número de documento
+                                </label>
+                                <input type="text" name="numero_documento" value="{{ usuario.numero_documento }}" 
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                    readonly>
+                                <p class="text-xs text-gray-500 mt-1">El número de documento no se puede modificar</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Información institucional -->
+                    <div class="border-b border-gray-200 pb-6">
+                        <h2 class="text-xl font-semibold text-gray-800 mb-4">Información institucional</h2>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Centro formativo
+                                </label>
+                                <input type="text" name="centro_formativo" value="{{ usuario.centro_formativo }}" 
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                    required>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Región
+                                </label>
+                                <input type="text" name="region" value="{{ usuario.region }}" 
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                    required>
+                            </div>
+
+                            {% if tipo_perfil == 'aprendiz' %}
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Ficha
+                                </label>
+                                <input type="text" name="ficha" value="{{ usuario.ficha }}" 
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                    required>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Jornada
+                                </label>
+                                <select name="jornada" 
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                    required>
+                                    <option value="Diurna" {% if usuario.jornada == 'Diurna' %}selected{% endif %}>Diurna</option>
+                                    <option value="Nocturna" {% if usuario.jornada == 'Nocturna' %}selected{% endif %}>Nocturna</option>
+                                    <option value="Mixta" {% if usuario.jornada == 'Mixta' %}selected{% endif %}>Mixta</option>
+                                    <option value="Fin de semana" {% if usuario.jornada == 'Fin de semana' %}selected{% endif %}>Fin de semana</option>
+                                </select>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Cambiar contraseña -->
+                    <div class="pb-6">
+                        <h2 class="text-xl font-semibold text-gray-800 mb-4">Cambiar contraseña</h2>
+                        <p class="text-sm text-gray-600 mb-4">Deja estos campos en blanco si no deseas cambiar tu contraseña</p>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Nueva contraseña
+                                </label>
+                                <input type="password" name="nueva_password" 
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                    placeholder="••••••••">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Confirmar contraseña
+                                </label>
+                                <input type="password" name="confirmar_password" 
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                    placeholder="••••••••">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Botones de acción -->
+                    <div class="flex gap-4 pt-6 items-center">
+    <!-- Guardar cambios -->
+    <button type="submit" 
+        class="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium">
+        Guardar cambios
+    </button>
+                        <!-- Cancelar -->
+    <a href="{% url 'perfil:perfiles' %}"
+        class="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition font-medium">
+        Cancelar
+    </a>
+                        <a href="{% url 'perfil:eliminar_perfil' %}" 
+                            class="ml-auto px-6 py-3 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition font-medium">
+                            Eliminar perfil
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

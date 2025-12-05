@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eliminar Perfil - InfoSena</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-200">
+
+    <!-- HEADER -->
+    <header class="hero bg-gradient-to-r from-[#0d3604] to-[#2b9e15] shadow-lg sticky top-0 z-50">
+        <nav class="container mx-auto px-2 py-2 relative">
+            <div class="flex justify-between items-center">
+                <div class="flex flex-row-reverse items-center">
+                    {% load static %}
+                    <img src="{% static 'img/logo2.png' %}" width="200px" />
+                </div>
+                <div class="hidden md:flex items-center space-x-6">
+                    <a href="{% url 'perfil:home' %}">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white"
+                            stroke-width="2" class="w-10 h-10">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 9.75L12 3l9 6.75V21H3V9.75z" />
+                        </svg>
+                    </a>
+                    <a href="{% url 'perfil:perfiles' %}">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white"
+                            stroke-width="2" class="w-10 h-10">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M12 12a5 5 0 100-10 5 5 0 000 10zm7 8c0-4-3-7-7-7s-7 3-7 7" />
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- CONTENIDO DE CONFIRMACIÓN -->
+    <div class="min-h-screen flex items-center justify-center px-4 py-12">
+        <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-lg w-full">
+            
+            <!-- Icono de advertencia -->
+            <div class="text-center mb-6">
+                <div class="mx-auto w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mb-4 animate-pulse">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-10 h-10 text-red-600">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                </div>
+                <h2 class="text-3xl font-bold text-gray-800 mb-2">¿Eliminar Perfil?</h2>
+                <p class="text-gray-600 text-lg">Esta acción no se puede deshacer</p>
+            </div>
+            
+            <!-- Advertencias -->
+            <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-6 rounded">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-red-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-red-800">Al eliminar tu Perfil:</h3>
+                        <ul class="mt-2 text-sm text-red-700 list-disc list-inside space-y-1">
+                            <li>Perderás acceso permanente a la plataforma</li>
+                            <li>Se eliminarán todos tus datos personales</li>
+                            <li>Se borrarán todas tus publicaciones</li>
+                            <li>No podrás recuperar tu información</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Información adicional -->
+            <div class="bg-gray-50 rounded-lg p-4 mb-6">
+                <p class="text-sm text-gray-700 text-center">
+                    Si solo deseas tomar un descanso, considera cerrar sesión en lugar de eliminar tu Perfil.
+                </p>
+            </div>
+
+            <!-- Mostrar mensajes de Django -->
+            {% if messages %}
+                <div class="mb-4">
+                    {% for message in messages %}
+                        <div class="bg-{{ message.tags }}-100 border border-{{ message.tags }}-400 text-{{ message.tags }}-700 px-4 py-3 rounded relative mb-2">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            
+            <!-- Formulario de confirmación -->
+            <form method="POST" action="{% url 'perfil:eliminar_perfil' %}" id="deleteForm">
+                {% csrf_token %}
+                
+                <div class="space-y-4">
+                    <!-- Botón de eliminar -->
+                    <button type="button" onclick="confirmarEliminacion()" 
+                        class="w-full px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-semibold text-lg shadow-lg hover:shadow-xl transform hover:scale-105">
+                        Sí, eliminar mi Perfil permanentemente
+                    </button>
+                    
+                    <!-- Botón de cancelar -->
+                    <a href="{% url 'perfil:perfiles' %}" 
+                        class="block text-center w-full px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition font-semibold">
+                        No, mantener mi Perfil
+                    </a>
+                </div>
+            </form>
+
+            <!-- Enlace de ayuda -->
+            <div class="mt-6 text-center">
+                <p class="text-sm text-gray-500">
+                    ¿Necesitas ayuda? 
+                    <a href="#" class="text-green-600 hover:text-green-700 font-medium">Contacta soporte</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de confirmación final -->
+    <div id="confirmModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center px-4">
+        <div class="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl transform transition-all">
+            <div class="text-center">
+                <div class="mx-auto w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
+                    <span class="text-4xl">⚠️</span>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-800 mb-2">Confirmación final</h3>
+                <p class="text-gray-600 mb-6">
+                    ¿Estás completamente seguro de que deseas eliminar tu Perfil? Esta acción es irreversible.
+                </p>
+                <div class="flex gap-3">
+                    <button onclick="cerrarModal()" 
+                        class="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition font-medium">
+                        Cancelar
+                    </button>
+                    <button onclick="eliminarCuenta()" 
+                        class="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-medium">
+                        Eliminar ahora
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function confirmarEliminacion() {
+            document.getElementById('confirmModal').classList.remove('hidden');
+        }
+
+        function cerrarModal() {
+            document.getElementById('confirmModal').classList.add('hidden');
+        }
+
+        function eliminarCuenta() {
+            document.getElementById('deleteForm').submit();
+        }
+
+        // Cerrar modal al hacer clic fuera de él
+        document.getElementById('confirmModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                cerrarModal();
+            }
+        });
+
+        // Cerrar modal con tecla ESC
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                cerrarModal();
+            }
+        });
+    </script>
+
+</body>
+</html>

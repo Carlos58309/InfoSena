@@ -1,0 +1,196 @@
+/* Reset básico */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Fuente general y fondo */
+body {
+  font-family: Arial, sans-serif;
+}
+
+/* Contenedor principal sin márgenes */
+
+
+/* Encabezado */
+.header {
+  background: linear-gradient(to right, #004d00, #1b9e00);
+  color: white;
+  display: flex;
+  align-items: center;
+  padding: 15px 30px;
+}
+
+.header h1 {
+  font-family: "Courier New", Courier, monospace;
+  font-weight: normal;
+  font-size: 28px;
+  margin: 0;
+  letter-spacing: 2px;
+}
+
+.header .help {
+  margin-left: auto;
+  font-size: 24px;
+  font-weight: bold;
+  background-color: white;
+  color: #006400;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  text-align: center;
+  line-height: 30px;
+  cursor: pointer;
+}
+
+/* Bienvenida */
+.welcome-section {
+  display: flex;
+
+  background: linear-gradient(to right, #3db90f 100%, #ffffff 50%);
+ 
+  align-items: center;
+  color: white;
+}
+
+.welcome-text {
+  flex: 1;
+  padding-left: 50px;
+  min-width: 250px;
+}
+
+.welcome-text h2 {
+  font-size: 130px;
+  font-weight: bold;
+}
+
+.welcome-text p {
+  font-size: 50px;
+  font-weight: bold;
+}
+
+.welcome-image {
+  flex-shrink: 0;
+  width: 50%;
+  padding: 0;
+  margin-right: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+}
+
+
+
+.welcome-image img {
+
+  height: auto;
+  border-radius: 2%;
+  max-width: none;
+  max-height: none;
+
+}
+
+
+
+
+/* Contenido principal */
+.content {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 30px;
+  gap: 30px;
+}
+
+/* Quiénes Somos */
+.left-content {
+  flex: 1.2;
+  min-width: 300px;
+  border: 2px solid #3db90f;
+  border-radius: 6px;
+  padding: 20px;
+  font-weight: bold;
+}
+
+.left-content h3 {
+  color: #006400;
+  font-size: 24px;
+  margin-bottom: 10px;
+  
+}
+
+.left-content p {
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+/* Registro / Ingreso */
+.right-content {
+  flex: 1.2;
+  min-width: 260px;
+  font-weight: bold;
+}
+
+.box {
+  min-width: 300px;
+  border: 1px solid #3db90f;
+  border-radius: 6px;
+  padding: 25px;
+  margin-bottom: 30px;
+
+}
+
+.icon-text {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  font-size: 15px;
+}
+
+.icon-text img {
+  width: 20px;
+  margin-right: 8px;
+}
+
+.box strong {
+  font-weight: bold;
+  font-size: 25px;
+  margin-right: 18px;
+}
+
+/* Botones */
+.btn {
+  background-color: #3db90f;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 18px;
+  font-size: 20px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.btn:hover {
+  background-color: #2d990f;
+}
+
+/* Responsive (opcional pero recomendado) */
+@media (max-width: 768px) {
+  .welcome-section {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .welcome-text {
+    padding: 20px 0;
+  }
+
+  .content {
+    flex-direction: column;
+  }
+
+  .right-content {
+    width: 100%;
+  }
+}

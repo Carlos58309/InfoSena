@@ -68,12 +68,12 @@
                     </a>
                     <!-- Bell -->
                     <a href="{% url 'perfil:perfiles' %}">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white"
-                            stroke-width="2" class="w-10 h-10">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M12 12a5 5 0 100-10 5 5 0 000 10zm7 8c0-4-3-7-7-7s-7 3-7 7" />
-                        </svg>
-                    </a>
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white"
+        stroke-width="2" class="w-10 h-10">
+        <path stroke-linecap="round" stroke-linejoin="round"
+            d="M12 12a5 5 0 100-10 5 5 0 000 10zm7 8c0-4-3-7-7-7s-7 3-7 7" />
+    </svg>
+</a>
                     <!-- User -->
                     <a href="">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white"
@@ -125,10 +125,9 @@
                     <span>Notifications</span>
                 </a>
 
-                <a href="{% url 'perfil:perfiles' %}"
-                    class="flex items-center space-x-3 bg-white/20 p-3 rounded-xl text-white">
-                    <span>Profile</span>
-                </a>
+                <a href="{% url 'perfil:perfiles' %}" class="flex items-center space-x-3 bg-white/20 p-3 rounded-xl text-white">
+    <span>Profile</span>
+</a>
 
                 <a class="flex items-center space-x-3 bg-white/20 p-3 rounded-xl text-white">
                     <span>Chat</span>
@@ -157,13 +156,12 @@
             class="hidden md:block md:col-span-1 bg-transparent overflow-y-auto h-[calc(100vh-5rem)] sticky top-20 p-4">
 
             <div class="space-y-4">
-                <a href="{% url 'perfil:perfiles' %}"
-                    class="flex items-center space-x-3 bg-white p-3 rounded-xl shadow hover:bg-green-200 hover:text-green-700 transition cursor-pointer">
-                    <div class="w-10 h-10 bg-gray-300 rounded-full"></div>
-                    <span>Mi perfil</span>
-                </a>
+                <a href="{% url 'perfil:perfiles' %}" class="flex items-center space-x-3 bg-white p-3 rounded-xl shadow hover:bg-green-200 hover:text-green-700 transition cursor-pointer">
+    <div class="w-10 h-10 bg-gray-300 rounded-full"></div>
+    <span>Mi perfil</span>
+</a>
 
-                <a href="{% url 'sesion:home' %}"
+                <a href="home.html"
                     class="flex items-center space-x-3 bg-white  p-3 rounded-xl shadow hover:bg-green-200 hover:text-green-700">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path d="M3 9.75L12 3l9 6.75V21H3V9.75z"></path>
@@ -171,7 +169,7 @@
                     <span>Inicio</span>
                 </a>
 
-                <a href="{% url 'chat:lista_chats' %}"
+                <a
                     class="flex items-center space-x-3 bg-white p-3 rounded-xl shadow hover:bg-green-200 hover:text-green-700 transition">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="1"
                         stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6">
@@ -182,7 +180,7 @@
                     <span>Chat</span>
                 </a>
 
-                <a href="{% url 'sesion:amigos' %}"
+                <a href="amigos.html"
                     class="flex items-center space-x-3 bg-white p-3 rounded-xl shadow hover:bg-green-200 hover:text-green-700 transition">
 
 
@@ -354,4 +352,3 @@
             });
         }, 4000);
     </script>
-</body>

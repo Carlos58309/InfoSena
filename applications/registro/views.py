@@ -115,3 +115,36 @@ def registro_view(request):
     # GET request
     return render(request, 'registrar.html')
 
+def amigos_view(request):
+
+    # Obtener todos los usuarios de las 3 tablas
+    aprendices = Aprendiz.objects.all()
+    instructores = Instructor.objects.all()
+    bienestar = Bienestar.objects.all()
+
+    # Unificarlos en una sola lista
+    usuarios = []
+
+    for a in aprendices:
+        usuarios.append({
+            "nombre": a.nombre,
+            "email": a.email,
+            "modelo": "Aprendiz",
+        })
+
+    for i in instructores:
+        usuarios.append({
+            "nombre": i.nombre,
+            "email": i.email,
+            "modelo": "Instructor",
+        })
+
+    for b in bienestar:
+        usuarios.append({
+            "nombre": b.nombre,
+            "email": b.email,
+            "modelo": "Bienestar al Aprendiz",
+        })
+
+    return render(request, "amigos.html", {"usuarios": usuarios})
+from django.shortcuts import render

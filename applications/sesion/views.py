@@ -66,5 +66,26 @@ def dashboard_view(request):
         "rol": request.session.get("rol"),
     }
     return render(request, "home.html", contexto)
+
+
 def amigos_view(request):
-    return render(request, 'amigos.html')
+    usuarios = []
+
+    # Cargar aprendices
+    usuarios += list(Aprendiz.objects.all())
+
+    # Cargar instructores
+    usuarios += list(Instructor.objects.all())
+
+    # Cargar bienestar
+    usuarios += list(Bienestar.objects.all())
+
+    return render(request, "amigos.html", {
+        "usuarios": usuarios
+    })
+
+def perfil_view(request):
+    return render(request, "perfil.html")
+
+def chat_view(request):
+    return render(request, "chat.html")
