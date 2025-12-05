@@ -27,7 +27,7 @@ def registro_view(request):
             messages.error(request, '❌ El número de documento solo puede contener números.')
             return render(request, 'registrar.html')
 
-        if not (8 <= len(numero_documento) <= 12):
+        if not (6 <= len(numero_documento) <= 12):
             messages.error(request, '❌ El número de documento debe tener entre 8 y 12 dígitos.')
             return render(request, 'registrar.html')
 

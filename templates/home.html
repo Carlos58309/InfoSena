@@ -58,30 +58,90 @@
 
                 <!-- ICONOS DESKTOP -->
                 <div class="hidden md:flex items-center space-x-6">
+                    <div class="relative">
+                        <!-- Home -->
+                        <button href="">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white"
+                                stroke-width="2" class="w-10 h-10">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M3 9.75L12 3l9 6.75V21H3V9.75z" />
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="relative">
+                        <!-- Bell -->
+                        <button id="btnNotificaciones">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white"
+                                stroke-width="1.5" class="w-12 h-12">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M12 22a2 2 0 002-2H10a2 2 0 002 2zm6-6V11a6 6 0 10-12 0v5l-1.5 2.5h15L18 16z" />
+                            </svg>
+                        </button>
+                        <!-- MENÚ NOTIFICACIONES -->
+                        <div id="menuNotificaciones"
+                            class="hidden absolute right-0 mt-3 w-72 bg-gray-200 rounded-xl shadow-xl p-4 z-50">
 
-                    <!-- Home -->
-                    <a href="home.html">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white"
-                            stroke-width="2" class="w-10 h-10">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 9.75L12 3l9 6.75V21H3V9.75z" />
-                        </svg>
-                    </a>
-                    <!-- Bell -->
-                    <a href="{% url 'perfil:perfiles' %}">
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white"
-        stroke-width="2" class="w-10 h-10">
-        <path stroke-linecap="round" stroke-linejoin="round"
-            d="M12 12a5 5 0 100-10 5 5 0 000 10zm7 8c0-4-3-7-7-7s-7 3-7 7" />
-    </svg>
-</a>
+                            <!-- Triangulito -->
+                            <div class="w-6 h-6 bg-gray-200 rotate-45 absolute -top-3 right-6"></div>
+
+                            <h3 class="text-lg font-bold text-gray-700 mb-3">Notificaciones</h3>
+
+                            <!-- LISTA DE NOTIFICACIONES -->
+                            <div class="max-h-60 overflow-y-auto space-y-3 pr-2" id="listaNotificaciones">
+
+                                <!-- Ejemplo de notificación -->
+                                <div class="bg-white p-3 rounded-lg shadow">
+                                    <p class="text-gray-700 text-sm">Tienes un nuevo mensaje.</p>
+                                    <span class="text-xs text-gray-500">Hace 2 minutos</span>
+                                </div>
+
+                                <div class="bg-white p-3 rounded-lg shadow">
+                                    <p class="text-gray-700 text-sm">Tu perfil ha sido actualizado.</p>
+                                    <span class="text-xs text-gray-500">Hace 1 hora</span>
+                                </div>
+
+                            </div>
+
+                            <!-- Botón ver más -->
+                            <a href="/notificaciones/"
+                                class="block mt-3 text-center text-sm text-green-600 font-semibold hover:text-green-800">
+                                Ver todas las notificaciones
+                            </a>
+
+                        </div>
+                    </div>
                     <!-- User -->
-                    <a href="">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white"
-                            stroke-width="2" class="w-10 h-10">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M12 12a5 5 0 100-10 5 5 0 000 10zm7 8c0-4-3-7-7-7s-7 3-7 7" />
-                        </svg>
-                    </a>
+                    <div class="relative">
+                        <!-- ICONO PERFIL -->
+                        <button id="btnPerfil">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white"
+                                stroke-width="2" class="w-10 h-10">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M12 12a5 5 0 100-10 5 5 0 000 10zm7 8c0-4-3-7-7-7s-7 3-7 7" />
+                            </svg>
+                        </button>
+
+                        <!-- MENÚ DESPLEGABLE -->
+                        <div id="menuPerfil"
+                            class="hidden absolute right-0 mt-3 w-64 bg-gray-200 rounded-xl shadow-xl p-4 z-50">
+
+                            <div class="flex justify-center mb-3">
+                                <div class="w-6 h-6 bg-gray-200 rotate-45 absolute -top-3 right-6"></div>
+                            </div>
+
+                            <a href="{% url 'perfil:perfiles' %}"
+                                class="block bg-green-600 text-white text-center py-3 rounded-lg hover:bg-green-700 transition">
+                                Ver Perfil
+                            </a>
+
+                            <div class="my-3 border-t border-gray-400"></div>
+
+                            <a href="{% url 'sesion:login' %}"
+                                class="block bg-gray-400 text-white text-center py-3 rounded-lg hover:bg-gray-500 transition">
+                                Cerrar Sesión
+                            </a>
+                        </div>
+                    </div>
                 </div>
 
 
@@ -125,9 +185,10 @@
                     <span>Notifications</span>
                 </a>
 
-                <a href="{% url 'perfil:perfiles' %}" class="flex items-center space-x-3 bg-white/20 p-3 rounded-xl text-white">
-    <span>Profile</span>
-</a>
+                <a href="{% url 'perfil:perfiles' %}"
+                    class="flex items-center space-x-3 bg-white/20 p-3 rounded-xl text-white">
+                    <span>Profile</span>
+                </a>
 
                 <a class="flex items-center space-x-3 bg-white/20 p-3 rounded-xl text-white">
                     <span>Chat</span>
@@ -156,10 +217,11 @@
             class="hidden md:block md:col-span-1 bg-transparent overflow-y-auto h-[calc(100vh-5rem)] sticky top-20 p-4">
 
             <div class="space-y-4">
-                <a href="{% url 'perfil:perfiles' %}" class="flex items-center space-x-3 bg-white p-3 rounded-xl shadow hover:bg-green-200 hover:text-green-700 transition cursor-pointer">
-    <div class="w-10 h-10 bg-gray-300 rounded-full"></div>
-    <span>Mi perfil</span>
-</a>
+                <a href="{% url 'perfil:perfiles' %}"
+                    class="flex items-center space-x-3 bg-white p-3 rounded-xl shadow hover:bg-green-200 hover:text-green-700 transition cursor-pointer">
+                    <div class="w-10 h-10 bg-gray-300 rounded-full"></div>
+                    <span>Mi perfil</span>
+                </a>
 
                 <a href="home.html"
                     class="flex items-center space-x-3 bg-white  p-3 rounded-xl shadow hover:bg-green-200 hover:text-green-700">
@@ -180,7 +242,7 @@
                     <span>Chat</span>
                 </a>
 
-                <a  href="{% url 'sesion:amigos' %}"
+                <a href="{% url 'sesion:amigos' %}"
                     class="flex items-center space-x-3 bg-white p-3 rounded-xl shadow hover:bg-green-200 hover:text-green-700 transition">
 
 
@@ -352,3 +414,37 @@
             });
         }, 4000);
     </script>
+
+    <script>
+function cerrarMenus(e) {
+    const menuP = document.getElementById("menuPerfil");
+    const btnP = document.getElementById("btnPerfil");
+
+    const menuN = document.getElementById("menuNotificaciones");
+    const btnN = document.getElementById("btnNotificaciones");
+
+    if (menuP && !menuP.contains(e.target) && !btnP.contains(e.target)) {
+        menuP.classList.add("hidden");
+    }
+
+    if (menuN && !menuN.contains(e.target) && !btnN.contains(e.target)) {
+        menuN.classList.add("hidden");
+    }
+}
+
+document.getElementById("btnPerfil")?.addEventListener("click", () => {
+    document.getElementById("menuPerfil").classList.toggle("hidden");
+    document.getElementById("menuNotificaciones").classList.add("hidden");
+});
+
+document.getElementById("btnNotificaciones").addEventListener("click", () => {
+    document.getElementById("menuNotificaciones").classList.toggle("hidden");
+    document.getElementById("menuPerfil")?.classList.add("hidden");
+});
+
+document.addEventListener("click", cerrarMenus);
+</script>
+
+</body>
+
+</html>
