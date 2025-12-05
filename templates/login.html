@@ -66,6 +66,7 @@
                 opacity: 0;
                 transform: translateY(-20px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -220,6 +221,7 @@
                 opacity: 0;
                 transform: translateY(10px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -275,14 +277,14 @@
 <body>
 
     {% if messages %}
-<div class="messages-container">
-    {% for message in messages %}
+    <div class="messages-container">
+        {% for message in messages %}
         <div class="message message-{{ message.tags }}">
             {{ message }}
         </div>
-    {% endfor %}
-</div>
-{% endif %}
+        {% endfor %}
+    </div>
+    {% endif %}
 
 
     <div class="header">
@@ -306,33 +308,53 @@
             </div>
 
 
-        <!-- Formulario de login -->
-        <form method="POST" action="{% url 'sesion:login' %}">
+            <!-- Formulario de login -->
+            <form method="POST" action="{% url 'sesion:login' %}">
 
-            {% csrf_token %}
-            <div class="form-group">
-                <div class="input-wrapper">
-                    <span class="input-icon">👤</span>
-                    <input type="text" id="documento" name="documento" placeholder="Número de documento" required>
+                {% csrf_token %}
+                <div class="form-group">
+                    <div class="input-wrapper">
+                        <span class="input-icon">👤</span>
+                        <input type="text" id="documento" name="documento" placeholder="Número de documento" required>
+                    </div>
                 </div>
+
+                <div class="form-group">
+                    <div class="input-wrapper">
+                        <span class="input-icon">🔒</span>
+                        <input type="password" id="password" name="password" placeholder="Contraseña" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-button">Iniciar sesión</button>
+            </form>
+            <!-- 🔥 NUEVO: Enlace "¿Olvidaste tu contraseña?" -->
+            <div class="forgot-link">
+                <a href="{% url 'sesion:solicitar_correo' %}">
+                    ¿Olvidaste tu contraseña?
+                </a>
             </div>
 
-            <div class="form-group">
-                <div class="input-wrapper">
-                    <span class="input-icon">🔒</span>
-                    <input type="password" id="password" name="password" placeholder="Contraseña" required>
-                </div>
-            </div>
+        </div>
 
-            <button type="submit" class="submit-button">Iniciar sesión</button>
-        </form>
-    </div>
-    <script>
-    window.addEventListener('load', () => {
-        document.getElementById('documento').value = '';
-        document.getElementById('password').value = '';
-    });
-    </script>
+        <script>
+            window.addEventListener('load', () => {
+                document.getElementById('documento').value = '';
+                document.getElementById('password').value = '';
+            });
+        </script>
+
+        <script>
+            // Auto-ocultar mensajes después de 5 segundos
+            setTimeout(() => {
+                const messages = document.querySelectorAll('.message');
+                messages.forEach(msg => {
+                    msg.style.transition = 'opacity 0.5s';
+                    msg.style.opacity = '0';
+                    setTimeout(() => msg.remove(), 500);
+                });
+            }, 5000);
+        </script>
 
 
 </body>

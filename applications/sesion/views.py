@@ -89,3 +89,69 @@ def perfil_view(request):
 
 def chat_view(request):
     return render(request, "chat.html")
+
+def solicitar_correo(request):
+    if request.method == "POST":
+        email = request.POST.get("email")
+
+        usuario = (
+            Aprendiz.objects.filter(email=email).first() or
+            Instructor.objects.filter(email=email).first() or
+            Bienestar.objects.filter(email=email).first()
+        )
+
+        if not usuario:
+            messages.error(request, "No existe una cuenta asociada a ese correo.")
+            return render(request, "solicitar_correo.html")
+
+        token = token_generator.make_token(usuario)
+        uid = usuario.pk
+
+        reset_url = request.build_absolute_uri(
+            reverse("sesion:restablecer", args=[uid, token])
+        )
+
+        send_mail(
+            "Restablecer contraseña",
+            f"Hola, usa este enlace para restablecer tu contraseña:\n\n{reset_url}",
+            "infosenasystem@gmail.com",
+            [email],
+        )
+
+        messages.success(request, "Se ha enviado un enlace de recuperación a tu correo.")
+        return redirect("sesion:login")
+
+    return render(request, "solicitar_correo.html")
+
+
+
+# ------------------------------------------
+#   VALIDAR TOKEN Y MOSTRAR FORMULARIO
+# ------------------------------------------
+
+def restablecer_contrasena(request, uid, token):
+    usuario = (
+        Aprendiz.objects.filter(pk=uid).first() or
+        Instructor.objects.filter(pk=uid).first() or
+        Bienestar.objects.filter(pk=uid).first()
+    )
+
+    if not usuario or not token_generator.check_token(usuario, token):
+        messages.error(request, "El enlace no es válido o ha expirado.")
+        return redirect("sesion:solicitar_correo")
+
+    if request.method == "POST":
+        nueva = request.POST.get("password1")
+        confirmar = request.POST.get("password2")
+
+        if nueva != confirmar:
+            messages.error(request, "Las contraseñas no coinciden.")
+            return render(request, "restablecer_password.html")
+
+        usuario.contrasena = nueva
+        usuario.save()
+
+        messages.success(request, "Tu contraseña ha sido restablecida con éxito.")
+        return redirect("sesion:login")  # ✔ te lleva al login correctamente
+
+    return render(request, "restablecer_password.html")
