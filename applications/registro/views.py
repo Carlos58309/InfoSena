@@ -97,7 +97,7 @@ def registro_view(request):
                 return render(request, 'registrar.html')
 
             # Redirigir al home después del registro exitoso
-            return redirect('home')  # Ajusta según tu configuración de URLs
+            return redirect('sesion:home')  # Ajusta según tu configuración de URLs
 
         except IntegrityError as e:
             if 'numero_documento' in str(e):

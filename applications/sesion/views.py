@@ -1,5 +1,9 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
+from .utils import token_generator
+from django.core.mail import send_mail
+from django.conf import settings
+from django.urls import reverse
 from applications.registro.models import Aprendiz, Instructor, Bienestar
 from .models import Sesion
 
@@ -155,3 +159,6 @@ def restablecer_contrasena(request, uid, token):
         return redirect("sesion:login")  # ✔ te lleva al login correctamente
 
     return render(request, "restablecer_password.html")
+
+def home(request):
+    return render(request, 'index.html')

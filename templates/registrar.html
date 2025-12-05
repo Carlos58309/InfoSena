@@ -1,631 +1,216 @@
-
 {% load static %}
 
 <!DOCTYPE html>
 <html lang="es">
 
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>INFOSENA - Registro</title>
-    <link rel="icon" href="{% static 'img/logo2.png' %}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro - INFOSENA</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: Arial, sans-serif;
-            background: url('https://www.elpais.com.co/resizer/v2/BECP34CL7RBD5LVFMCHQR6VN3I.jpeg?auth=e1104821a501230c6a85f5c506f0f5c9b5fe52ce6e14f9730027c39a916ea841&smart=true&quality=75&width=1280&height=720') center/cover;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .messages-container {
-            position: fixed;
-            top: 80px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 1000;
-            width: 90%;
-            max-width: 500px;
-        }
-
-        .message {
-            padding: 15px 20px;
-            border-radius: 10px;
-            margin-bottom: 10px;
-            font-weight: 500;
-            animation: slideDown 0.3s ease-out;
-        }
-
-        .message-success {
-            background: #4CAF50;
-            color: white;
-        }
-
-        .message-error {
-            background: #f44336;
-            color: white;
-        }
-
-        .message-warning {
-            background: #ff9800;
-            color: white;
-        }
-
-        .message-info {
-            background: #2196F3;
-            color: white;
-        }
-
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .header {
-            background: linear-gradient(to right, #004d00, #1b9e00);
-            color: white;
-            display: flex;
-            align-items: center;
-            padding: 15px 30px;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: white;
-            font-size: 28px;
-            font-weight: bold;
-        }
-
-        .imagen-pequena {
-            width: 230px;
-            height: auto;
-        }
-
-        .container {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-
-        .login-card {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            padding: 40px;
+        .input {
             width: 100%;
-            max-width: 500px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-        }
-
-        .card-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 30px;
-        }
-
-        .back-button {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: #2d5f2e;
-            font-size: 18px;
-            font-weight: 500;
-            text-decoration: none;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-
-        .back-button:hover {
-            transform: translateX(-5px);
-        }
-
-        .back-icon {
-            width: 30px;
-            height: 30px;
-            background: #4CAF50;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-        }
-
-        .form-title {
-            color: #2d5f2e;
-            margin-bottom: 20px;
-            font-size: 20px;
-            text-align: center;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            color: #333;
-            font-weight: 500;
-        }
-
-        .input-wrapper {
-            position: relative;
-            display: flex;
-            align-items: center;
-            border: 2px solid #ddd;
-            border-radius: 10px;
-            padding: 12px 15px;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #cbd5e1;
             background: white;
-            transition: border-color 0.3s;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
         }
 
-        .input-wrapper:focus-within {
-            border-color: #4CAF50;
-        }
-
-        .input-wrapper.has-select::after {
-            content: "▼";
-            position: absolute;
-            right: 15px;
-            font-size: 12px;
-            color: #888;
-            pointer-events: none;
-        }
-
-        .input-icon {
-            font-size: 24px;
-            color: #333;
-            margin-right: 12px;
-        }
-
-        .custom-select,
-        .custom-input {
-            border: none;
+        .input:focus {
             outline: none;
-            flex: 1;
-            font-size: 16px;
-            color: #333;
-            background: transparent;
-            appearance: none;
-            width: 100%;
+            border-color: rgb(2, 151, 39);
+            box-shadow: 0 0 4px rgb(2, 151, 39);
         }
 
-        .custom-select {
-            padding-right: 25px;
-        }
-
-        .rol-form {
-            display: none;
-            animation: fadeIn 0.3s ease-in;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .submit-button {
-            width: 100%;
-            background: #4CAF50;
-            color: white;
-            border: none;
-            padding: 15px;
-            border-radius: 10px;
-            font-size: 18px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.3s, transform 0.2s;
-            margin-top: 20px;
-        }
-
-        .submit-button:hover {
-            background: #45a049;
-            transform: translateY(-2px);
-        }
-
-        .submit-button:active {
-            transform: translateY(0);
-        }
-
-        .help-link {
-            text-align: center;
-            margin-top: 15px;
-        }
-
-        .help-link a {
-            color: #4CAF50;
-            text-decoration: none;
-            border: 2px solid #4CAF50;
-            padding: 8px 20px;
-            border-radius: 20px;
+        .error {
+            color: red;
             font-size: 14px;
-            display: inline-block;
-            transition: all 0.3s;
-        }
-
-        .help-link a:hover {
-            background: #4CAF50;
-            color: white;
-        }
-
-        /* 🔶 Advertencias visuales integradas */
-        small.validation-warning {
-            display: none;
-            background-color: #fff4e0;
-            border-left: 4px solid #ffb84d;
-            color: #b36b00;
-            padding: 8px 10px;
-            border-radius: 6px;
-            margin-top: 6px;
-            font-size: 14px;
-            animation: fadeIn 0.3s ease-in-out;
-        }
-
-        small.validation-warning::before {
-            content: "⚠️ ";
         }
     </style>
 </head>
 
-<body>
-    <div class="header">
-        <div class="logo">
-            {% load static %}
-            <span><img src="{% static 'img/logo2.png' %}" alt="INFOSENA" class="imagen-pequena" /></span>
+<body class="bg-green-200 min-h-screen flex items-center justify-center mt-10 mb-10">
 
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl p-10">
+
+        <!-- BOTÓN REGRESAR -->
+        <div class="flex items-center justify-between mb-6">
+            <a href="{% url 'sesion:index' %}"
+               class="flex items-center gap-2 text-green-700 text-lg font-medium cursor-pointer 
+               transition-transform hover:-translate-x-1 active:scale-95">
+
+                <div class="w-9 h-9 flex items-center justify-center bg-green-600 text-white rounded-full shadow-md 
+                transition-colors hover:bg-green-700">
+
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                        stroke="currentColor" class="w-5 h-5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                    </svg>
+
+                </div>
+
+                <span class="hidden sm:block">Regresar</span>
+            </a>
+
+            <img src="{% static 'img/logo.png' %}" alt="INFOSENA" class="w-56 h-auto">
         </div>
-    </div>
 
-    <div class="container">
-        <div class="login-card">
-            <div class="card-header">
-                <div class="back-button" onclick="window.history.back()">
-                    <div class="back-icon">↩</div>
-                    <span>Regresar</span>
-                </div>
-                <div class="logo">
-                    <span><img src="{% static 'img/logo.png' %}" alt="INFOSENA" class="imagen-pequena" /></span>
-                </div>
+        <!-- MENSAJES -->
+        {% if messages %}
+        <div class="mb-4">
+            {% for m in messages %}
+            <div class="p-3 text-white rounded-lg
+                        {% if 'error' in m.tags %}bg-red-500{% else %}bg-green-600{% endif %}">
+                {{ m }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Formulario maestro -->
+        <form id="form_general" method="POST" action="{% url 'registro:registro' %}">
+            {% csrf_token %}
+
+            <div class="flex flex-col items-center mb-8">
+                <h2 class="text-3xl font-extrabold text-gray-800 tracking-wide">Registro de Usuarios</h2>
             </div>
 
-            <!-- Selector de rol -->
-            <div class="form-group">
-                <label for="rolSelect">Selecciona tu rol:</label>
-                <div class="input-wrapper has-select">
-                    <select id="rolSelect" class="custom-select" required>
-                        <option value="" disabled selected>Selecciona tu rol</option>
-                        <option value="bienestar">Bienestar</option>
-                        <option value="instructor">Instructor</option>
-                        <option value="aprendiz">Aprendiz</option>
+            <!-- Guardar el rol oculto -->
+            <input type="hidden" id="rol_seleccionado" name="rol" value="bienestar">
+
+            <!-- SELECTOR DE ROL -->
+            <div class="mb-6">
+                <label class="block mb-2 text-lg font-semibold text-gray-700">
+                    Selecciona un tipo de rol:
+                </label>
+
+                <select id="select_opcion" class="input">
+                    <option value="bienestar">Bienestar</option>
+                    <option value="instructor">Instructor</option>
+                    <option value="aprendiz">Aprendiz</option>
+                </select>
+            </div>
+
+            <!-- ==========================
+                 FORMULARIO GENERAL
+            =========================== -->
+            <div class="grid grid-cols-2 gap-4">
+
+                <div>
+                    <label class="font-semibold block">Número de Documento</label>
+                    <input type="text" name="numero_documento" class="input" required>
+                </div>
+
+                <div>
+                    <label class="font-semibold block">Tipo de Documento</label>
+                    <select name="tipo_documento" class="input" required>
+                        <option>Cédula de ciudadanía</option>
+                        <option>Tarjeta de identidad</option>
+                        <option>Cédula extranjera</option>
+                        <option>Pasaporte</option>
                     </select>
                 </div>
+
+                <div class="col-span-2">
+                    <label class="font-semibold block">Nombre Completo</label>
+                    <input type="text" name="nombre" class="input" required>
+                </div>
+
+                <div class="col-span-2">
+                    <label class="font-semibold block">Correo</label>
+                    <input type="email" name="email" class="input" required>
+                </div>
+
+                <div>
+                    <label class="font-semibold block">Centro Formativo</label>
+                    <input type="text" name="centro_formativo"
+                        value="Centro Agroempresarial y Desarrollo Pecuario del Huila" class="input">
+                </div>
+
+                <div>
+                    <label class="font-semibold block">Región</label>
+                    <input type="text" name="region" value="Huila" class="input" readonly>
+                </div>
+
+                <!-- Campos extra solo para aprendiz -->
+                <div id="caja_aprendiz" class="hidden col-span-2 grid grid-cols-2 gap-4">
+
+                    <div>
+                        <label class="font-semibold block">Jornada</label>
+                        <select name="jornada" class="input">
+                            <option>Mañana</option>
+                            <option>Tarde</option>
+                            <option>Noche</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="font-semibold block">Ficha</label>
+                        <input type="text" name="ficha" class="input">
+                    </div>
+
+                </div>
+
+                <div>
+                    <label class="font-semibold block">Contraseña</label>
+                    <input type="password" name="password" id="pass" class="input" required>
+                </div>
+
+                <div>
+                    <label class="font-semibold block">Confirmar Contraseña</label>
+                    <input type="password" id="confirm" class="input" required>
+                    <p id="error_pass" class="error"></p>
+                </div>
+
             </div>
 
-            <!-- FORMULARIO INSTRUCTOR -->
-            <form id="form-instructor" class="rol-form" method="POST" action="{% url 'registro:registro' %}">
+            <!-- BOTÓN -->
+            <div class="mt-10 text-center">
+                <button type="submit"
+                    class="bg-green-600 hover:bg-green-700 text-white px-10 py-3 rounded-xl shadow-lg font-semibold">
+                    Registrar
+                </button>
+            </div>
 
-                {% csrf_token %}
-                <input type="hidden" name="rol" value="instructor" />
-                <h3 class="form-title">Registro Instructor</h3>
+        </form>
 
-                <div class="form-group">
-                    <label>Centro formativo:</label>
-                    <div class="input-wrapper has-select">
-                        <select name="centro_formativo" class="custom-select" required>
-                            <option value="" disabled selected>Centro formativo</option>
-                            <option value="centro1">CENTRO AGROEMPRESARIAL Y DESARROLLO PECUARIO DEL HUILA</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Tipo de documento:</label>
-                    <div class="input-wrapper has-select">
-                        <select name="tipo_documento" class="custom-select" required>
-                            <option value="" disabled selected>Tipo de documento</option>
-                            <option value="cc">Cédula de Ciudadanía</option>
-                            <option value="ti">Tarjeta de Identidad</option>
-                            <option value="ce">Cédula de Extranjería</option>
-                            <option value="pasaporte">Pasaporte</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Región:</label>
-                    <div class="input-wrapper has-select">
-                        <select name="region" class="custom-select" required>
-                            <option value="" disabled selected>Región</option>
-                            <option value="region1">HUILA</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Nombre completo:</label>
-                    <div class="input-wrapper">
-                        <input type="text" name="nombre" class="custom-input" placeholder="Nombre del instructor"
-                            required pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+" title="Solo se permiten letras y espacios." />
-                        <small class="validation-warning">⚠️ Solo se permiten letras y espacios.</small> 
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Número de documento:</label>
-                    <div class="input-wrapper">
-                        <input type="number" name="numero_documento" class="custom-input"
-                            placeholder="Número del documento" required min="10000000" max="999999999999"
-                            title="Debe tener entre 8 y 12 números." />
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Contraseña:</label>
-                    <div class="input-wrapper">
-                        <input type="password" id="password" name="password" class="custom-input"
-                            placeholder="Contraseña" minlength="8" maxlength="12" required />
-                        <small id="password-warning" style="color:red; display:none;">
-                            ⚠️ Debe tener entre 8 y 12 caracteres.
-                        </small>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Email:</label>
-                    <div class="input-wrapper">
-                        <input type="email" name="email" class="custom-input" placeholder="Email" required />
-                    </div>
-                </div>
-
-                <button type="submit" class="submit-button">Registrar</button>
-            </form>
-
-            <!-- FORMULARIO BIENESTAR -->
-            <form id="form-bienestar" class="rol-form" method="POST" action="{% url 'registro:registro' %}">
-                {% csrf_token %}
-                <input type="hidden" name="rol" value="bienestar" />
-                <h3 class="form-title">Registro Bienestar</h3>
-
-                <div class="form-group">
-                    <label>Centro formativo:</label>
-                    <div class="input-wrapper has-select">
-                        <select name="centro_formativo" class="custom-select" required>
-                            <option value="" disabled selected>Centro formativo</option>
-                            <option value="centro1">CENTRO AGROEMPRESARIAL Y DESARROLLO PECUARIO DEL HUILA</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Tipo de documento:</label>
-                    <div class="input-wrapper has-select">
-                        <select name="tipo_documento" class="custom-select" required>
-                            <option value="" disabled selected>Tipo de documento</option>
-                            <option value="cc">Cédula de Ciudadanía</option>
-                            <option value="ti">Tarjeta de Identidad</option>
-                            <option value="ce">Cédula de Extranjería</option>
-                            <option value="pasaporte">Pasaporte</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Región:</label>
-                    <div class="input-wrapper has-select">
-                        <select name="region" class="custom-select" required>
-                            <option value="" disabled selected>Región</option>
-                            <option value="region1">HUILA</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Nombre completo:</label>
-                    <div class="input-wrapper">
-                        <input type="text" name="nombre" class="custom-input" placeholder="Nombre completo" required />
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Número de documento:</label>
-                    <div class="input-wrapper">
-                        <input type="number" name="numero_documento" class="custom-input"
-                            placeholder="Número del documento" required min="10000000" max="999999999999"
-                            title="Debe tener entre 8 y 12 números." />
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Contraseña:</label>
-                    <div class="input-wrapper">
-                        <input type="password" id="password" name="password" class="custom-input"
-                            placeholder="Contraseña" minlength="8" maxlength="12" required />
-                        <small id="password-warning" style="color:red; display:none;">
-                            ⚠️ Debe tener entre 8 y 12 caracteres.
-                        </small>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Email:</label>
-                    <div class="input-wrapper">
-                        <input type="email" name="email" class="custom-input" placeholder="Email" required />
-                    </div>
-                </div>
-
-                <button type="submit" class="submit-button">Registrar</button>
-            </form>
-
-            <!-- FORMULARIO APRENDIZ -->
-            <form id="form-aprendiz" class="rol-form" method="POST" action="{% url 'registro:registro' %}">
-                {% csrf_token %}
-                <input type="hidden" name="rol" value="aprendiz" />
-                <h3 class="form-title">Registro Aprendiz</h3>
-
-                <div class="form-group">
-                    <label>Centro formativo:</label>
-                    <div class="input-wrapper has-select">
-                        <select name="centro_formativo" class="custom-select" required>
-                            <option value="" disabled selected>Centro formativo</option>
-                            <option value="centro_agroempresarial_y_desarrollo_pecuario_del_huila">CENTRO
-                                AGROEMPRESARIAL Y DESARROLLO PECUARIO DEL HUILA</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Tipo de documento:</label>
-                    <div class="input-wrapper has-select">
-                        <select name="tipo_documento" class="custom-select" required>
-                            <option value="" disabled selected>Tipo de documento</option>
-                            <option value="cc">Cédula de Ciudadanía</option>
-                            <option value="ti">Tarjeta de Identidad</option>
-                            <option value="ce">Cédula de Extranjería</option>
-                            <option value="pasaporte">Pasaporte</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Región:</label>
-                    <div class="input-wrapper has-select">
-                        <select name="region" class="custom-select" required>
-                            <option value="" disabled selected>Región</option>
-                            <option value="huila">HUILA</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>Jornada:</label>
-                    <div class="input-wrapper has-select">
-                        <select name="jornada" class="custom-select" required>
-                            <option value="" disabled selected>Jornada</option>
-                            <option value="manana">Mañana</option>
-                            <option value="tarde">Tarde</option>
-                            <option value="noche">Noche</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Nombre completo:</label>
-                    <div class="input-wrapper">
-                        <input type="text" name="nombre" class="custom-input" placeholder="Nombre completo" required />
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Número de documento:</label>
-                    <div class="input-wrapper">
-                        <input type="number" name="numero_documento" class="custom-input"
-                            placeholder="Número del documento" required min="10000000" max="999999999999"
-                            title="Debe tener entre 8 y 12 números." />
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Contraseña:</label>
-                    <div class="input-wrapper">
-                        <input type="password" id="password" name="password" class="custom-input"
-                            placeholder="Contraseña" minlength="8" maxlength="12" required />
-                        <small id="password-warning" style="color:red; display:none;">
-                            ⚠️ Debe tener entre 8 y 12 caracteres.
-                        </small>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Email:</label>
-                    <div class="input-wrapper">
-                        <input type="email" name="email" class="custom-input" placeholder="Email" required />
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>Numero de Ficha:</label>
-                    <div class="input-wrapper">
-                        <input type="text" name="ficha" class="custom-input" placeholder="Ficha" required />
-                    </div>
-                </div>
-                <button type="submit" class="submit-button">Registrar</button>
-            </form>
-        </div>
     </div>
 
+    <!-- SCRIPT -->
     <script>
-        // Mostrar formulario según el rol seleccionado
-        const rolSelect = document.getElementById('rolSelect');
-        const forms = document.querySelectorAll('.rol-form');
-        rolSelect.addEventListener('change', () => {
-            forms.forEach(form => {
-                form.style.display = form.querySelector('input[name="rol"]').value === rolSelect.value ? 'block' : 'none';
-            });
+        const select = document.getElementById("select_opcion");
+        const rol_hidden = document.getElementById("rol_seleccionado");
+        const caja_aprendiz = document.getElementById("caja_aprendiz");
+
+        select.addEventListener("change", () => {
+            rol_hidden.value = select.value;
+
+            // mostrar campos de aprendiz
+            if (select.value === "aprendiz") {
+                caja_aprendiz.classList.remove("hidden");
+            } else {
+                caja_aprendiz.classList.add("hidden");
+            }
         });
 
-        // Validaciones dinámicas
-        document.querySelectorAll('input[name="password"]').forEach(input => {
-            const warning = input.parentElement.querySelector('.validation-warning');
-            input.addEventListener('input', () => {
-                warning.style.display = (input.value.length < 8 || input.value.length > 12) ? 'block' : 'none';
-            });
-        });
+        // Validación de contraseña
+        document.getElementById("form_general").addEventListener("submit", function (e) {
+            let pass = document.getElementById("pass").value;
+            let confirm = document.getElementById("confirm").value;
+            let error = document.getElementById("error_pass");
 
-        document.querySelectorAll('input[name="numero_documento"]').forEach(input => {
-            const warning = input.parentElement.querySelector('.validation-warning');
-            input.addEventListener('input', () => {
-                const len = input.value.length;
-                warning.style.display = (len < 8 || len > 12) ? 'block' : 'none';
-            });
+            if (pass !== confirm) {
+                error.textContent = "Las contraseñas no coinciden.";
+                e.preventDefault();
+            } else {
+                error.textContent = "";
+            }
         });
-
-        document.querySelectorAll('input[name="nombre"]').forEach(input => {
-            const warning = input.parentElement.querySelector('.validation-warning');
-            input.addEventListener('input', function () {
-                // Expresión regular: solo letras (mayúsculas/minúsculas), acentos y espacios
-                const soloLetras = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
-                if (this.value && !soloLetras.test(this.value)) {
-                    warning.style.display = 'block';
-                    this.value = this.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñ\s]/g, ''); // elimina números o símbolos
-                } else {
-                    warning.style.display = 'none';
-                }
-            });
-        });
-
-        // Ocultar mensajes Django automáticamente
-        setTimeout(() => {
-            document.querySelectorAll('.message').forEach(msg => {
-                msg.style.transition = 'opacity 0.5s';
-                msg.style.opacity = '0';
-                setTimeout(() => msg.remove(), 500);
-            });
-        }, 5000);
     </script>
 
 </body>
-
 </html>

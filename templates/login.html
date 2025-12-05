@@ -8,59 +8,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>INFOSENA - Registro</title>
     <link rel="icon" href="{% static 'img/logo2.png' %}">
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Animaciones personalizadas -->
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: Arial, sans-serif;
-            background: url('https://www.elpais.com.co/resizer/v2/BECP34CL7RBD5LVFMCHQR6VN3I.jpeg?auth=e1104821a501230c6a85f5c506f0f5c9b5fe52ce6e14f9730027c39a916ea841&smart=true&quality=75&width=1280&height=720') center/cover;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .messages-container {
-            position: fixed;
-            top: 80px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 1000;
-            width: 90%;
-            max-width: 500px;
-        }
-
-        .message {
-            padding: 15px 20px;
-            border-radius: 10px;
-            margin-bottom: 10px;
-            font-weight: 500;
-            animation: slideDown 0.3s ease-out;
-        }
-
-        .message-success {
-            background: #4CAF50;
-            color: white;
-        }
-
-        .message-error {
-            background: #f44336;
-            color: white;
-        }
-
-        .message-warning {
-            background: #ff9800;
-            color: white;
-        }
-
-        .message-info {
-            background: #2196F3;
-            color: white;
-        }
-
         @keyframes slideDown {
             from {
                 opacity: 0;
@@ -72,290 +23,121 @@
                 transform: translateY(0);
             }
         }
-
-        .header {
-            background: linear-gradient(to right, #004d00, #1b9e00);
-            color: white;
-            display: flex;
-            align-items: center;
-            padding: 15px 30px;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: white;
-            font-size: 28px;
-            font-weight: bold;
-        }
-
-        .imagen-pequena {
-            width: 230px;
-            height: auto;
-        }
-
-        .container {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-
-        .login-card {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            padding: 40px;
-            width: 100%;
-            max-width: 500px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-        }
-
-        .card-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 30px;
-        }
-
-        .back-button {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: #2d5f2e;
-            font-size: 18px;
-            font-weight: 500;
-            text-decoration: none;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-
-        .back-button:hover {
-            transform: translateX(-5px);
-        }
-
-        .back-icon {
-            width: 30px;
-            height: 30px;
-            background: #4CAF50;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-        }
-
-        .form-title {
-            color: #2d5f2e;
-            margin-bottom: 20px;
-            font-size: 20px;
-            text-align: center;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            color: #333;
-            font-weight: 500;
-        }
-
-        .input-wrapper {
-            position: relative;
-            display: flex;
-            align-items: center;
-            border: 2px solid #ddd;
-            border-radius: 10px;
-            padding: 12px 15px;
-            background: white;
-            transition: border-color 0.3s;
-        }
-
-        .input-wrapper:focus-within {
-            border-color: #4CAF50;
-        }
-
-        .input-wrapper.has-select::after {
-            content: "▼";
-            position: absolute;
-            right: 15px;
-            font-size: 12px;
-            color: #888;
-            pointer-events: none;
-        }
-
-        .input-icon {
-            font-size: 24px;
-            color: #333;
-            margin-right: 12px;
-        }
-
-        .custom-select,
-        .custom-input {
-            border: none;
-            outline: none;
-            flex: 1;
-            font-size: 16px;
-            color: #333;
-            background: transparent;
-            appearance: none;
-            width: 100%;
-        }
-
-        .custom-select {
-            padding-right: 25px;
-        }
-
-        .rol-form {
-            display: none;
-            animation: fadeIn 0.3s ease-in;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .submit-button {
-            width: 100%;
-            background: #4CAF50;
-            color: white;
-            border: none;
-            padding: 15px;
-            border-radius: 10px;
-            font-size: 18px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.3s, transform 0.2s;
-            margin-top: 20px;
-        }
-
-        .submit-button:hover {
-            background: #45a049;
-            transform: translateY(-2px);
-        }
-
-        .submit-button:active {
-            transform: translateY(0);
-        }
-
-        .help-link {
-            text-align: center;
-            margin-top: 15px;
-        }
-
-        .help-link a {
-            color: #4CAF50;
-            text-decoration: none;
-            border: 2px solid #4CAF50;
-            padding: 8px 20px;
-            border-radius: 20px;
-            font-size: 14px;
-            display: inline-block;
-            transition: all 0.3s;
-        }
-
-        .help-link a:hover {
-            background: #4CAF50;
-            color: white;
-        }
     </style>
 </head>
 
-<body>
+<body class="bg-green-200 min-h-screen flex flex-col bg-cover bg-center font-sans">
 
+    <!-- MENSAJES -->
     {% if messages %}
-    <div class="messages-container">
+    <div class="fixed top-20 left-1/2 -translate-x-1/2 w-11/12 max-w-md z-50">
         {% for message in messages %}
-        <div class="message message-{{ message.tags }}">
+        <div class="
+            p-4 rounded-lg mb-2 font-medium animate-[slideDown_0.3s_ease-out]
+            {% if message.tags == 'success' %} bg-green-600 text-white
+            {% elif message.tags == 'error' %} bg-red-600 text-white
+            {% elif message.tags == 'warning' %} bg-yellow-500 text-white
+            {% elif message.tags == 'info' %} bg-blue-600 text-white
+            {% endif %}
+        ">
             {{ message }}
         </div>
         {% endfor %}
     </div>
     {% endif %}
 
+    <!-- ENCABEZADO -->
 
-    <div class="header">
-        <div class="logo">
-            {% load static %}
-            <span><img src="{% static 'img/logo2.png' %}" alt="INFOSENA" class="imagen-pequena" /></span>
 
-        </div>
+    <!-- CONTENEDOR -->
+    <div class="flex-1 flex items-center justify-center p-4">
+        <div class="bg-white/95 shadow-2xl rounded-2xl p-8 w-full max-w-lg">
+
+            <!-- HEADER DEL CARD -->
+            <div class="flex items-center justify-between mb-6">
+<a href="{% url 'sesion:index' %}" 
+   class="flex items-center gap-2 text-green-700 text-lg font-medium cursor-pointer 
+          transition-transform hover:-translate-x-1 active:scale-95">
+
+    <div class="w-9 h-9 flex items-center justify-center bg-green-600 text-white rounded-full shadow-md 
+                transition-colors hover:bg-green-700">
+
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+             stroke="currentColor" class="w-5 h-5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+        </svg>
+
     </div>
 
-    <div class="container">
-        <div class="login-card">
-            <div class="card-header">
-                <div class="back-button" onclick="window.history.back()">
-                    <div class="back-icon">↩</div>
-                    <span>Regresar</span>
-                </div>
-                <div class="logo">
-                    <span><img src="{% static 'img/logo.png' %}" alt="INFOSENA" class="imagen-pequena" /></span>
-                </div>
+    <span class="hidden sm:block">Regresar</span>
+
+</a>
+
+                <img src="{% static 'img/logo.png' %}" alt="INFOSENA" class="w-56 h-auto">
             </div>
-
-
-            <!-- Formulario de login -->
+<div class="flex flex-col items-center mb-8">
+            <h2 class="text-3xl font-extrabold text-gray-800 tracking-wide">Inicio de Sesión</h2>
+        </div>
+            <!-- FORMULARIO -->
             <form method="POST" action="{% url 'sesion:login' %}">
-
                 {% csrf_token %}
-                <div class="form-group">
-                    <div class="input-wrapper">
-                        <span class="input-icon">👤</span>
-                        <input type="text" id="documento" name="documento" placeholder="Número de documento" required>
+
+                <!-- Documento -->
+                <div class="mb-4">
+                    <div
+                        class="flex items-center border-2 border-gray-300 rounded-xl p-3 focus-within:border-green-600 transition">
+                        <span class="text-2xl mr-3">👤</span>
+                        <input type="text" name="documento" id="documento" placeholder="Número de documento"
+                            class="flex-1 outline-none text-gray-700 text-lg bg-transparent" required>
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <div class="input-wrapper">
-                        <span class="input-icon">🔒</span>
-                        <input type="password" id="password" name="password" placeholder="Contraseña" required>
+                <!-- Contraseña -->
+                <div class="mb-4">
+                    <div
+                        class="flex items-center border-2 border-gray-300 rounded-xl p-3 focus-within:border-green-600 transition">
+                        <span class="text-2xl mr-3">🔒</span>
+                        <input type="password" name="password" id="password" placeholder="Contraseña"
+                            class="flex-1 outline-none text-gray-700 text-lg bg-transparent" required>
                     </div>
                 </div>
 
-                <button type="submit" class="submit-button">Iniciar sesión</button>
+                <!-- BOTÓN -->
+                <button type="submit"
+                    class="w-full bg-green-600 text-white py-3 rounded-xl text-lg font-semibold mt-4 hover:bg-green-700 active:scale-95 transition">
+                    Iniciar sesión
+                </button>
             </form>
-            <!-- 🔥 NUEVO: Enlace "¿Olvidaste tu contraseña?" -->
-            <div class="forgot-link">
-                <a href="{% url 'sesion:solicitar_correo' %}">
+
+            <!-- OLVIDASTE TU CONTRASEÑA -->
+            <div class="text-center mt-4">
+                <a href="{% url 'sesion:solicitar_correo' %}"
+                    class="text-green-600 underline hover:text-green-700 transition">
                     ¿Olvidaste tu contraseña?
                 </a>
             </div>
-
         </div>
+    </div>
 
-        <script>
-            window.addEventListener('load', () => {
-                document.getElementById('documento').value = '';
-                document.getElementById('password').value = '';
+    <!-- LIMPIAR CAMPOS AL CARGAR -->
+    <script>
+        window.addEventListener('load', () => {
+            document.getElementById('documento').value = '';
+            document.getElementById('password').value = '';
+        });
+    </script>
+
+    <!-- OCULTAR MENSAJES -->
+    <script>
+        setTimeout(() => {
+            const messages = document.querySelectorAll('.animate-[slideDown_0.3s_ease-out]');
+            messages.forEach(msg => {
+                msg.style.transition = 'opacity 0.5s';
+                msg.style.opacity = '0';
+                setTimeout(() => msg.remove(), 500);
             });
-        </script>
-
-        <script>
-            // Auto-ocultar mensajes después de 5 segundos
-            setTimeout(() => {
-                const messages = document.querySelectorAll('.message');
-                messages.forEach(msg => {
-                    msg.style.transition = 'opacity 0.5s';
-                    msg.style.opacity = '0';
-                    setTimeout(() => msg.remove(), 500);
-                });
-            }, 5000);
-        </script>
-
+        }, 5000);
+    </script>
 
 </body>
 

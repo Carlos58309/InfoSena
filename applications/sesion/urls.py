@@ -11,6 +11,7 @@ urlpatterns = [
     path("restablecer/<uid>/<token>/", restablecer_contrasena, name="restablecer"),
     path("chat/", chat_view, name="chat"),  # <-- ESTA LA AGREGAMOS
     path("perfil/", perfil_view, name="perfil"),  # <-- ESTA TAMBIÉN
+    path('', home, name='index'),
 
 ]
 
