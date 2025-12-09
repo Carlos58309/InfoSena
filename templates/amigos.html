@@ -12,47 +12,49 @@
 
 <body class="bg-gray-200">
 
+{% if messages %}
+<div class="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 w-11/12 md:w-1/3">
+    {% for message in messages %}
+    <div class="p-4 mb-3 rounded-xl text-white font-semibold shadow-lg
+                {% if message.tags == 'success' %} bg-green-500
+                {% elif message.tags == 'error' %} bg-red-500
+                {% elif message.tags == 'warning' %} bg-yellow-500
+                {% else %} bg-blue-500 {% endif %}">
+        {{ message }}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
 <header class="hero bg-gradient-to-r from-[#0d3604] to-[#2b9e15] shadow-lg sticky top-0 z-50">
     <nav class="container mx-auto px-2 py-2 relative">
         <div class="flex justify-between items-center">
-
             <div class="flex flex-row-reverse items-center">
-                <img src="{% static 'image.png' %}" width="200px" />
+                <img src="{% static 'img/logo2.png' %}" width="200px" />
             </div>
-
             <div class="hidden md:flex items-center w-full max-w-md bg-white rounded-full px-4 py-2 shadow-lg">
-                <input type="text" placeholder="Search..."
+                <input type="text" placeholder="Buscar..."
                     class="flex-1 outline-none text-gray-700 placeholder-gray-400" />
             </div>
         </div>
     </nav>
 </header>
 
-<div class="pt-20 grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 h-screen">
+<div class="pt-20 grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 min-h-screen">
 
     <aside class="hidden md:block md:col-span-1 bg-transparent overflow-y-auto h-[calc(100vh-5rem)] sticky top-20 p-4">
         <div class="space-y-4">
-
-            <!-- MI PERFIL CON FOTO -->
             <a href="{% url 'perfil:perfiles' %}" class="flex items-center space-x-3 bg-white p-3 rounded-xl shadow hover:bg-green-200 hover:text-green-700 transition">
-                {% if request.user.foto %}
-                    <img src="{{ request.user.foto.url }}" 
-                         alt="{{ request.user.nombre }}"
+                {% if request.user.usuario.foto %}
+                    <img src="{{ request.user.usuario.foto.url }}" 
+                         alt="{{ request.user.usuario.nombre }}"
                          class="w-10 h-10 rounded-full object-cover">
                 {% else %}
                     <div class="w-10 h-10 bg-gradient-to-br from-gray-300 to-gray-400 rounded-full flex items-center justify-center text-xl">
-                        {% if request.user.tipo_perfil == 'instructor' %}
-                            👨‍🏫
-                        {% elif request.user.tipo_perfil == 'bienestar' %}
-                            🏥
-                        {% elif request.user.tipo_perfil == 'aprendiz' %}
-                            🎓
-                        {% else %}
-                            👤
-                        {% endif %}
+                        👤
                     </div>
                 {% endif %}
-                <span>{{ request.user.nombre|default:"Mi perfil" }}</span>
+                <span>{{ request.user.usuario.nombre|default:"Mi perfil" }}</span>
             </a>
 
             <a href="{% url 'sesion:home' %}"
@@ -69,87 +71,167 @@
                 class="flex items-center space-x-3 bg-white p-3 rounded-xl shadow hover:bg-green-200 hover:text-green-700">
                 <span>Chat</span>
             </a>
-
         </div>
     </aside>
 
     <main class="col-span-4 lg:col-span-4 p-4">
 
-        <div class="flex justify-between items-center mb-4">
-            <h2 class="text-2xl font-bold text-gray-800">Amigos</h2>
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-3xl font-bold text-gray-800">Amigos</h2>
         </div>
 
+        <!-- PESTAÑAS -->
         <div class="flex space-x-4 mb-6 border-b pb-2">
             <button id="btnSolicitudes"
-                class="px-4 py-2 rounded-xl bg-green-600 text-white font-semibold hover:bg-green-700 transition">
-                Solicitudes de amistad
+                class="px-6 py-2 rounded-xl bg-green-600 text-white font-semibold hover:bg-green-700 transition">
+                Solicitudes 
+                {% if solicitudes_recibidas.count > 0 %}
+                <span class="bg-red-500 text-white text-xs px-2 py-1 rounded-full ml-2">{{ solicitudes_recibidas.count }}</span>
+                {% endif %}
             </button>
 
             <button id="btnAgregados"
-                class="px-4 py-2 rounded-xl bg-gray-300 text-gray-800 font-semibold hover:bg-gray-400 transition">
-                Amigos agregados
+                class="px-6 py-2 rounded-xl bg-gray-300 text-gray-800 font-semibold hover:bg-gray-400 transition">
+                Mis amigos ({{ amigos|length }})
             </button>
         </div>
 
-        <div id="solicitudesSection" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-
-            {% for u in usuarios %}
-            <div class="bg-white rounded-xl shadow p-4 text-center">
-
-                <!-- FOTO DE PERFIL DEL USUARIO -->
-                {% if u.foto %}
-                    <img src="{{ u.foto.url }}" 
-                         alt="{{ u.nombre }}"
-                         class="w-24 h-24 mx-auto rounded-full object-cover mb-3 border-4 border-gray-200">
-                {% else %}
-                    <div class="w-24 h-24 mx-auto bg-gradient-to-br from-gray-300 to-gray-400 rounded-full mb-3 flex items-center justify-center text-4xl">
-                        {% if u.tipo_perfil == 'instructor' %}
-                            👨‍🏫
-                        {% elif u.tipo_perfil == 'bienestar' %}
-                            🏥
-                        {% elif u.tipo_perfil == 'aprendiz' %}
-                            🎓
+        <!-- ========================================= -->
+        <!--  SECCIÓN: SOLICITUDES Y SUGERENCIAS       -->
+        <!-- ========================================= -->
+        <div id="solicitudesSection">
+            
+            <!-- SOLICITUDES RECIBIDAS -->
+            {% if solicitudes_recibidas %}
+            <div class="mb-8">
+                <h3 class="text-xl font-bold text-gray-800 mb-4">📬 Solicitudes recibidas</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                    {% for solicitud in solicitudes_recibidas %}
+                    <div class="bg-white rounded-xl shadow p-4 text-center">
+                        {% if solicitud.emisor.foto %}
+                            <img src="{{ solicitud.emisor.foto.url }}" 
+                                 alt="{{ solicitud.emisor.nombre }}"
+                                 class="w-24 h-24 mx-auto rounded-full object-cover mb-3 border-4 border-green-200">
                         {% else %}
-                            👤
+                            <div class="w-24 h-24 mx-auto bg-gradient-to-br from-gray-300 to-gray-400 rounded-full mb-3 flex items-center justify-center text-4xl">
+                                👤
+                            </div>
                         {% endif %}
+
+                        <p class="font-semibold text-lg">{{ solicitud.emisor.nombre }}</p>
+                        <p class="text-gray-400 text-sm mb-2">{{ solicitud.emisor.email }}</p>
+                        <p class="text-xs text-gray-400 italic mb-3">{{ solicitud.fecha_solicitud|timesince }} atrás</p>
+
+                        <div class="border-t border-gray-300 mb-3"></div>
+
+                        <a href="{% url 'amistades:aceptar_solicitud' solicitud.id %}" 
+                           class="block w-full bg-green-600 text-white py-2 rounded-lg mb-2 hover:bg-green-700 transition">
+                            ✓ Aceptar
+                        </a>
+
+                        <a href="{% url 'amistades:rechazar_solicitud' solicitud.id %}" 
+                           class="block w-full bg-gray-500 text-white py-2 rounded-lg hover:bg-gray-600 transition">
+                            ✕ Rechazar
+                        </a>
                     </div>
-                {% endif %}
-
-                <p class="font-semibold text-lg">{{ u.nombre }}</p>
-
-                <p class="text-gray-400 text-sm mb-3">{{ u.email }}</p>
-
-                <p class="text-xs text-gray-500 italic mb-2">{{ u.modelo|default:"" }}</p>
-
-                <div class="border-t border-gray-300 mb-3"></div>
-
-                <button class="w-full bg-green-600 text-white py-1.5 rounded-lg mb-2 hover:bg-green-700">
-                    Agregar amigo
-                </button>
-
-                <!-- BOTÓN VER PERFIL CON ENLACE CORRECTO -->
-                {% if u.id or u.pk %}
-                <a href="{% url 'perfil:ver_perfil' u.id|default:u.pk %}" 
-                   class="block w-full bg-gray-500 text-white py-1.5 rounded-lg hover:bg-gray-600 transition text-center">
-                    Ver perfil
-                </a>
-                {% else %}
-                <button class="block w-full bg-gray-400 text-white py-1.5 rounded-lg cursor-not-allowed" disabled>
-                    Ver perfil
-                </button>
-                {% endif %}
-
+                    {% endfor %}
+                </div>
             </div>
-            {% empty %}
-            <p class="text-gray-500">No hay usuarios registrados.</p>
-            {% endfor %}
+            {% endif %}
+
+            <!-- SUGERENCIAS DE AMISTAD -->
+            <div class="mb-8">
+                <h3 class="text-xl font-bold text-gray-800 mb-4">💡 Sugerencias de amistad</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                    {% for usuario in sugerencias %}
+                    <div class="bg-white rounded-xl shadow p-4 text-center">
+                        {% if usuario.foto %}
+                            <img src="{{ usuario.foto.url }}" 
+                                 alt="{{ usuario.nombre }}"
+                                 class="w-24 h-24 mx-auto rounded-full object-cover mb-3 border-4 border-gray-200">
+                        {% else %}
+                            <div class="w-24 h-24 mx-auto bg-gradient-to-br from-gray-300 to-gray-400 rounded-full mb-3 flex items-center justify-center text-4xl">
+                                {% if usuario.tipo_perfil == 'instructor' %}
+                                    👨‍🏫
+                                {% elif usuario.tipo_perfil == 'bienestar' %}
+                                    🏥
+                                {% elif usuario.tipo_perfil == 'aprendiz' %}
+                                    🎓
+                                {% else %}
+                                    👤
+                                {% endif %}
+                            </div>
+                        {% endif %}
+
+                        <p class="font-semibold text-lg">{{ usuario.nombre }}</p>
+                        <p class="text-gray-400 text-sm mb-2">{{ usuario.email }}</p>
+                        <p class="text-xs text-gray-500 italic mb-2">{{ usuario.get_tipo_perfil_display }}</p>
+
+                        <div class="border-t border-gray-300 mb-3"></div>
+
+                        {% if usuario.id in solicitudes_enviadas_ids %}
+                            <a href="{% url 'amistades:cancelar_solicitud' usuario.id %}" 
+                               class="block w-full bg-gray-500 text-white py-2 rounded-lg mb-2 hover:bg-gray-600 transition">
+                                ⏳ Cancelar solicitud
+                            </a>
+                        {% else %}
+                            <a href="{% url 'amistades:enviar_solicitud' usuario.id %}" 
+                               class="block w-full bg-green-600 text-white py-2 rounded-lg mb-2 hover:bg-green-700 transition">
+                                ➕ Agregar amigo
+                            </a>
+                        {% endif %}
+
+                        <a href="{% url 'perfil:ver_perfil' usuario.id %}" 
+                           class="block w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition">
+                            👁️ Ver perfil
+                        </a>
+                    </div>
+                    {% empty %}
+                    <p class="text-gray-500 col-span-3">No hay sugerencias disponibles.</p>
+                    {% endfor %}
+                </div>
+            </div>
 
         </div>
 
-        <div id="agregadosSection" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 hidden">
-            <div class="bg-white rounded-xl shadow p-4 text-center">
-                <div class="w-24 h-24 mx-auto bg-gray-300 rounded-full mb-3"></div>
-                <h3 class="font-semibold text-lg mb-2">Amigo agregado</h3>
+        <!-- ========================================= -->
+        <!--  SECCIÓN: AMIGOS AGREGADOS                -->
+        <!-- ========================================= -->
+        <div id="agregadosSection" class="hidden">
+            <h3 class="text-xl font-bold text-gray-800 mb-4">👥 Mis amigos</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                {% for amigo in amigos %}
+                <div class="bg-white rounded-xl shadow p-4 text-center">
+                    {% if amigo.foto %}
+                        <img src="{{ amigo.foto.url }}" 
+                             alt="{{ amigo.nombre }}"
+                             class="w-24 h-24 mx-auto rounded-full object-cover mb-3 border-4 border-green-200">
+                    {% else %}
+                        <div class="w-24 h-24 mx-auto bg-gradient-to-br from-gray-300 to-gray-400 rounded-full mb-3 flex items-center justify-center text-4xl">
+                            👤
+                        </div>
+                    {% endif %}
+
+                    <p class="font-semibold text-lg">{{ amigo.nombre }}</p>
+                    <p class="text-gray-400 text-sm mb-2">{{ amigo.email }}</p>
+                    <p class="text-xs text-gray-500 italic mb-2">{{ amigo.get_tipo_perfil_display }}</p>
+
+                    <div class="border-t border-gray-300 mb-3"></div>
+
+                    <a href="{% url 'perfil:ver_perfil' amigo.id %}" 
+                       class="block w-full bg-blue-500 text-white py-2 rounded-lg mb-2 hover:bg-blue-600 transition">
+                        👁️ Ver perfil
+                    </a>
+
+                    <a href="{% url 'amistades:eliminar_amigo' amigo.id %}" 
+                       onclick="return confirm('¿Estás seguro de eliminar a {{ amigo.nombre }} de tus amigos?')"
+                       class="block w-full bg-red-500 text-white py-2 rounded-lg hover:bg-red-600 transition">
+                        🗑️ Eliminar amigo
+                    </a>
+                </div>
+                {% empty %}
+                <p class="text-gray-500 col-span-3">Aún no tienes amigos agregados.</p>
+                {% endfor %}
             </div>
         </div>
 
@@ -179,6 +261,16 @@
         btnSolicitudes.classList.remove("bg-green-600", "text-white");
         btnSolicitudes.classList.add("bg-gray-300", "text-gray-800");
     });
+
+    // Ocultar mensajes después de 4 segundos
+    setTimeout(() => {
+        const messages = document.querySelectorAll('.fixed > div');
+        messages.forEach(msg => {
+            msg.style.transition = 'opacity 0.6s ease';
+            msg.style.opacity = '0';
+            setTimeout(() => msg.remove(), 600);
+        });
+    }, 4000);
 </script>
 
 </body>

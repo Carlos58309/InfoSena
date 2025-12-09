@@ -6,6 +6,7 @@ from django.conf import settings
 from django.urls import reverse
 from applications.registro.models import Aprendiz, Instructor, Bienestar
 from applications.usuarios.models import Usuario
+from applications.amistades.models import Amistad
 from .models import Sesion
 from django.contrib.auth.decorators import login_required
 
@@ -98,11 +99,48 @@ def dashboard_view(request):
 
 @login_required
 def amigos_view(request):
-    # Excluir al usuario actual de la lista
-    usuarios = Usuario.objects.exclude(id=request.user.id)
+    """Vista principal de amigos"""
+    usuario_actual = request.user.usuario
+    
+    # Solicitudes recibidas (pendientes)
+    solicitudes_recibidas = Amistad.objects.filter(
+        receptor=usuario_actual,
+        estado=Amistad.PENDIENTE
+    ).select_related('emisor')
+    
+    # Solicitudes enviadas (pendientes)
+    solicitudes_enviadas = Amistad.objects.filter(
+        emisor=usuario_actual,
+        estado=Amistad.PENDIENTE
+    ).select_related('receptor')
+    
+    # Crear un set de IDs de usuarios con solicitud pendiente
+    ids_con_solicitud = {sol.receptor.id for sol in solicitudes_enviadas}
+    
+    # Amigos aceptados
+    amigos = Amistad.obtener_amigos(usuario_actual)
+    
+    # IDs de amigos
+    ids_amigos = {amigo.id for amigo in amigos}
+    
+    # Sugerencias (usuarios que no son amigos y sin solicitud pendiente)
+    sugerencias = Usuario.objects.exclude(
+        id=usuario_actual.id
+    ).exclude(
+        id__in=ids_amigos
+    ).exclude(
+        id__in=ids_con_solicitud
+    )
+    
+    # Excluir también a quienes nos enviaron solicitud
+    ids_solicitudes_recibidas = {sol.emisor.id for sol in solicitudes_recibidas}
+    sugerencias = sugerencias.exclude(id__in=ids_solicitudes_recibidas)
     
     context = {
-        'usuarios': usuarios,
+        'solicitudes_recibidas': solicitudes_recibidas,
+        'solicitudes_enviadas_ids': ids_con_solicitud,
+        'sugerencias': sugerencias,
+        'amigos': amigos,
     }
     
     return render(request, 'amigos.html', context)
