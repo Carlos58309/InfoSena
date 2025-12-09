@@ -1,0 +1,109 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ usuario.nombre }} - Perfil</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-200">
+
+<header class="hero bg-gradient-to-r from-[#0d3604] to-[#2b9e15] shadow-lg">
+    <nav class="container mx-auto px-4 py-4">
+        <div class="flex justify-between items-center">
+            <img src="{% static 'img/logo2.png' %}" width="200px" />
+        </div>
+    </nav>
+</header>
+
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-4xl mx-auto bg-white rounded-3xl shadow-xl overflow-hidden">
+        
+        <!-- BANNER SUPERIOR -->
+        <div class="h-48 bg-gradient-to-r from-green-600 to-green-400 relative">
+            <!-- FOTO DE PERFIL -->
+            <div class="absolute -bottom-16 left-8">
+                {% if usuario.foto %}
+                    <img src="{{ usuario.foto.url }}" 
+                         alt="{{ usuario.nombre }}"
+                         class="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg">
+                {% else %}
+                    <div class="w-32 h-32 bg-gradient-to-br from-gray-300 to-gray-400 rounded-full border-4 border-white shadow-lg flex items-center justify-center text-6xl">
+                        {% if usuario.tipo_perfil == 'instructor' %}
+                            👨‍🏫
+                        {% elif usuario.tipo_perfil == 'bienestar' %}
+                            🏥
+                        {% elif usuario.tipo_perfil == 'aprendiz' %}
+                            🎓
+                        {% else %}
+                            👤
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- INFORMACIÓN DEL PERFIL -->
+        <div class="pt-20 px-8 pb-8">
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">{{ usuario.nombre }}</h1>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                
+                <div>
+                    <h3 class="text-sm text-gray-500 font-semibold mb-1">Número de documento</h3>
+                    <p class="text-gray-800">{{ usuario.numero_documento|default:"No especificado" }}</p>
+                </div>
+
+                <div>
+                    <h3 class="text-sm text-gray-500 font-semibold mb-1">Tipo de documento</h3>
+                    <p class="text-gray-800">{{ usuario.tipo_documento|default:"No especificado" }}</p>
+                </div>
+
+                <div>
+                    <h3 class="text-sm text-gray-500 font-semibold mb-1">Correo electrónico</h3>
+                    <p class="text-gray-800">{{ usuario.email }}</p>
+                </div>
+
+                <div>
+                    <h3 class="text-sm text-gray-500 font-semibold mb-1">Centro formativo</h3>
+                    <p class="text-gray-800">{{ usuario.centro_formativo|default:"No especificado" }}</p>
+                </div>
+
+                <div>
+                    <h3 class="text-sm text-gray-500 font-semibold mb-1">Región</h3>
+                    <p class="text-gray-800">{{ usuario.region|default:"No especificada" }}</p>
+                </div>
+
+                <div>
+                    <h3 class="text-sm text-gray-500 font-semibold mb-1">Tipo de usuario</h3>
+                    <p class="text-gray-800">{{ usuario.get_tipo_perfil_display|default:"No especificado" }}</p>
+                </div>
+
+            </div>
+
+            <!-- BOTONES -->
+            <div class="mt-8 flex gap-4">
+                {% if es_perfil_propio %}
+                    <!-- Si es su propio perfil -->
+                    <a href="{% url 'perfil:editar_perfil' %}" 
+                       class="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
+                        🖊️ Editar perfil
+                    </a>
+                {% endif %}
+                
+                <!-- Botón para volver -->
+                <button onclick="window.history.back()" 
+                        class="px-6 py-3 bg-gray-400 text-white rounded-lg hover:bg-gray-500 transition">
+                    🏠 Volver
+                </button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>

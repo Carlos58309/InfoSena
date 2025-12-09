@@ -1,15 +1,12 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Editar Perfil - InfoSena</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-
 <body class="bg-gray-200">
-
     <!-- HEADER -->
     <header class="hero bg-gradient-to-r from-[#0d3604] to-[#2b9e15] shadow-lg sticky top-0 z-50">
         <nav class="container mx-auto px-2 py-2 relative">
@@ -47,7 +44,6 @@
     <!-- CONTENIDO DEL FORMULARIO DE EDICIÓN -->
     <div class="container mx-auto px-4 py-8">
         <div class="bg-white rounded-3xl shadow-lg overflow-hidden max-w-4xl mx-auto">
-
             <!-- Banner superior -->
             <div class="h-48 bg-gradient-to-r from-[#0d3604] to-[#2b9e15] relative">
                 <div class="absolute bottom-6 right-8 text-white z-10 text-right">
@@ -58,33 +54,31 @@
 
             <!-- Formulario de edición -->
             <div class="px-8 pb-8">
-
-                <!-- ÚNICO FORMULARIO - Corregido -->
+                <!-- FORMULARIO CORREGIDO -->
                 <form method="POST" action="{% url 'perfil:editar_perfil' %}" enctype="multipart/form-data" class="space-y-6">
                     {% csrf_token %}
 
                     <!-- Foto de perfil -->
                     <div class="relative -mt-24 mb-10 w-44 h-44">
                         <div id="fotoPerfilDiv"
-                            class="w-44 h-44 rounded-full border-8 border-white shadow-2xl flex items-center justify-center text-7xl relative overflow-hidden hover:scale-105 transition-transform duration-300"
-                            style="background-image: url('{% if usuario.foto %}{{ usuario.foto.url }}?v={{ usuario.foto.size }}{% endif %}'); background-size: cover; background-position: center;">
+                            class="w-44 h-44 rounded-full border-8 border-white shadow-2xl flex items-center justify-center text-7xl relative overflow-hidden hover:scale-105 transition-transform duration-300 bg-gray-100"
+                            style="{% if usuario.foto %}background-image: url('{{ usuario.foto.url }}'); background-size: cover; background-position: center;{% endif %}">
 
                             <!-- Emoji por defecto si no hay foto -->
                             {% if not usuario.foto %}
+                                <span id="emojiDefault" class="filter drop-shadow-lg">
                                 {% if tipo_perfil == 'instructor' %}
-                                    <span class="filter drop-shadow-lg">👨‍🏫</span>
+                                    👨‍🏫
                                 {% elif tipo_perfil == 'bienestar' %}
-                                    <span class="filter drop-shadow-lg">🏥</span>
+                                    🏥
                                 {% elif tipo_perfil == 'aprendiz' %}
-                                    <span class="filter drop-shadow-lg">🎓</span>
+                                    🎓
                                 {% endif %}
+                                </span>
                             {% endif %}
 
-                            <!-- Input de archivo oculto -->
-                            <input type="file" id="inputFotoPerfil" name="foto" accept="image/*" class="hidden">
-
                             <!-- Botón de cámara -->
-                            <button type="button" onclick="document.getElementById('inputFotoPerfil').click()" 
+                            <button type="button" id="btnCambiarFoto"
                                 class="absolute bottom-2 right-2 bg-gradient-to-r from-green-600 to-green-700 text-white p-3 rounded-full shadow-xl hover:shadow-2xl hover:scale-110 transition-all duration-200 z-10">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                     stroke="currentColor" class="w-5 h-5">
@@ -95,26 +89,23 @@
                                 </svg>
                             </button>
                         </div>
+                        
+                        <!-- Input de archivo (NOMBRE CORREGIDO: 'foto') -->
+                        <input type="file" id="inputFotoPerfil" name="foto" accept="image/*" class="hidden">
                     </div>
 
                     <!-- Información básica -->
                     <div class="border-b border-gray-200 pb-6">
                         <h2 class="text-xl font-semibold text-gray-800 mb-4">Información básica</h2>
-
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">
-                                    Nombre completo
-                                </label>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Nombre completo</label>
                                 <input type="text" name="nombre" value="{{ usuario.nombre }}"
                                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                                     required>
                             </div>
-
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">
-                                    Correo electrónico
-                                </label>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Correo electrónico</label>
                                 <input type="email" name="email" value="{{ usuario.email }}"
                                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                                     required>
@@ -125,12 +116,9 @@
                     <!-- Información de identificación -->
                     <div class="border-b border-gray-200 pb-6">
                         <h2 class="text-xl font-semibold text-gray-800 mb-4">Identificación</h2>
-
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">
-                                    Tipo de documento
-                                </label>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Tipo de documento</label>
                                 <select name="tipo_documento"
                                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                                     required>
@@ -140,11 +128,8 @@
                                     <option value="PAS" {% if usuario.tipo_documento == 'PAS' %}selected{% endif %}>Pasaporte</option>
                                 </select>
                             </div>
-
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">
-                                    Número de documento
-                                </label>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Número de documento</label>
                                 <input type="text" name="numero_documento" value="{{ usuario.numero_documento }}"
                                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-gray-50"
                                     readonly>
@@ -156,40 +141,28 @@
                     <!-- Información institucional -->
                     <div class="border-b border-gray-200 pb-6">
                         <h2 class="text-xl font-semibold text-gray-800 mb-4">Información institucional</h2>
-
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">
-                                    Centro formativo
-                                </label>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Centro formativo</label>
                                 <input type="text" name="centro_formativo" value="{{ usuario.centro_formativo }}"
                                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                                     required>
                             </div>
-
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">
-                                    Región
-                                </label>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Región</label>
                                 <input type="text" name="region" value="{{ usuario.region }}"
                                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                                     required>
                             </div>
-
                             {% if tipo_perfil == 'aprendiz' %}
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">
-                                    Ficha
-                                </label>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Ficha</label>
                                 <input type="text" name="ficha" value="{{ usuario.ficha }}"
                                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                                     required>
                             </div>
-
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">
-                                    Jornada
-                                </label>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Jornada</label>
                                 <select name="jornada"
                                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                                     required>
@@ -205,19 +178,17 @@
 
                     <!-- Botones de acción -->
                     <div class="flex gap-4 pt-6 items-center">
-                        <!-- Guardar cambios -->
                         <button type="submit"
                             class="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium">
-                            Guardar cambios
+                            💾 Guardar cambios
                         </button>
-                        <!-- Cancelar -->
                         <a href="{% url 'perfil:perfiles' %}"
                             class="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition font-medium">
-                            Cancelar
+                            ❌ Cancelar
                         </a>
                         <a href="{% url 'perfil:eliminar_perfil' %}"
                             class="ml-auto px-6 py-3 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition font-medium">
-                            Eliminar perfil
+                            🗑️ Eliminar perfil
                         </a>
                     </div>
                 </form>
@@ -225,38 +196,42 @@
         </div>
     </div>
 
-    <!-- Script para previsualización -->
+    <!-- Script para previsualización - CORREGIDO -->
     <script>
         const inputFoto = document.getElementById('inputFotoPerfil');
         const fotoPerfilDiv = document.getElementById('fotoPerfilDiv');
+        const btnCambiarFoto = document.getElementById('btnCambiarFoto');
 
+        // Al hacer clic en el botón, abrir selector de archivos
+        btnCambiarFoto.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            inputFoto.click();
+        });
+
+        // Cuando se selecciona un archivo
         inputFoto.addEventListener('change', function() {
             if (this.files && this.files[0]) {
                 const reader = new FileReader();
+                
                 reader.onload = function(e) {
+                    // Actualizar la imagen de fondo
                     fotoPerfilDiv.style.backgroundImage = `url('${e.target.result}')`;
-                    fotoPerfilDiv.innerHTML = `
-                        <input type="file" id="inputFotoPerfil" name="foto_perfil" accept="image/*" class="hidden">
-                        <button type="button" onclick="document.getElementById('inputFotoPerfil').click()" 
-                            class="absolute bottom-2 right-2 bg-gradient-to-r from-green-600 to-green-700 text-white p-3 rounded-full shadow-xl hover:shadow-2xl hover:scale-110 transition-all duration-200 z-10">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                stroke="currentColor" class="w-5 h-5">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-                            </svg>
-                        </button>
-                    `;
-                    // Re-añadir el event listener al nuevo botón
-                    const nuevoInput = document.getElementById('inputFotoPerfil');
-                    nuevoInput.addEventListener('change', arguments.callee);
+                    fotoPerfilDiv.style.backgroundSize = 'cover';
+                    fotoPerfilDiv.style.backgroundPosition = 'center';
+                    
+                    // Ocultar el emoji si existe
+                    const emoji = document.getElementById('emojiDefault');
+                    if (emoji) {
+                        emoji.style.display = 'none';
+                    }
+                    
+                    console.log('✓ Imagen cargada para previsualización');
                 }
+                
                 reader.readAsDataURL(this.files[0]);
             }
         });
     </script>
-
 </body>
-
 </html>

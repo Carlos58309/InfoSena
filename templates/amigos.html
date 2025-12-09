@@ -33,9 +33,26 @@
     <aside class="hidden md:block md:col-span-1 bg-transparent overflow-y-auto h-[calc(100vh-5rem)] sticky top-20 p-4">
         <div class="space-y-4">
 
-            <a href="{% url 'sesion:perfil' %}" class="flex items-center space-x-3 bg-white p-3 rounded-xl shadow">
-                <div class="w-10 h-10 bg-gray-300 rounded-full"></div>
-                <span>Mi perfil</span>
+            <!-- MI PERFIL CON FOTO -->
+            <a href="{% url 'perfil:perfiles' %}" class="flex items-center space-x-3 bg-white p-3 rounded-xl shadow hover:bg-green-200 hover:text-green-700 transition">
+                {% if request.user.foto %}
+                    <img src="{{ request.user.foto.url }}" 
+                         alt="{{ request.user.nombre }}"
+                         class="w-10 h-10 rounded-full object-cover">
+                {% else %}
+                    <div class="w-10 h-10 bg-gradient-to-br from-gray-300 to-gray-400 rounded-full flex items-center justify-center text-xl">
+                        {% if request.user.tipo_perfil == 'instructor' %}
+                            👨‍🏫
+                        {% elif request.user.tipo_perfil == 'bienestar' %}
+                            🏥
+                        {% elif request.user.tipo_perfil == 'aprendiz' %}
+                            🎓
+                        {% else %}
+                            👤
+                        {% endif %}
+                    </div>
+                {% endif %}
+                <span>{{ request.user.nombre|default:"Mi perfil" }}</span>
             </a>
 
             <a href="{% url 'sesion:home' %}"
@@ -79,13 +96,30 @@
             {% for u in usuarios %}
             <div class="bg-white rounded-xl shadow p-4 text-center">
 
-                <div class="w-24 h-24 mx-auto bg-gray-300 rounded-full mb-3"></div>
+                <!-- FOTO DE PERFIL DEL USUARIO -->
+                {% if u.foto %}
+                    <img src="{{ u.foto.url }}" 
+                         alt="{{ u.nombre }}"
+                         class="w-24 h-24 mx-auto rounded-full object-cover mb-3 border-4 border-gray-200">
+                {% else %}
+                    <div class="w-24 h-24 mx-auto bg-gradient-to-br from-gray-300 to-gray-400 rounded-full mb-3 flex items-center justify-center text-4xl">
+                        {% if u.tipo_perfil == 'instructor' %}
+                            👨‍🏫
+                        {% elif u.tipo_perfil == 'bienestar' %}
+                            🏥
+                        {% elif u.tipo_perfil == 'aprendiz' %}
+                            🎓
+                        {% else %}
+                            👤
+                        {% endif %}
+                    </div>
+                {% endif %}
 
                 <p class="font-semibold text-lg">{{ u.nombre }}</p>
 
                 <p class="text-gray-400 text-sm mb-3">{{ u.email }}</p>
 
-                <p class="text-xs text-gray-500 italic mb-2">{{ u.modelo }}</p>
+                <p class="text-xs text-gray-500 italic mb-2">{{ u.modelo|default:"" }}</p>
 
                 <div class="border-t border-gray-300 mb-3"></div>
 
@@ -93,9 +127,17 @@
                     Agregar amigo
                 </button>
 
-                <button class="w-full bg-gray-500 text-white py-1.5 rounded-lg hover:bg-gray-600">
+                <!-- BOTÓN VER PERFIL CON ENLACE CORRECTO -->
+                {% if u.id or u.pk %}
+                <a href="{% url 'perfil:ver_perfil' u.id|default:u.pk %}" 
+                   class="block w-full bg-gray-500 text-white py-1.5 rounded-lg hover:bg-gray-600 transition text-center">
+                    Ver perfil
+                </a>
+                {% else %}
+                <button class="block w-full bg-gray-400 text-white py-1.5 rounded-lg cursor-not-allowed" disabled>
                     Ver perfil
                 </button>
+                {% endif %}
 
             </div>
             {% empty %}
@@ -123,11 +165,19 @@
     btnSolicitudes.addEventListener("click", () => {
         solicitudesSection.classList.remove("hidden");
         agregadosSection.classList.add("hidden");
+        btnSolicitudes.classList.remove("bg-gray-300", "text-gray-800");
+        btnSolicitudes.classList.add("bg-green-600", "text-white");
+        btnAgregados.classList.remove("bg-green-600", "text-white");
+        btnAgregados.classList.add("bg-gray-300", "text-gray-800");
     });
 
     btnAgregados.addEventListener("click", () => {
         agregadosSection.classList.remove("hidden");
         solicitudesSection.classList.add("hidden");
+        btnAgregados.classList.remove("bg-gray-300", "text-gray-800");
+        btnAgregados.classList.add("bg-green-600", "text-white");
+        btnSolicitudes.classList.remove("bg-green-600", "text-white");
+        btnSolicitudes.classList.add("bg-gray-300", "text-gray-800");
     });
 </script>
 

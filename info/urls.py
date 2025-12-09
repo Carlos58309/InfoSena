@@ -26,6 +26,7 @@ urlpatterns = [
     path('registro/', include(('applications.registro.urls', 'registro'), namespace='registro')),   
     path('perfil/', include('applications.perfil.urls')),  # tu app perfil 
     path('chat/', include('applications.chat.urls')),
+    
 ]
 
 if settings.DEBUG:

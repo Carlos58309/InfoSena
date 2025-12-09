@@ -5,7 +5,9 @@ from django.core.mail import send_mail
 from django.conf import settings
 from django.urls import reverse
 from applications.registro.models import Aprendiz, Instructor, Bienestar
+from applications.usuarios.models import Usuario
 from .models import Sesion
+from django.contrib.auth.decorators import login_required
 
 def login_view(request):
     if request.method == "POST":
@@ -59,34 +61,53 @@ def login_view(request):
     return render(request, "login.html")
 
 
+@login_required
 def dashboard_view(request):
-    # Si el usuario no tiene sesión, redirige al login
-    if "rol" not in request.session:
-        messages.warning(request, "Debes iniciar sesión para acceder al panel.")
-        return redirect("sesion:login")
-
-    contexto = {
-        "nombre": request.session.get("nombre"),
-        "rol": request.session.get("rol"),
+    """
+    Vista para mostrar el home/dashboard del usuario
+    """
+    # Verificar si hay una sesión activa
+    if 'usuario_id' not in request.session or 'tipo_usuario' not in request.session:
+        return redirect('sesion:login')
+    
+    usuario_id = request.session['usuario_id']
+    tipo_perfil = request.session['tipo_usuario']
+    datos_usuario = None
+    
+    # Buscar el usuario según su tipo
+    try:
+        if tipo_perfil == 'aprendiz':
+            datos_usuario = Aprendiz.objects.get(numero_documento=usuario_id)
+        elif tipo_perfil == 'instructor':
+            datos_usuario = Instructor.objects.get(numero_documento=usuario_id)
+        elif tipo_perfil == 'bienestar':
+            datos_usuario = Bienestar.objects.get(numero_documento=usuario_id)
+    except (Aprendiz.DoesNotExist, Instructor.DoesNotExist, Bienestar.DoesNotExist):
+        return redirect('sesion:login')
+    
+    # Preparar el contexto para el template
+    context = {
+        'tipo_perfil': tipo_perfil,
+        'usuario': datos_usuario,
+        # Aquí puedes agregar solicitudes de amistad si las tienes
+        # 'solicitudes': solicitudes,
     }
-    return render(request, "home.html", contexto)
+    
+    return render(request, "home.html", context)
 
 
+@login_required
 def amigos_view(request):
-    usuarios = []
+    # Excluir al usuario actual de la lista
+    usuarios = Usuario.objects.exclude(id=request.user.id)
+    
+    context = {
+        'usuarios': usuarios,
+    }
+    
+    return render(request, 'amigos.html', context)
 
-    # Cargar aprendices
-    usuarios += list(Aprendiz.objects.all())
 
-    # Cargar instructores
-    usuarios += list(Instructor.objects.all())
-
-    # Cargar bienestar
-    usuarios += list(Bienestar.objects.all())
-
-    return render(request, "amigos.html", {
-        "usuarios": usuarios
-    })
 
 def perfil_view(request):
     return render(request, "perfil.html")
