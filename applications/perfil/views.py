@@ -1,11 +1,14 @@
 # perfil/views.py
 from django.shortcuts import render, redirect
 from applications.registro.models import Aprendiz, Instructor, Bienestar
+from applications.usuarios.models import Usuario
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth import logout
+import os
+from django.conf import settings
 
 
 
@@ -75,25 +78,46 @@ def editar_perfil(request):
         # Actualizar campos básicos
         datos_usuario.nombre = request.POST.get('nombre')
         datos_usuario.email = request.POST.get('email')
-        
+
         # Tipo de documento
         datos_usuario.tipo_documento = request.POST.get('tipo_documento')
-        
-        if tipo_perfil != 'aprendiz':  # si tiene centro_formativo y region
-            datos_usuario.centro_formativo = request.POST.get('centro_formativo')
-            datos_usuario.region = request.POST.get('region')
-        else:  # aprendiz
-            datos_usuario.centro_formativo = request.POST.get('centro_formativo')
-            datos_usuario.region = request.POST.get('region')
+
+        # Campos comunes
+        datos_usuario.centro_formativo = request.POST.get('centro_formativo')
+        datos_usuario.region = request.POST.get('region')
+
+        # Si es aprendiz tiene atributos extra
+        if tipo_perfil == 'aprendiz':
             datos_usuario.ficha = request.POST.get('ficha')
             datos_usuario.jornada = request.POST.get('jornada')
 
+        # =========================
+        #     MANEJO DE FOTO
+        # =========================
+        print("FILES:", request.FILES)
+        print("POST:", request.POST)
+        print("Nombre del archivo enviado:", request.FILES.get('foto'))
+        foto_nueva = request.FILES.get('foto')
+
+        if foto_nueva:
+            # Eliminar foto vieja (si existe)
+            if datos_usuario.foto and datos_usuario.foto.name and os.path.isfile(datos_usuario.foto.path):
+                try:
+                    os.remove(datos_usuario.foto.path)
+                except:
+                    pass
+
+            # Guardar nueva
+            datos_usuario.foto = foto_nueva
+
         datos_usuario.save()
+
         messages.success(request, "Perfil actualizado correctamente")
         return redirect('perfil:perfiles')
     
     context = {'usuario': datos_usuario, 'tipo_perfil': tipo_perfil}
     return render(request, 'editar_perfil.html', context)
+
 
 
 @login_required

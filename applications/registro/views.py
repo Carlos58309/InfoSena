@@ -16,6 +16,9 @@ def registro_view(request):
         contrasena = request.POST.get('password', '').strip()
         tipo_documento = request.POST.get('tipo_documento', '').strip()
         centro_formativo = request.POST.get('centro_formativo', '').strip()
+        
+        # Obtener la foto de perfil (si existe)
+        foto = request.FILES.get('foto')
 
         # Validaciones básicas
         if not all([rol, nombre, email, numero_documento, region, contrasena, tipo_documento]):
@@ -27,7 +30,7 @@ def registro_view(request):
             messages.error(request, '❌ El número de documento solo puede contener números.')
             return render(request, 'registrar.html')
 
-        if not (6 <= len(numero_documento) <= 12):
+        if not (8 <= len(numero_documento) <= 12):
             messages.error(request, '❌ El número de documento debe tener entre 8 y 12 dígitos.')
             return render(request, 'registrar.html')
 
@@ -36,7 +39,18 @@ def registro_view(request):
             messages.error(request, '❌ La contraseña debe tener entre 8 y 12 caracteres.')
             return render(request, 'registrar.html')
 
-       
+        # Validar formato de imagen (opcional)
+        if foto:
+            allowed_extensions = ['jpg', 'jpeg', 'png', 'gif']
+            file_extension = foto.name.split('.')[-1].lower()
+            if file_extension not in allowed_extensions:
+                messages.error(request, '❌ Solo se permiten imágenes (JPG, JPEG, PNG, GIF).')
+                return render(request, 'registrar.html')
+            
+            # Validar tamaño (máximo 5MB)
+            if foto.size > 5 * 1024 * 1024:
+                messages.error(request, '❌ La imagen no puede superar los 5MB.')
+                return render(request, 'registrar.html')
 
         try:
             # Crear registro según el rol
@@ -48,7 +62,7 @@ def registro_view(request):
                     messages.error(request, '⚠️ Complete todos los campos de aprendiz.')
                     return render(request, 'registrar.html')
                 
-                Aprendiz.objects.create(
+                aprendiz = Aprendiz.objects.create(
                     nombre=nombre,
                     tipo_documento=tipo_documento,
                     numero_documento=numero_documento,
@@ -59,13 +73,18 @@ def registro_view(request):
                     region=region,
                     contrasena=contrasena
                 )
+                
+                if foto:
+                    aprendiz.foto = foto
+                    aprendiz.save()
+                
                 messages.success(request, '✅ Aprendiz registrado correctamente.')
 
             elif rol == 'bienestar':
                 if not centro_formativo:
                     centro_formativo = "Centro desconocido"
                 
-                Bienestar.objects.create(
+                bienestar = Bienestar.objects.create(
                     nombre=nombre,
                     tipo_documento=tipo_documento,
                     numero_documento=numero_documento,
@@ -74,6 +93,11 @@ def registro_view(request):
                     region=region,
                     contrasena=contrasena
                 )
+                
+                if foto:
+                    bienestar.foto = foto
+                    bienestar.save()
+                
                 messages.success(request, '✅ Bienestar registrado correctamente.')
 
             elif rol == 'instructor':
@@ -81,7 +105,7 @@ def registro_view(request):
                     messages.error(request, '⚠️ El centro formativo es obligatorio para instructores.')
                     return render(request, 'registrar.html')
                 
-                Instructor.objects.create(
+                instructor = Instructor.objects.create(
                     nombre=nombre,
                     tipo_documento=tipo_documento,
                     numero_documento=numero_documento,
@@ -90,6 +114,11 @@ def registro_view(request):
                     region=region,
                     contrasena=contrasena
                 )
+                
+                if foto:
+                    instructor.foto = foto
+                    instructor.save()
+                
                 messages.success(request, '✅ Instructor registrado correctamente.')
 
             else:
@@ -97,7 +126,7 @@ def registro_view(request):
                 return render(request, 'registrar.html')
 
             # Redirigir al home después del registro exitoso
-            return redirect('sesion:home')  # Ajusta según tu configuración de URLs
+            return redirect('home')
 
         except IntegrityError as e:
             if 'numero_documento' in str(e):

@@ -14,6 +14,7 @@ class Aprendiz(models.Model):
     jornada = models.CharField(max_length=50)
     ficha = models.CharField(max_length=50)
     contrasena = models.CharField(max_length=255)
+    foto = models.ImageField(upload_to='perfiles/aprendices/', null=True, blank=True)
 
     class Meta:
         db_table = 'aprendiz'
@@ -32,6 +33,7 @@ class Instructor(models.Model):
     tipo_documento = models.CharField(max_length=20)
     centro_formativo = models.CharField(max_length=100)
     contrasena = models.CharField(max_length=255)
+    foto = models.ImageField(upload_to='perfiles/aprendices/', null=True, blank=True)
 
     class Meta:
         db_table = 'instructor'
@@ -50,6 +52,7 @@ class Bienestar(models.Model):
     centro_formativo = models.CharField(max_length=150,default="Centro desconocido")
     region = models.CharField(max_length=100)
     contrasena = models.CharField(max_length=255)
+    foto = models.ImageField(upload_to='perfiles/aprendices/', null=True, blank=True)
 
     class Meta:
         db_table = 'bienestar'

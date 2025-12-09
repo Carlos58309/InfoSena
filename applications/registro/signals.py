@@ -21,7 +21,17 @@ def crear_usuario_aprendiz(sender, instance, created, **kwargs):
             documento=instance.numero_documento,
             nombre=instance.nombre,
             email=instance.email,
+            foto=instance.foto if instance.foto else None
         )
+    else:
+        # Actualizar foto si el registro fue modificado
+        try:
+            usuario = Usuario.objects.get(documento=instance.numero_documento)
+            if instance.foto:
+                usuario.foto = instance.foto
+                usuario.save()
+        except Usuario.DoesNotExist:
+            pass
 
 
 @receiver(post_save, sender=Instructor)
@@ -38,7 +48,17 @@ def crear_usuario_instructor(sender, instance, created, **kwargs):
             documento=instance.numero_documento,
             nombre=instance.nombre,
             email=instance.email,
+            foto=instance.foto if instance.foto else None
         )
+    else:
+        # Actualizar foto si el registro fue modificado
+        try:
+            usuario = Usuario.objects.get(documento=instance.numero_documento)
+            if instance.foto:
+                usuario.foto = instance.foto
+                usuario.save()
+        except Usuario.DoesNotExist:
+            pass
 
 
 @receiver(post_save, sender=Bienestar)
@@ -55,7 +75,17 @@ def crear_usuario_bienestar(sender, instance, created, **kwargs):
             documento=instance.numero_documento,
             nombre=instance.nombre,
             email=instance.email,
+            foto=instance.foto if instance.foto else None
         )
+    else:
+        # Actualizar foto si el registro fue modificado
+        try:
+            usuario = Usuario.objects.get(documento=instance.numero_documento)
+            if instance.foto:
+                usuario.foto = instance.foto
+                usuario.save()
+        except Usuario.DoesNotExist:
+            pass
 
 
 # ======================================

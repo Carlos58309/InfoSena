@@ -7,6 +7,19 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-200">
+    {% if messages %}
+    <div class="messages-container fixed top-20 left-1/2 transform -translate-x-1/2 z-50 w-11/12 md:w-1/3">
+        {% for message in messages %}
+        <div class="p-4 mb-3 rounded-xl text-white font-semibold shadow-lg
+                    {% if message.tags == 'success' %} bg-green-500
+                    {% elif message.tags == 'error' %} bg-red-500
+                    {% elif message.tags == 'warning' %} bg-yellow-500
+                    {% else %} bg-blue-500 {% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
 
     <!-- HEADER -->
     <header class="hero bg-gradient-to-r from-[#0d3604] to-[#2b9e15] shadow-lg sticky top-0 z-50">
@@ -54,15 +67,33 @@
 
                 <!-- Foto de perfil -->
                 <div class="relative -mt-20 mb-4">
-                    <div
-                        class="w-40 h-40 bg-gray-300 rounded-full border-8 border-white shadow-lg flex items-center justify-center text-6xl">
-                        {% if tipo_perfil == 'instructor' %}
-                        👨‍🏫
-                        {% elif tipo_perfil == 'bienestar' %}
-                        🏥
-                        {% elif tipo_perfil == 'aprendiz' %}
-                        🎓
-                        {% endif %}
+                    {% if usuario.foto %}
+                        <img src="{{ usuario.foto.url }}" 
+                             alt="Foto de {{ usuario.nombre }}"
+                             class="w-40 h-40 rounded-full border-8 border-white shadow-lg object-cover">
+                    {% else %}
+                        <div class="w-40 h-40 bg-gradient-to-br from-gray-300 to-gray-400 rounded-full border-8 border-white shadow-lg flex items-center justify-center text-6xl">
+                            {% if tipo_perfil == 'instructor' %}
+                            👨‍🏫
+                            {% elif tipo_perfil == 'bienestar' %}
+                            🏥
+                            {% elif tipo_perfil == 'aprendiz' %}
+                            🎓
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                    
+                    <!-- Badge del rol -->
+                    <div class="absolute bottom-2 right-2 bg-white rounded-full p-2 shadow-lg">
+                        <span class="text-2xl">
+                            {% if tipo_perfil == 'instructor' %}
+                            👨‍🏫
+                            {% elif tipo_perfil == 'bienestar' %}
+                            🏥
+                            {% elif tipo_perfil == 'aprendiz' %}
+                            🎓
+                            {% endif %}
+                        </span>
                     </div>
                 </div>
 
@@ -128,12 +159,12 @@
                     <!-- Botones de acción -->
                     <div class="flex gap-4 pt-6">
                         <a href="{% url 'perfil:editar_perfil' %}"
-                            class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
-                            Editar perfil
+                            class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition shadow-md">
+                            ✏️ Editar perfil
                         </a>
                         <a href="{% url 'perfil:home' %}"
-                            class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition">
-                            Volver al inicio
+                            class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition shadow-md">
+                            🏠 Volver al inicio
                         </a>
                     </div>
                 </div>
@@ -144,10 +175,11 @@
         <div class="max-w-4xl mx-auto mt-8">
             <h2 class="text-2xl font-bold text-gray-800 mb-4">Mis publicaciones</h2>
             <div class="bg-white rounded-3xl shadow p-6 text-center text-gray-500">
-                Aquí aparecerán tus publicaciones
+                📝 Aquí aparecerán tus publicaciones
             </div>
         </div>
     </div>
+    
     <script>
         // ==== Ocultar mensajes después de 5 segundos ====
         setTimeout(() => {
