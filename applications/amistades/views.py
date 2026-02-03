@@ -7,12 +7,57 @@ from django.utils import timezone
 from django.db.models import Q
 from .models import Amistad
 from applications.usuarios.models import Usuario
+# ⭐ Importar los modelos de perfil
+from applications.registro.models import Aprendiz, Instructor, Bienestar
+
+
+def obtener_usuario_actual(request):
+    """Función helper para obtener el Usuario correcto basado en la sesión"""
+    usuario_id = request.session.get('usuario_id')
+    tipo_perfil = request.session.get('tipo_usuario')
+    
+    try:
+        if tipo_perfil == 'aprendiz':
+            datos_usuario = Aprendiz.objects.get(numero_documento=usuario_id)
+        elif tipo_perfil == 'instructor':
+            datos_usuario = Instructor.objects.get(numero_documento=usuario_id)
+        elif tipo_perfil == 'bienestar':
+            datos_usuario = Bienestar.objects.get(numero_documento=usuario_id)
+        else:
+            return None
+    except (Aprendiz.DoesNotExist, Instructor.DoesNotExist, Bienestar.DoesNotExist):
+        return None
+    
+    # Buscar el Usuario que coincida con el perfil
+    try:
+        usuario_actual = Usuario.objects.get(nombre=datos_usuario.nombre)
+        print(f"✅ Usuario encontrado: ID {usuario_actual.id}, Nombre: {usuario_actual.nombre}")
+        return usuario_actual
+    except Usuario.DoesNotExist:
+        print(f"❌ No se encontró Usuario para {datos_usuario.nombre}")
+        return None
+    except Usuario.MultipleObjectsReturned:
+        # Si hay múltiples, usar también el email
+        usuario_actual = Usuario.objects.get(
+            nombre=datos_usuario.nombre,
+            email=datos_usuario.email
+        )
+        return usuario_actual
+
 
 @login_required
 def enviar_solicitud(request, usuario_id):
     """Envía una solicitud de amistad"""
     receptor = get_object_or_404(Usuario, id=usuario_id)
-    emisor = request.user.usuario
+    
+    # ⭐ CORRECCIÓN: Usar la función helper
+    emisor = obtener_usuario_actual(request)
+    
+    if not emisor:
+        messages.error(request, "No se pudo identificar tu usuario.")
+        return redirect('sesion:amigos')
+    
+    print(f"📤 Enviando solicitud: {emisor.nombre} (ID: {emisor.id}) → {receptor.nombre} (ID: {receptor.id})")
     
     # Verificar que no sea el mismo usuario
     if emisor == receptor:
@@ -32,7 +77,6 @@ def enviar_solicitud(request, usuario_id):
     # Crear la solicitud
     Amistad.objects.create(emisor=emisor, receptor=receptor)
     messages.success(request, f"Solicitud enviada a {receptor.nombre}.")
-    
     return redirect('sesion:amigos')
 
 
@@ -40,11 +84,17 @@ def enviar_solicitud(request, usuario_id):
 def cancelar_solicitud(request, usuario_id):
     """Cancela una solicitud de amistad enviada"""
     receptor = get_object_or_404(Usuario, id=usuario_id)
-    emisor = request.user.usuario
+    
+    # ⭐ CORRECCIÓN
+    emisor = obtener_usuario_actual(request)
+    
+    if not emisor:
+        messages.error(request, "No se pudo identificar tu usuario.")
+        return redirect('sesion:amigos')
     
     solicitud = Amistad.objects.filter(
-        emisor=emisor, 
-        receptor=receptor, 
+        emisor=emisor,
+        receptor=receptor,
         estado=Amistad.PENDIENTE
     ).first()
     
@@ -58,13 +108,20 @@ def cancelar_solicitud(request, usuario_id):
 @login_required
 def aceptar_solicitud(request, solicitud_id):
     """Acepta una solicitud de amistad"""
-    solicitud = get_object_or_404(Amistad, id=solicitud_id, receptor=request.user.usuario)
+    # ⭐ CORRECCIÓN
+    usuario_actual = obtener_usuario_actual(request)
+    
+    if not usuario_actual:
+        messages.error(request, "No se pudo identificar tu usuario.")
+        return redirect('sesion:amigos')
+    
+    solicitud = get_object_or_404(Amistad, id=solicitud_id, receptor=usuario_actual)
     
     if solicitud.estado == Amistad.PENDIENTE:
         solicitud.estado = Amistad.ACEPTADA
         solicitud.fecha_respuesta = timezone.now()
         solicitud.save()
-        messages.success(request, f"Ahora eres amigo de {solicitud.emisor.nombre}.")
+        messages.success(request, f"¡Ahora eres amigo de {solicitud.emisor.nombre}! 🎉")
     
     return redirect('sesion:amigos')
 
@@ -72,7 +129,14 @@ def aceptar_solicitud(request, solicitud_id):
 @login_required
 def rechazar_solicitud(request, solicitud_id):
     """Rechaza y elimina una solicitud de amistad"""
-    solicitud = get_object_or_404(Amistad, id=solicitud_id, receptor=request.user.usuario)
+    # ⭐ CORRECCIÓN
+    usuario_actual = obtener_usuario_actual(request)
+    
+    if not usuario_actual:
+        messages.error(request, "No se pudo identificar tu usuario.")
+        return redirect('sesion:amigos')
+    
+    solicitud = get_object_or_404(Amistad, id=solicitud_id, receptor=usuario_actual)
     
     if solicitud.estado == Amistad.PENDIENTE:
         solicitud.delete()
@@ -84,7 +148,13 @@ def rechazar_solicitud(request, solicitud_id):
 @login_required
 def eliminar_amigo(request, usuario_id):
     """Elimina una amistad"""
-    usuario_actual = request.user.usuario
+    # ⭐ CORRECCIÓN
+    usuario_actual = obtener_usuario_actual(request)
+    
+    if not usuario_actual:
+        messages.error(request, "No se pudo identificar tu usuario.")
+        return redirect('sesion:amigos')
+    
     otro_usuario = get_object_or_404(Usuario, id=usuario_id)
     
     # Buscar la amistad en ambas direcciones
@@ -98,54 +168,3 @@ def eliminar_amigo(request, usuario_id):
         messages.success(request, f"Has eliminado a {otro_usuario.nombre} de tus amigos.")
     
     return redirect('sesion:amigos')
-
-
-@login_required
-def amigos_view(request):
-    """Vista principal de amigos"""
-    usuario_actual = request.user.usuario
-    
-    # Solicitudes recibidas (pendientes)
-    solicitudes_recibidas = Amistad.objects.filter(
-        receptor=usuario_actual,
-        estado=Amistad.PENDIENTE
-    ).select_related('emisor')
-    
-    # Solicitudes enviadas (pendientes)
-    solicitudes_enviadas = Amistad.objects.filter(
-        emisor=usuario_actual,
-        estado=Amistad.PENDIENTE
-    ).select_related('receptor')
-    
-    # Crear un set de IDs de usuarios con solicitud pendiente
-    ids_con_solicitud = set()
-    for sol in solicitudes_enviadas:
-        ids_con_solicitud.add(sol.receptor.id)
-    
-    # Amigos aceptados
-    amigos = Amistad.obtener_amigos(usuario_actual)
-    
-    # IDs de amigos
-    ids_amigos = {amigo.id for amigo in amigos}
-    
-    # Sugerencias (usuarios que no son amigos y sin solicitud pendiente)
-    sugerencias = Usuario.objects.exclude(
-        id=usuario_actual.id
-    ).exclude(
-        id__in=ids_amigos
-    ).exclude(
-        id__in=ids_con_solicitud
-    )
-    
-    # Excluir también a quienes nos enviaron solicitud
-    ids_solicitudes_recibidas = {sol.emisor.id for sol in solicitudes_recibidas}
-    sugerencias = sugerencias.exclude(id__in=ids_solicitudes_recibidas)
-    
-    context = {
-        'solicitudes_recibidas': solicitudes_recibidas,
-        'solicitudes_enviadas_ids': ids_con_solicitud,
-        'sugerencias': sugerencias,
-        'amigos': amigos,
-    }
-    
-    return render(request, 'amigos.html', context)

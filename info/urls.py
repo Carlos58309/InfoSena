@@ -27,6 +27,7 @@ urlpatterns = [
     path('perfil/', include('applications.perfil.urls')),  # tu app perfil 
     path('chat/', include('applications.chat.urls')),
     path('amistades/', include('applications.amistades.urls')),
+        path('publicaciones/', include('applications.publicaciones.urls')),#publicaciones
     
 ]
 

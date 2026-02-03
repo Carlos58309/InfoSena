@@ -165,3 +165,4 @@ EMAIL_HOST_USER = "perezpolancocarlosmario@gmail.com"  # cámbialo
 EMAIL_HOST_PASSWORD = "qwoyxgwfdszxnfmb"  # NO la contraseña normal
 
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+

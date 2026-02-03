@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear Publicación - InfoSena</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-200">
+    {% if messages %}
+    <div class="messages-container fixed top-20 left-1/2 transform -translate-x-1/2 z-50 w-11/12 md:w-1/3">
+        {% for message in messages %}
+        <div class="p-4 mb-3 rounded-xl text-white font-semibold shadow-lg
+                    {% if message.tags == 'success' %} bg-green-500
+                    {% elif message.tags == 'error' %} bg-red-500
+                    {% elif message.tags == 'warning' %} bg-yellow-500
+                    {% else %} bg-blue-500 {% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- HEADER -->
+    <header class="hero bg-gradient-to-r from-[#0d3604] to-[#2b9e15] shadow-lg sticky top-0 z-50">
+        <nav class="container mx-auto px-2 py-2 relative">
+            <div class="flex justify-between items-center">
+                <div class="flex flex-row-reverse items-center">
+                    {% load static %}
+                    <img src="{% static 'img/logo2.png' %}" width="200px" />
+                </div>
+                <div class="hidden md:flex items-center space-x-6">
+                    <a href="{% url 'perfil:home' %}">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white"
+                            stroke-width="2" class="w-10 h-10">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 9.75L12 3l9 6.75V21H3V9.75z" />
+                        </svg>
+                    </a>
+                    <a href="">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white"
+                            stroke-width="1.5" class="w-12 h-12">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M12 22a2 2 0 002-2H10a2 2 0 002 2zm6-6V11a6 6 0 10-12 0v5l-1.5 2.5h15L18 16z" />
+                        </svg>
+                    </a>
+                    <a href="{% url 'perfil:perfiles' %}">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white"
+                            stroke-width="2" class="w-10 h-10">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M12 12a5 5 0 100-10 5 5 0 000 10zm7 8c0-4-3-7-7-7s-7 3-7 7" />
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <div class="container mx-auto px-4 py-8">
+        <div class="max-w-4xl mx-auto">
+            <!-- Título de la página -->
+            <div class="mb-6 flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-800">📝 Crear nueva publicación</h1>
+                    <p class="text-gray-600 mt-2">Comparte información importante con la comunidad</p>
+                </div>
+                <a href="{% url 'perfil:perfiles' %}" 
+                   class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition shadow-md">
+                    ⬅️ Volver
+                </a>
+            </div>
+
+            <!-- Formulario -->
+            <div class="bg-white rounded-3xl shadow-lg p-8">
+                <form method="POST" enctype="multipart/form-data" class="space-y-6">
+                    {% csrf_token %}
+
+                    <!-- Título -->
+                    <div>
+                        <label for="titulo" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Título de la publicación *
+                        </label>
+                        <input type="text" 
+                               id="titulo" 
+                               name="titulo" 
+                               required
+                               maxlength="200"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition"
+                               placeholder="Escribe un título llamativo...">
+                    </div>
+
+                    <!-- Categoría -->
+                    <div>
+                        <label for="categoria" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Categoría
+                        </label>
+                        <select id="categoria" 
+                                name="categoria"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition">
+                            {% for value, label in categorias %}
+                            <option value="{{ value }}">{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Contenido -->
+                    <div>
+                        <label for="contenido" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Contenido *
+                        </label>
+                        <textarea id="contenido" 
+                                  name="contenido" 
+                                  required
+                                  rows="10"
+                                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition resize-none"
+                                  placeholder="Escribe el contenido de tu publicación..."></textarea>
+                        <p class="text-sm text-gray-500 mt-1">Mínimo 20 caracteres</p>
+                    </div>
+
+                    <!-- Imagen -->
+                    <div>
+                        <label for="imagen" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Imagen (opcional)
+                        </label>
+                        <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:border-green-500 transition">
+                            <div class="space-y-1 text-center">
+                                <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                                    <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                                <div class="flex text-sm text-gray-600">
+                                    <label for="imagen" class="relative cursor-pointer bg-white rounded-md font-medium text-green-600 hover:text-green-500 focus-within:outline-none">
+                                        <span>Selecciona una imagen</span>
+                                        <input id="imagen" name="imagen" type="file" accept="image/*" class="sr-only" onchange="previewImage(event)">
+                                    </label>
+                                    <p class="pl-1">o arrastra y suelta</p>
+                                </div>
+                                <p class="text-xs text-gray-500">PNG, JPG, GIF hasta 10MB</p>
+                            </div>
+                        </div>
+                        <!-- Preview de la imagen -->
+                        <div id="imagePreview" class="mt-4 hidden">
+                            <img id="preview" class="max-w-full h-auto rounded-lg shadow-md" alt="Vista previa">
+                        </div>
+                    </div>
+
+                    <!-- Botones -->
+                    <div class="flex gap-4 pt-4">
+                        <button type="submit"
+                                class="flex-1 px-6 py-3 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition shadow-md">
+                            ✅ Publicar
+                        </button>
+                        <a href="{% url 'perfil:perfiles' %}"
+                           class="flex-1 px-6 py-3 bg-gray-200 text-gray-700 text-center font-semibold rounded-lg hover:bg-gray-300 transition shadow-md">
+                            ❌ Cancelar
+                        </a>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Consejos -->
+            <div class="mt-6 bg-blue-50 border-l-4 border-blue-500 p-4 rounded-lg">
+                <h3 class="font-semibold text-blue-800 mb-2">💡 Consejos para una buena publicación:</h3>
+                <ul class="text-sm text-blue-700 space-y-1 list-disc list-inside">
+                    <li>Usa un título claro y descriptivo</li>
+                    <li>Organiza el contenido en párrafos cortos</li>
+                    <li>Incluye información relevante y verificada</li>
+                    <li>Agrega una imagen si es posible para mayor impacto</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Ocultar mensajes después de 5 segundos
+        setTimeout(() => {
+            const messages = document.querySelectorAll('.messages-container div');
+            messages.forEach(msg => {
+                msg.style.transition = 'opacity 0.6s ease';
+                msg.style.opacity = '0';
+                setTimeout(() => msg.remove(), 600);
+            });
+        }, 4000);
+
+        // Preview de imagen
+        function previewImage(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('preview').src = e.target.result;
+                    document.getElementById('imagePreview').classList.remove('hidden');
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Validación del formulario
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const contenido = document.getElementById('contenido').value;
+            if (contenido.length < 20) {
+                e.preventDefault();
+                alert('El contenido debe tener al menos 20 caracteres');
+            }
+        });
+    </script>
+</body>
+</html>
