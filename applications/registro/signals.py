@@ -14,7 +14,7 @@ def sincronizar_aprendiz(sender, instance, created, **kwargs):
     if created:
         # Crear usuario de Django
         user = User.objects.create_user(
-            username=instance.email,
+            username=instance.nombre,
             email=instance.email,
             password=instance.contrasena
         )
@@ -52,7 +52,7 @@ def sincronizar_aprendiz(sender, instance, created, **kwargs):
 def sincronizar_instructor(sender, instance, created, **kwargs):
     if created:
         user = User.objects.create_user(
-            username=instance.email,
+            username=instance.nombre,
             email=instance.email,
             password=instance.contrasena
         )
@@ -87,7 +87,7 @@ def sincronizar_instructor(sender, instance, created, **kwargs):
 def sincronizar_bienestar(sender, instance, created, **kwargs):
     if created:
         user = User.objects.create_user(
-            username=instance.email,
+            username=instance.nombre,
             email=instance.email,
             password=instance.contrasena
         )

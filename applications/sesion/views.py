@@ -195,6 +195,21 @@ def obtener_usuario_actual(request):
     except (Aprendiz.DoesNotExist, Instructor.DoesNotExist, Bienestar.DoesNotExist):
         return None, None
     
+    # ⭐ CORRECCIÓN: Buscar por documento en lugar de nombre
+    try:
+        usuario_actual = Usuario.objects.get(documento=datos_usuario.numero_documento)
+        print(f"✅ Usuario encontrado: ID {usuario_actual.id}, Nombre: {usuario_actual.nombre}")
+        return usuario_actual, datos_usuario
+    except Usuario.DoesNotExist:
+        print(f"❌ No se encontró Usuario para documento: {datos_usuario.numero_documento}")
+        return None, datos_usuario
+    except Usuario.MultipleObjectsReturned:
+        # Si hay múltiples, tomar el primero
+        usuario_actual = Usuario.objects.filter(
+            documento=datos_usuario.numero_documento
+        ).first()
+        return usuario_actual, datos_usuario
+    
     # Buscar el Usuario que coincida con el perfil
     try:
         usuario_actual = Usuario.objects.get(nombre=datos_usuario.nombre)
