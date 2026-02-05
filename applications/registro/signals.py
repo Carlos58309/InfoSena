@@ -13,20 +13,32 @@ from django.contrib.auth.models import User
 def sincronizar_aprendiz(sender, instance, created, **kwargs):
     if created:
         # Crear usuario de Django
-        user = User.objects.create_user(
-            username=instance.nombre,
-            email=instance.email,
-            password=instance.contrasena
+        user, user_created = User.objects.get_or_create(
+            username=instance.email,  # ⭐ Usar email como username para evitar duplicados
+            defaults={
+                'email': instance.email,
+            }
         )
-        # Crear registro en Usuario
-        Usuario.objects.create(
-            user=user, 
-            tipo="aprendiz",
+        
+        # Solo si el User es nuevo, asignar contraseña
+        if user_created:
+            user.set_password(instance.contrasena)
+            user.save()
+        
+        # Crear registro en Usuario (solo si no existe)
+        usuario, usuario_created = Usuario.objects.get_or_create(
             documento=instance.numero_documento,
-            nombre=instance.nombre,
-            email=instance.email,
-            foto=instance.foto if instance.foto else None
+            defaults={
+                'user': user,
+                'tipo': 'aprendiz',
+                'nombre': instance.nombre,
+                'email': instance.email,
+                'foto': instance.foto if instance.foto else None
+            }
         )
+        
+        print(f"{'✅ CREADO' if usuario_created else '⚠️ YA EXISTÍA'}: Usuario {usuario.nombre} - Doc: {usuario.documento}")
+        
     else:
         # Actualizar usuario existente
         try:
@@ -51,19 +63,28 @@ def sincronizar_aprendiz(sender, instance, created, **kwargs):
 @receiver(post_save, sender=Instructor)
 def sincronizar_instructor(sender, instance, created, **kwargs):
     if created:
-        user = User.objects.create_user(
-            username=instance.nombre,
-            email=instance.email,
-            password=instance.contrasena
+        user, user_created = User.objects.get_or_create(
+            username=instance.email,
+            defaults={'email': instance.email}
         )
-        Usuario.objects.create(
-            user=user, 
-            tipo="instructor",
+        
+        if user_created:
+            user.set_password(instance.contrasena)
+            user.save()
+        
+        usuario, usuario_created = Usuario.objects.get_or_create(
             documento=instance.numero_documento,
-            nombre=instance.nombre,
-            email=instance.email,
-            foto=instance.foto if instance.foto else None
+            defaults={
+                'user': user,
+                'tipo': 'instructor',
+                'nombre': instance.nombre,
+                'email': instance.email,
+                'foto': instance.foto if instance.foto else None
+            }
         )
+        
+        print(f"{'✅ CREADO' if usuario_created else '⚠️ YA EXISTÍA'}: Usuario {usuario.nombre} - Doc: {usuario.documento}")
+        
     else:
         try:
             usuario = Usuario.objects.get(documento=instance.numero_documento)
@@ -86,19 +107,28 @@ def sincronizar_instructor(sender, instance, created, **kwargs):
 @receiver(post_save, sender=Bienestar)
 def sincronizar_bienestar(sender, instance, created, **kwargs):
     if created:
-        user = User.objects.create_user(
-            username=instance.nombre,
-            email=instance.email,
-            password=instance.contrasena
+        user, user_created = User.objects.get_or_create(
+            username=instance.email,
+            defaults={'email': instance.email}
         )
-        Usuario.objects.create(
-            user=user, 
-            tipo="bienestar",
+        
+        if user_created:
+            user.set_password(instance.contrasena)
+            user.save()
+        
+        usuario, usuario_created = Usuario.objects.get_or_create(
             documento=instance.numero_documento,
-            nombre=instance.nombre,
-            email=instance.email,
-            foto=instance.foto if instance.foto else None
+            defaults={
+                'user': user,
+                'tipo': 'bienestar',
+                'nombre': instance.nombre,
+                'email': instance.email,
+                'foto': instance.foto if instance.foto else None
+            }
         )
+        
+        print(f"{'✅ CREADO' if usuario_created else '⚠️ YA EXISTÍA'}: Usuario {usuario.nombre} - Doc: {usuario.documento}")
+        
     else:
         try:
             usuario = Usuario.objects.get(documento=instance.numero_documento)
@@ -121,7 +151,7 @@ def sincronizar_bienestar(sender, instance, created, **kwargs):
 @receiver(post_save, sender=Usuario)
 def actualizar_tabla_original(sender, instance, created, **kwargs):
     """Sincroniza cambios de Usuario hacia las tablas originales"""
-    if not created:  # Solo al actualizar
+    if not created:
         try:
             if instance.tipo == 'aprendiz':
                 aprendiz = Aprendiz.objects.get(numero_documento=instance.documento)

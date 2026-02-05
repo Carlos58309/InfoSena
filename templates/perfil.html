@@ -30,22 +30,23 @@
                     <img src="{% static 'img/logo2.png' %}" width="200px" />
                 </div>
                 <div class="hidden md:flex items-center space-x-6">
-                    <a href="{% url 'perfil:perfiles' %}">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white"
-                            stroke-width="2" class="w-10 h-10">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 9.75L12 3l9 6.75V21H3V9.75z" />
-                        </svg>
-                    </a>
+    <a href="{% url 'sesion:home' %}" class="block cursor-pointer">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white"
+            stroke-width="2" class="w-10 h-10 hover:scale-110 transition-transform duration-200">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                d="M3 9.75L12 3l9 6.75V21H3V9.75z" />
+        </svg>
+    </a>
                     <a href="">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white"
-                            stroke-width="1.5" class="w-12 h-12">
+                            stroke-width="1.5" class="w-12 h-12 hover:scale-110 transition-transform duration-200">
                             <path stroke-linecap="round" stroke-linejoin="round"
                                 d="M12 22a2 2 0 002-2H10a2 2 0 002 2zm6-6V11a6 6 0 10-12 0v5l-1.5 2.5h15L18 16z" />
                         </svg>
                     </a>
                     <a href="{% url 'perfil:perfiles' %}">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white"
-                            stroke-width="2" class="w-10 h-10">
+                            stroke-width="2" class="w-10 h-10 hover:scale-110 transition-transform duration-200">
                             <path stroke-linecap="round" stroke-linejoin="round"
                                 d="M12 12a5 5 0 100-10 5 5 0 000 10zm7 8c0-4-3-7-7-7s-7 3-7 7" />
                         </svg>

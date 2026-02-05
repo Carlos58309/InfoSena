@@ -1,0 +1,378 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notificaciones - InfoSena</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-200">
+
+    <!-- ========================= -->
+    <!--        HEADER FIJO        -->
+    <!-- ========================= -->
+    <header class="hero bg-gradient-to-r from-[#0d3604] to-[#2b9e15] shadow-lg sticky top-0 z-50">
+        <nav class="container mx-auto px-2 py-2">
+            <div class="flex justify-between items-center">
+                <!-- LOGO -->
+                <div class="flex flex-row-reverse items-center">
+                    <a href="{% url 'sesion:home' %}">
+                        <img src="{% static 'img/logo2.png' %}" width="200px" />
+                    </a>
+                </div>
+
+                <!-- NAVEGACIÓN -->
+                <div class="flex items-center space-x-6">
+                    <a href="{% url 'sesion:home' %}" class="text-white hover:text-green-200 transition">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9.75L12 3l9 6.75V21H3V9.75z"/>
+                        </svg>
+                    </a>
+                    
+                    <a href="{% url 'perfil:perfiles' %}" class="text-white hover:text-green-200 transition">
+                        {% if usuario.foto %}
+                        <img src="{{ usuario.foto.url }}" alt="{{ usuario.nombre }}"
+                            class="w-10 h-10 rounded-full object-cover border-2 border-white">
+                        {% else %}
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                  d="M12 12a5 5 0 100-10 5 5 0 000 10zm7 8c0-4-3-7-7-7s-7 3-7 7"/>
+                        </svg>
+                        {% endif %}
+                    </a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- ========================= -->
+    <!--   CONTENEDOR PRINCIPAL    -->
+    <!-- ========================= -->
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        
+        <!-- HEADER DE PÁGINA -->
+        <div class="mb-8">
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">🔔 Notificaciones</h1>
+            <p class="text-gray-600">Mantente al día con tus interacciones</p>
+        </div>
+
+        <!-- BARRA DE ACCIONES -->
+        <div class="bg-white rounded-2xl shadow-md p-4 mb-6">
+            <div class="flex flex-wrap items-center justify-between gap-4">
+                <!-- FILTROS -->
+                <div class="flex flex-wrap gap-2">
+                    <button onclick="filtrarNotificaciones('todas')" 
+                            class="filter-btn active px-4 py-2 rounded-lg font-medium transition">
+                        Todas
+                    </button>
+                    <button onclick="filtrarNotificaciones('solicitud_amistad')" 
+                            class="filter-btn px-4 py-2 rounded-lg font-medium transition">
+                        👋 Solicitudes
+                    </button>
+                    <button onclick="filtrarNotificaciones('amistad_aceptada')" 
+                            class="filter-btn px-4 py-2 rounded-lg font-medium transition">
+                        ✅ Aceptadas
+                    </button>
+                    <button onclick="filtrarNotificaciones('nueva_publicacion')" 
+                            class="filter-btn px-4 py-2 rounded-lg font-medium transition">
+                        📝 Posts
+                    </button>
+                    <button onclick="filtrarNotificaciones('comentario')" 
+                            class="filter-btn px-4 py-2 rounded-lg font-medium transition">
+                        💬 Comentarios
+                    </button>
+                    <button onclick="filtrarNotificaciones('like')" 
+                            class="filter-btn px-4 py-2 rounded-lg font-medium transition">
+                        ❤️ Likes
+                    </button>
+                </div>
+
+                <!-- BOTÓN MARCAR TODAS -->
+                <button onclick="marcarTodasLeidas()" 
+                        class="px-6 py-2 bg-green-500 text-white rounded-lg font-semibold hover:bg-green-600 transition shadow-md">
+                    ✓ Marcar todas como leídas
+                </button>
+            </div>
+        </div>
+
+        <!-- LISTA DE NOTIFICACIONES -->
+        <div id="notificacionesContainer" class="space-y-4">
+            {% if notificaciones %}
+                {% for notif in notificaciones %}
+                <div class="notificacion-card bg-white rounded-2xl shadow-md p-5 transition hover:shadow-lg 
+                            {% if not notif.leida %}border-l-4 border-green-500 bg-green-50{% endif %}"
+                     data-tipo="{{ notif.tipo }}" 
+                     data-id="{{ notif.id }}">
+                    
+                    <div class="flex items-start gap-4">
+                        <!-- AVATAR -->
+                        <img src="{% if notif.emisor.foto %}{{ notif.emisor.foto.url }}{% else %}{% static 'img/default-avatar.png' %}{% endif %}" 
+                             alt="{{ notif.emisor.nombre }}"
+                             class="w-14 h-14 rounded-full object-cover flex-shrink-0 border-2 border-gray-200">
+                        
+                        <!-- CONTENIDO -->
+                        <div class="flex-1 min-w-0">
+                            <!-- HEADER -->
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="text-2xl">
+                                    {% if notif.tipo == 'solicitud_amistad' %}👋
+                                    {% elif notif.tipo == 'amistad_aceptada' %}✅
+                                    {% elif notif.tipo == 'nueva_publicacion' %}📝
+                                    {% elif notif.tipo == 'comentario' %}💬
+                                    {% elif notif.tipo == 'like' %}❤️
+                                    {% endif %}
+                                </span>
+                                
+                                <span class="px-3 py-1 rounded-full text-xs font-bold uppercase
+                                    {% if notif.tipo == 'solicitud_amistad' %}bg-green-100 text-green-700
+                                    {% elif notif.tipo == 'amistad_aceptada' %}bg-blue-100 text-blue-700
+                                    {% elif notif.tipo == 'nueva_publicacion' %}bg-purple-100 text-purple-700
+                                    {% elif notif.tipo == 'comentario' %}bg-yellow-100 text-yellow-700
+                                    {% elif notif.tipo == 'like' %}bg-red-100 text-red-700
+                                    {% endif %}">
+                                    {{ notif.get_tipo_display }}
+                                </span>
+                            </div>
+                            
+                            <!-- MENSAJE -->
+                            <p class="text-gray-800 mb-2 leading-relaxed">{{ notif.mensaje }}</p>
+                            
+                            <!-- TIEMPO -->
+                            <p class="text-sm text-gray-500">
+                                🕐 {{ notif.fecha_creacion|timesince }} atrás
+                            </p>
+
+                            <!-- ACCIONES -->
+                            <div class="mt-4 flex flex-wrap gap-2">
+                                {% if notif.tipo == 'solicitud_amistad' %}
+                                <button onclick="aceptarSolicitud({{ notif.emisor.id }}, {{ notif.id }})"
+                                        class="px-4 py-2 bg-green-500 text-white rounded-lg font-semibold hover:bg-green-600 transition">
+                                    ✓ Aceptar
+                                </button>
+                                <button onclick="rechazarSolicitud({{ notif.emisor.id }}, {{ notif.id }})"
+                                        class="px-4 py-2 bg-gray-400 text-white rounded-lg font-semibold hover:bg-gray-500 transition">
+                                    ✕ Rechazar
+                                </button>
+                                {% endif %}
+
+                                {% if notif.publicacion %}
+                                <a href="{% url 'publicaciones:detalle' notif.publicacion.id %}"
+                                   class="px-4 py-2 bg-blue-500 text-white rounded-lg font-semibold hover:bg-blue-600 transition inline-block">
+                                    Ver publicación →
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <!-- ESTADO VACÍO -->
+                <div class="bg-white rounded-2xl shadow-md p-12 text-center">
+                    <div class="text-6xl mb-4">🔔</div>
+                    <h3 class="text-2xl font-bold text-gray-800 mb-2">No hay notificaciones</h3>
+                    <p class="text-gray-600">Cuando tengas nuevas interacciones, aparecerán aquí</p>
+                    <a href="{% url 'sesion:home' %}" 
+                       class="inline-block mt-6 px-6 py-3 bg-green-500 text-white rounded-lg font-semibold hover:bg-green-600 transition">
+                        Volver al inicio
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script>
+        // ========================================
+        // SISTEMA DE FILTROS
+        // ========================================
+        function filtrarNotificaciones(tipo) {
+            // Actualizar botones activos
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active', 'bg-green-500', 'text-white');
+                btn.classList.add('bg-gray-100', 'text-gray-700');
+            });
+            
+            event.target.classList.add('active', 'bg-green-500', 'text-white');
+            event.target.classList.remove('bg-gray-100', 'text-gray-700');
+
+            // Filtrar notificaciones
+            const cards = document.querySelectorAll('.notificacion-card');
+            cards.forEach(card => {
+                if (tipo === 'todas' || card.dataset.tipo === tipo) {
+                    card.style.display = 'block';
+                    setTimeout(() => {
+                        card.style.opacity = '1';
+                        card.style.transform = 'translateY(0)';
+                    }, 10);
+                } else {
+                    card.style.opacity = '0';
+                    card.style.transform = 'translateY(20px)';
+                    setTimeout(() => {
+                        card.style.display = 'none';
+                    }, 300);
+                }
+            });
+        }
+
+        // Inicializar estilos de filtros
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            if (!btn.classList.contains('active')) {
+                btn.classList.add('bg-gray-100', 'text-gray-700');
+            }
+        });
+
+        // ========================================
+        // MARCAR TODAS COMO LEÍDAS
+        // ========================================
+        async function marcarTodasLeidas() {
+            try {
+                const response = await fetch("{% url 'notificaciones:marcar_todas_leidas' %}", {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken'),
+                    }
+                });
+
+                if (response.ok) {
+                    // Remover el borde verde de todas las notificaciones
+                    document.querySelectorAll('.notificacion-card').forEach(card => {
+                        card.classList.remove('border-l-4', 'border-green-500', 'bg-green-50');
+                    });
+                    mostrarToast('✓ Todas las notificaciones marcadas como leídas', 'success');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                mostrarToast('❌ Error al marcar notificaciones', 'error');
+            }
+        }
+
+        // ========================================
+        // ACEPTAR SOLICITUD DE AMISTAD
+        // ========================================
+        async function aceptarSolicitud(amigoId, notifId) {
+            try {
+                const response = await fetch(`/amistades/aceptar/${amigoId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken'),
+                    }
+                });
+
+                if (response.ok) {
+                    const card = document.querySelector(`[data-id="${notifId}"]`);
+                    const actionsDiv = card.querySelector('.mt-4');
+                    actionsDiv.innerHTML = '<p class="text-green-600 font-semibold">✓ Solicitud aceptada</p>';
+                    mostrarToast('✓ Solicitud de amistad aceptada', 'success');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                mostrarToast('❌ Error al aceptar solicitud', 'error');
+            }
+        }
+
+        // ========================================
+        // RECHAZAR SOLICITUD DE AMISTAD
+        // ========================================
+        async function rechazarSolicitud(amigoId, notifId) {
+            try {
+                const response = await fetch(`/amistades/rechazar/${amigoId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken'),
+                    }
+                });
+
+                if (response.ok) {
+                    const card = document.querySelector(`[data-id="${notifId}"]`);
+                    card.style.opacity = '0';
+                    card.style.transform = 'translateX(-100px)';
+                    setTimeout(() => card.remove(), 300);
+                    mostrarToast('Solicitud rechazada', 'info');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                mostrarToast('❌ Error al rechazar solicitud', 'error');
+            }
+        }
+
+        // ========================================
+        // SISTEMA DE TOASTS
+        // ========================================
+        function mostrarToast(mensaje, tipo = 'success') {
+            const colores = {
+                success: 'bg-green-500',
+                error: 'bg-red-500',
+                warning: 'bg-yellow-500',
+                info: 'bg-blue-500'
+            };
+            
+            const toast = document.createElement('div');
+            toast.className = `fixed bottom-6 right-6 ${colores[tipo]} text-white px-6 py-4 rounded-xl shadow-2xl z-50 font-semibold`;
+            toast.style.animation = 'slideIn 0.3s ease-out';
+            toast.textContent = mensaje;
+            
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(400px)';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // ========================================
+        // UTILIDADES
+        // ========================================
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        // Agregar estilos de animación
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from {
+                    opacity: 0;
+                    transform: translateX(400px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateX(0);
+                }
+            }
+            
+            .notificacion-card {
+                transition: all 0.3s ease;
+            }
+            
+            .filter-btn {
+                transition: all 0.2s ease;
+            }
+            
+            .filter-btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Auto-actualizar notificaciones cada 30 segundos
+        setInterval(() => {
+            location.reload();
+        }, 30000);
+    </script>
+</body>
+</html>

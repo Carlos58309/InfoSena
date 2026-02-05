@@ -56,44 +56,63 @@
                 <div class="hidden md:flex items-center space-x-6">
                     <div class="relative">
                         <!-- Home -->
-                        <button href="">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white"
-                                stroke-width="2" class="w-10 h-10">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M3 9.75L12 3l9 6.75V21H3V9.75z" />
-                            </svg>
-                        </button>
+    <a href="{% url 'sesion:home' %}" class="block cursor-pointer">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white"
+            stroke-width="2" class="w-10 h-10 hover:scale-110 transition-transform duration-200">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                d="M3 9.75L12 3l9 6.75V21H3V9.75z" />
+        </svg>
+    </a>
                     </div>
-                    <div class="relative">
-                        <!-- Bell -->
-                        <button id="btnNotificaciones">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white"
-                                stroke-width="1.5" class="w-12 h-12">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M12 22a2 2 0 002-2H10a2 2 0 002 2zm6-6V11a6 6 0 10-12 0v5l-1.5 2.5h15L18 16z" />
-                            </svg>
-                        </button>
-                        <!-- MENÚ NOTIFICACIONES -->
-                        <div id="menuNotificaciones"
-                            class="hidden absolute right-0 mt-3 w-72 bg-gray-200 rounded-xl shadow-xl p-4 z-50">
-                            <div class="w-6 h-6 bg-gray-200 rotate-45 absolute -top-3 right-6"></div>
-                            <h3 class="text-lg font-bold text-gray-700 mb-3">Notificaciones</h3>
-                            <div class="max-h-60 overflow-y-auto space-y-3 pr-2" id="listaNotificaciones">
-                                <div class="bg-white p-3 rounded-lg shadow">
-                                    <p class="text-gray-700 text-sm">Tienes un nuevo mensaje.</p>
-                                    <span class="text-xs text-gray-500">Hace 2 minutos</span>
-                                </div>
-                                <div class="bg-white p-3 rounded-lg shadow">
-                                    <p class="text-gray-700 text-sm">Tu perfil ha sido actualizado.</p>
-                                    <span class="text-xs text-gray-500">Hace 1 hora</span>
-                                </div>
-                            </div>
-                            <a href="/notificaciones/"
-                                class="block mt-3 text-center text-sm text-green-600 font-semibold hover:text-green-800">
-                                Ver todas las notificaciones
-                            </a>
-                        </div>
-                    </div>
+                                        <div class="relative">
+    <!-- Bell -->
+    <button id="btnNotificaciones" class="relative">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white"
+            stroke-width="1.5" class="w-12 h-12">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                d="M12 22a2 2 0 002-2H10a2 2 0 002 2zm6-6V11a6 6 0 10-12 0v5l-1.5 2.5h15L18 16z" />
+        </svg>
+        <!-- Badge de contador -->
+        <span id="notificationBadge" 
+              class="hidden absolute top-0 right-0 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center animate-pulse">
+            0
+        </span>
+    </button>
+    
+    <!-- MENÚ NOTIFICACIONES -->
+    <div id="menuNotificaciones"
+        class="hidden absolute right-0 mt-3 w-80 bg-white rounded-xl shadow-2xl z-50 overflow-hidden">
+        <div class="w-6 h-6 bg-white rotate-45 absolute -top-3 right-6"></div>
+        
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-green-600 to-green-500 p-4">
+            <div class="flex justify-between items-center">
+                <h3 class="text-lg font-bold text-white">Notificaciones</h3>
+                <button onclick="marcarTodasLeidasHeader()" 
+                        class="text-white text-xs hover:text-green-100 transition">
+                    ✓ Marcar todas
+                </button>
+            </div>
+        </div>
+        
+        <!-- Body - Lista de notificaciones -->
+        <div class="max-h-96 overflow-y-auto bg-gray-50" id="listaNotificaciones">
+            <!-- Las notificaciones se cargarán aquí dinámicamente -->
+            <div class="flex flex-col items-center justify-center py-12">
+                <div class="text-4xl mb-2">🔔</div>
+                <p class="text-gray-400 text-sm">Cargando notificaciones...</p>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div class="bg-white border-t border-gray-200 p-3">
+            <a href="{% url 'notificaciones:lista' %}"
+                class="block text-center text-sm text-green-600 font-semibold hover:text-green-800 transition">
+                Ver todas las notificaciones →
+            </a>
+        </div>
+    </div>
+</div>
                     <!-- User -->
                     <div class="relative">
                         <!-- ICONO PERFIL CON FOTO -->
@@ -155,7 +174,7 @@
 
             <!-- MENU MOBILE DESPLEGABLE -->
             <div id="mobileMenu" class="hidden mt-3 flex flex-col space-y-3 md:hidden">
-                <a href="home.html" class="flex items-center space-x-3 bg-white/20 p-3 rounded-xl text-white">
+                <a href="{% url 'sesion:home' %}" class="flex items-center space-x-3 bg-white/20 p-3 rounded-xl text-white">
                     <span>Home</span>
                 </a>
                 <a class="flex items-center space-x-3 bg-white/20 p-3 rounded-xl text-white">
@@ -168,7 +187,7 @@
                 <a class="flex items-center space-x-3 bg-white/20 p-3 rounded-xl text-white">
                     <span>Chat</span>
                 </a>
-                <a href="amigos.html" class="flex items-center space-x-3 bg-white/20 p-3 rounded-xl text-white">
+                <a href="{% url 'sesion:amigos' %}" class="home-reload-btn flex items-center space-x-3 bg-white/20 p-3 rounded-xl text-white">
                     <span>Amigos</span>
                 </a>
             </div>
@@ -223,7 +242,7 @@
                 </a>
 
                 <a href="{% url 'sesion:amigos' %}"
-                    class="flex items-center space-x-3 bg-white p-3 rounded-xl shadow hover:bg-green-200 hover:text-green-700 transition">
+                    class="home-reload-btn flex items-center space-x-3 bg-white p-3 rounded-xl shadow hover:bg-green-200 hover:text-green-700 transition">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="1"
                         stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" class="w-6 h-6">
                         <circle cx="7" cy="7" r="4"></circle>
@@ -302,57 +321,107 @@
             {% endif %}
 
             <!-- SUGERENCIAS DE AMISTAD -->
-            <div class="mb-8">
-                <h3 class="text-xl font-bold text-gray-800 mb-4">💡 Sugerencias de amistad</h3>
-                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-                    {% for usuario in sugerencias %}
-                    <div class="bg-white rounded-xl shadow p-4 text-center">
-                        {% if usuario.foto %}
-                            <img src="{{ usuario.foto.url }}" 
-                                 alt="{{ usuario.nombre }}"
-                                 class="w-24 h-24 mx-auto rounded-full object-cover mb-3 border-4 border-gray-200">
+<div class="mb-8">
+    <h3 class="text-xl font-bold text-gray-800 mb-4">💡 Sugerencias de amistad</h3>
+    
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+        {% for sugerencia in sugerencias %}
+        <div class="bg-white rounded-xl shadow p-4 text-center hover:shadow-lg transition
+                    {% if sugerencia.amigos_en_comun > 0 %}border-2 border-green-300{% endif %}">
+            
+            <!-- Badge de amigos en común (si tiene) -->
+            {% if sugerencia.amigos_en_comun > 0 %}
+            <div class="absolute top-2 right-2">
+                <span class="bg-green-600 text-white text-xs px-2 py-1 rounded-full font-bold">
+                    {{ sugerencia.amigos_en_comun }} amigo{% if sugerencia.amigos_en_comun > 1 %}s{% endif %} en común
+                </span>
+            </div>
+            {% endif %}
+            
+            <!-- Foto de perfil -->
+            {% if sugerencia.usuario.foto %}
+                <img src="{{ sugerencia.usuario.foto.url }}" 
+                     alt="{{ sugerencia.usuario.nombre }}" 
+                     class="w-24 h-24 mx-auto rounded-full object-cover mb-3 border-4 
+                            {% if sugerencia.amigos_en_comun > 0 %}border-green-300{% else %}border-gray-200{% endif %}">
+            {% else %}
+                <div class="w-24 h-24 mx-auto rounded-full mb-3 flex items-center justify-center text-4xl border-4
+                            {% if sugerencia.amigos_en_comun > 0 %}border-green-300 bg-gradient-to-br from-green-300 to-green-500{% else %}border-gray-200 bg-gradient-to-br from-gray-300 to-gray-400{% endif %}">
+                    {% if sugerencia.usuario.tipo == 'instructor' %}
+                        👨‍🏫
+                    {% elif sugerencia.usuario.tipo == 'bienestar' %}
+                        🏥
+                    {% elif sugerencia.usuario.tipo == 'aprendiz' %}
+                        🎓
+                    {% else %}
+                        👤
+                    {% endif %}
+                </div>
+            {% endif %}
+            
+            <!-- Información del usuario -->
+            <p class="font-semibold text-lg">{{ sugerencia.usuario.nombre }}</p>
+            <p class="text-gray-400 text-sm mb-2">{{ sugerencia.usuario.email }}</p>
+            <p class="text-xs text-gray-500 italic mb-2">
+                {{ sugerencia.usuario.get_tipo_display|default:"Usuario" }}
+            </p>
+            
+            <!-- Mostrar amigos en común -->
+            {% if sugerencia.amigos_en_comun > 0 %}
+            <div class="bg-green-50 rounded-lg p-2 mb-3">
+                <p class="text-xs text-green-700 font-semibold mb-1">Amigos en común:</p>
+                <div class="flex justify-center items-center space-x-1">
+                    {% for amigo_comun in sugerencia.amigos_en_comun_lista %}
+                    <div class="relative group">
+                        {% if amigo_comun.foto %}
+                        <img src="{{ amigo_comun.foto.url }}" 
+                             alt="{{ amigo_comun.nombre }}"
+                             class="w-6 h-6 rounded-full border-2 border-white">
                         {% else %}
-                            <div class="w-24 h-24 mx-auto bg-gradient-to-br from-gray-300 to-gray-400 rounded-full mb-3 flex items-center justify-center text-4xl">
-                                {% if usuario.tipo_perfil == 'instructor' %}
-                                    👨‍🏫
-                                {% elif usuario.tipo_perfil == 'bienestar' %}
-                                    🏥
-                                {% elif usuario.tipo_perfil == 'aprendiz' %}
-                                    🎓
-                                {% else %}
-                                    👤
-                                {% endif %}
-                            </div>
+                        <div class="w-6 h-6 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full border-2 border-white flex items-center justify-center text-xs">
+                            👤
+                        </div>
                         {% endif %}
-
-                        <p class="font-semibold text-lg">{{ usuario.nombre }}</p>
-                        <p class="text-gray-400 text-sm mb-2">{{ usuario.email }}</p>
-                        <p class="text-xs text-gray-500 italic mb-2">{{ usuario.get_tipo_perfil_display }}</p>
-
-                        <div class="border-t border-gray-300 mb-3"></div>
-
-                        {% if usuario.id in solicitudes_enviadas_ids %}
-                            <a href="{% url 'amistades:cancelar_solicitud' usuario.id %}" 
-                               class="block w-full bg-gray-500 text-white py-2 rounded-lg mb-2 hover:bg-gray-600 transition">
-                                ⏳ Cancelar solicitud
-                            </a>
-                        {% else %}
-                            <a href="{% url 'amistades:enviar_solicitud' usuario.id %}" 
-                               class="block w-full bg-green-600 text-white py-2 rounded-lg mb-2 hover:bg-green-700 transition">
-                                ➕ Agregar amigo
-                            </a>
-                        {% endif %}
-
-                        <a href="{% url 'perfil:ver_perfil' usuario.id %}" 
-                           class="block w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition">
-                            👁️ Ver perfil
-                        </a>
+                        <!-- Tooltip -->
+                        <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block bg-gray-800 text-white text-xs rounded py-1 px-2 whitespace-nowrap">
+                            {{ amigo_comun.nombre }}
+                        </div>
                     </div>
-                    {% empty %}
-                    <p class="text-gray-500 col-span-3">No hay sugerencias disponibles.</p>
                     {% endfor %}
+                    {% if sugerencia.amigos_en_comun > 3 %}
+                    <span class="text-xs text-green-600 font-semibold">+{{ sugerencia.amigos_en_comun|add:"-3" }}</span>
+                    {% endif %}
                 </div>
             </div>
+            {% endif %}
+            
+            <div class="border-t border-gray-300 mb-3"></div>
+            
+            <!-- Botones de acción -->
+            {% if sugerencia.usuario.id in solicitudes_enviadas_ids %}
+                <a href="{% url 'amistades:cancelar_solicitud' sugerencia.usuario.id %}" 
+                   class="block w-full bg-gray-500 text-white py-2 rounded-lg mb-2 hover:bg-gray-600 transition">
+                    ⏳ Cancelar solicitud
+                </a>
+            {% else %}
+                <a href="{% url 'amistades:enviar_solicitud' sugerencia.usuario.id %}" 
+                   class="block w-full bg-green-600 text-white py-2 rounded-lg mb-2 hover:bg-green-700 transition">
+                    ➕ Agregar amigo
+                </a>
+            {% endif %}
+            
+            <a href="{% url 'perfil:ver_perfil' sugerencia.usuario.id %}" 
+               class="block w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition">
+                👁️ Ver perfil
+            </a>
+        </div>
+        {% empty %}
+        <p class="text-gray-500 col-span-3 text-center py-8">
+            No hay sugerencias disponibles en este momento.
+        </p>
+        {% endfor %}
+    </div>
+</div>
 
         </div>
 
@@ -434,6 +503,326 @@
         });
     }, 4000);
 </script>
+ <!-- ✨ NUEVO: Script para recargar página al hacer clic en Home -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Seleccionar todos los botones/enlaces de Home
+        const homeButtons = document.querySelectorAll('.home-reload-btn');
+        
+        homeButtons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                // Verificar si ya estamos en la página de inicio
+                const currentPath = window.location.pathname;
+                const isHomePage = currentPath.includes('amigos') || 
+                                  currentPath.includes('inicio') || 
+                                  currentPath === '/' ||
+                                  currentPath === '/feed/' ||
+                                  currentPath === '/feed/inicio/';
+                
+                if (isHomePage) {
+                    e.preventDefault(); // Evitar navegación normal
+                    
+                    // Animación visual de feedback
+                    button.style.transition = 'transform 0.1s ease';
+                    button.style.transform = 'scale(0.95)';
+                    
+                    // Toast de notificación
+                    mostrarToastRecarga();
+                    
+                    // Recargar después de breve animación
+                    setTimeout(() => {
+                        button.style.transform = 'scale(1)';
+                        location.reload();
+                    }, 200);
+                }
+                // Si no estamos en home, dejar que navegue normalmente
+            });
+        });
+        
+        // Función para mostrar toast de recarga (opcional pero bonito)
+        function mostrarToastRecarga() {
+            const toast = document.createElement('div');
+            toast.className = 'fixed top-24 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-6 py-3 rounded-xl shadow-2xl z-50 font-semibold flex items-center gap-2';
+            toast.innerHTML = `
+                <svg class="animate-spin w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span>Actualizando...</span>
+            `;
+            document.body.appendChild(toast);
+            
+            // Ocultar el toast después de 3 segundos
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translate(-50%, -20px)';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+    });
+    </script>
 
+
+<script>
+// ========================================
+// SISTEMA DE NOTIFICACIONES EN TIEMPO REAL
+// ========================================
+
+let notificationInterval;
+
+// Inicializar cuando el DOM esté listo
+document.addEventListener('DOMContentLoaded', function() {
+    // Cargar notificaciones inicialmente
+    cargarNotificaciones();
+    
+    // Auto-actualizar cada 30 segundos
+    notificationInterval = setInterval(cargarNotificaciones, 30000);
+    
+    // Recargar cuando vuelves a la pestaña
+    document.addEventListener('visibilitychange', function() {
+        if (!document.hidden) {
+            cargarNotificaciones();
+        }
+    });
+});
+
+// Función principal para cargar notificaciones
+async function cargarNotificaciones() {
+    try {
+        const response = await fetch("{% url 'notificaciones:obtener_notificaciones' %}");
+        const data = await response.json();
+        
+        // Actualizar badge
+        actualizarBadge(data.count);
+        
+        // Renderizar notificaciones
+        if (data.notificaciones && data.notificaciones.length > 0) {
+            renderizarNotificaciones(data.notificaciones);
+        } else {
+            mostrarNotificacionesVacias();
+        }
+    } catch (error) {
+        console.error('Error al cargar notificaciones:', error);
+        mostrarErrorNotificaciones();
+    }
+}
+
+// Actualizar badge con contador
+function actualizarBadge(count) {
+    const badge = document.getElementById('notificationBadge');
+    if (badge) {
+        if (count > 0) {
+            badge.textContent = count > 99 ? '99+' : count;
+            badge.classList.remove('hidden');
+        } else {
+            badge.classList.add('hidden');
+        }
+    }
+}
+
+// Renderizar lista de notificaciones
+function renderizarNotificaciones(notificaciones) {
+    const lista = document.getElementById('listaNotificaciones');
+    
+    const html = notificaciones.map(notif => {
+        const iconos = {
+            'solicitud_amistad': '👋',
+            'amistad_aceptada': '✅',
+            'nueva_publicacion': '📝',
+            'comentario': '💬',
+            'like': '❤️'
+        };
+        
+        const colores = {
+            'solicitud_amistad': 'bg-green-50 border-l-4 border-green-500',
+            'amistad_aceptada': 'bg-blue-50 border-l-4 border-blue-500',
+            'nueva_publicacion': 'bg-purple-50 border-l-4 border-purple-500',
+            'comentario': 'bg-yellow-50 border-l-4 border-yellow-500',
+            'like': 'bg-red-50 border-l-4 border-red-500'
+        };
+        
+        return `
+            <div class="${colores[notif.tipo] || 'bg-white'} p-4 hover:bg-gray-100 transition cursor-pointer border-b border-gray-200"
+                 onclick="irANotificacion(${notif.id}, ${notif.publicacion_id || null})">
+                <div class="flex items-start gap-3">
+                    <!-- Avatar -->
+                    <img src="${notif.emisor_foto || '{% static "img/default-avatar.png" %}'}" 
+                         alt="${notif.emisor_nombre}"
+                         class="w-10 h-10 rounded-full object-cover flex-shrink-0">
+                    
+                    <!-- Contenido -->
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="text-lg">${iconos[notif.tipo] || '📢'}</span>
+                            <span class="text-xs font-semibold text-gray-500 uppercase">${getTipoNombre(notif.tipo)}</span>
+                        </div>
+                        <p class="text-sm text-gray-800 mb-1">${notif.mensaje}</p>
+                        <p class="text-xs text-gray-500">${calcularTiempo(notif.fecha)}</p>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+    
+    lista.innerHTML = html;
+}
+
+// Mostrar estado vacío
+function mostrarNotificacionesVacias() {
+    const lista = document.getElementById('listaNotificaciones');
+    lista.innerHTML = `
+        <div class="flex flex-col items-center justify-center py-12">
+            <div class="text-5xl mb-3">🔔</div>
+            <p class="text-gray-600 font-semibold mb-1">Todo al día</p>
+            <p class="text-gray-400 text-sm">No tienes notificaciones nuevas</p>
+        </div>
+    `;
+}
+
+// Mostrar error
+function mostrarErrorNotificaciones() {
+    const lista = document.getElementById('listaNotificaciones');
+    lista.innerHTML = `
+        <div class="flex flex-col items-center justify-center py-12">
+            <div class="text-5xl mb-3">⚠️</div>
+            <p class="text-gray-600 font-semibold mb-1">Error al cargar</p>
+            <button onclick="cargarNotificaciones()" 
+                    class="mt-2 px-4 py-2 bg-green-500 text-white rounded-lg text-sm hover:bg-green-600">
+                Reintentar
+            </button>
+        </div>
+    `;
+}
+
+// Obtener nombre del tipo de notificación
+function getTipoNombre(tipo) {
+    const nombres = {
+        'solicitud_amistad': 'Solicitud',
+        'amistad_aceptada': 'Aceptada',
+        'nueva_publicacion': 'Publicación',
+        'comentario': 'Comentario',
+        'like': 'Me gusta'
+    };
+    return nombres[tipo] || tipo;
+}
+
+// Calcular tiempo transcurrido
+function calcularTiempo(fecha) {
+    const ahora = new Date();
+    const fechaNotif = new Date(fecha);
+    const diff = Math.floor((ahora - fechaNotif) / 1000);
+    
+    if (diff < 60) return 'Justo ahora';
+    if (diff < 3600) return `Hace ${Math.floor(diff / 60)} min`;
+    if (diff < 86400) return `Hace ${Math.floor(diff / 3600)} h`;
+    if (diff < 604800) return `Hace ${Math.floor(diff / 86400)} días`;
+    
+    return fechaNotif.toLocaleDateString('es-ES', { 
+        day: 'numeric', 
+        month: 'short' 
+    });
+}
+
+// Ir a notificación específica
+async function irANotificacion(notifId, publicacionId) {
+    // Marcar como leída
+    try {
+        await fetch(`{% url 'notificaciones:marcar_leida' 0 %}`.replace('0', notifId), {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+            }
+        });
+    } catch (error) {
+        console.error('Error al marcar notificación:', error);
+    }
+    
+    // Redirigir
+    if (publicacionId) {
+        window.location.href = `/publicaciones/${publicacionId}/`;
+    } else {
+        window.location.href = "{% url 'notificaciones:lista' %}";
+    }
+}
+
+// Marcar todas como leídas
+async function marcarTodasLeidasHeader() {
+    try {
+        const response = await fetch("{% url 'notificaciones:marcar_todas_leidas' %}", {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+            }
+        });
+        
+        if (response.ok) {
+            actualizarBadge(0);
+            cargarNotificaciones();
+            mostrarToast('✓ Notificaciones marcadas como leídas', 'success');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        mostrarToast('❌ Error al marcar notificaciones', 'error');
+    }
+}
+
+// Sistema de toast notifications
+function mostrarToast(mensaje, tipo = 'success') {
+    const colores = {
+        success: 'bg-green-500',
+        error: 'bg-red-500',
+        warning: 'bg-yellow-500',
+        info: 'bg-blue-500'
+    };
+    
+    const toast = document.createElement('div');
+    toast.className = `fixed bottom-6 right-6 ${colores[tipo]} text-white px-6 py-3 rounded-xl shadow-2xl z-50 animate-slide-in`;
+    toast.textContent = mensaje;
+    
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(400px)';
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+
+// Obtener cookie CSRF
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// Animación de entrada
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slide-in {
+        from {
+            opacity: 0;
+            transform: translateX(400px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+    
+    .animate-slide-in {
+        animation: slide-in 0.3s ease-out;
+    }
+`;
+document.head.appendChild(style);
+</script>
 </body>
 </html>
