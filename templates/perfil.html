@@ -30,13 +30,13 @@
                     <img src="{% static 'img/logo2.png' %}" width="200px" />
                 </div>
                 <div class="hidden md:flex items-center space-x-6">
-    <a href="{% url 'sesion:home' %}" class="block cursor-pointer">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white"
-            stroke-width="2" class="w-10 h-10 hover:scale-110 transition-transform duration-200">
-            <path stroke-linecap="round" stroke-linejoin="round"
-                d="M3 9.75L12 3l9 6.75V21H3V9.75z" />
-        </svg>
-    </a>
+                    <a href="{% url 'sesion:home' %}" class="block cursor-pointer">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white"
+                            stroke-width="2" class="w-10 h-10 hover:scale-110 transition-transform duration-200">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M3 9.75L12 3l9 6.75V21H3V9.75z" />
+                        </svg>
+                    </a>
                     <a href="">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white"
                             stroke-width="1.5" class="w-12 h-12 hover:scale-110 transition-transform duration-200">
@@ -158,7 +158,6 @@
                     </div>
 
                     <!-- Botones de acción -->
-                    
                     <div class="flex justify-between items-center pt-6">
                         <div class="flex gap-4">
                             <a href="{% url 'perfil:editar_perfil' %}"
@@ -181,9 +180,10 @@
                 </div>
             </div>
         </div>
+
         {% if tipo_perfil == 'bienestar' %}
         <!-- Sección de publicaciones -->
-        <div class="max-w-4xl mx-auto mt-8">
+        <div class="max-w-4xl mx-auto mt-8 space-y-6">
             {% if publicaciones %}
                 {% for publicacion in publicaciones %}
                 <!-- Publicación -->
@@ -208,8 +208,30 @@
                             </div>
                         </div>
                         
-                        <!-- Badge de categoría -->
-                        <span class="px-3 py-1 rounded-full text-xs font-semibold
+                        <!-- Menú de opciones (3 puntos) -->
+                        <div class="relative">
+                            <button onclick="toggleMenu({{ publicacion.id }})" class="p-2 hover:bg-gray-100 rounded-full">
+                                <svg class="w-6 h-6 text-gray-600" fill="currentColor" viewBox="0 0 24 24">
+                                    <circle cx="12" cy="5" r="2"/>
+                                    <circle cx="12" cy="12" r="2"/>
+                                    <circle cx="12" cy="19" r="2"/>
+                                </svg>
+                            </button>
+                            
+                            <!-- Menú desplegable -->
+                            <div id="menu-{{ publicacion.id }}" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl z-10 border border-gray-200">
+                                <a href="{% url 'publicaciones:eliminar_publicacion' publicacion.id %}" 
+                                   onclick="return confirm('¿Estás seguro de eliminar esta publicación?')"
+                                   class="block px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg">
+                                    🗑️ Eliminar publicación
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Badge de categoría -->
+                    <div class="mt-2">
+                        <span class="px-3 py-1 rounded-full text-xs font-semibold inline-block
                             {% if publicacion.categoria == 'salud' %} bg-red-100 text-red-700
                             {% elif publicacion.categoria == 'bienestar' %} bg-green-100 text-green-700
                             {% elif publicacion.categoria == 'evento' %} bg-purple-100 text-purple-700
@@ -230,35 +252,54 @@
                         {{ publicacion.contenido }}
                     </div>
 
-                    <!-- Imagen de la publicación (si existe) -->
-                    {% if publicacion.imagen %}
-                    <div class="mt-4 rounded-xl overflow-hidden">
-                        <img src="{{ publicacion.imagen.url }}" 
-                             alt="{{ publicacion.titulo }}"
-                             class="w-full h-auto object-cover">
+                    <!-- ARCHIVOS MULTIMEDIA (Imágenes y Videos) -->
+                    {% if publicacion.archivos.all %}
+                    <div class="mt-4 space-y-3">
+                        <!-- Imágenes -->
+                        {% with imagenes=publicacion.archivos.all|dictsort:"orden" %}
+                        {% if imagenes %}
+                        <div class="grid grid-cols-1 {% if imagenes|length > 1 %}md:grid-cols-2{% endif %} gap-3">
+                            {% for archivo in imagenes %}
+                                {% if archivo.tipo == 'imagen' %}
+                                <div class="rounded-xl overflow-hidden">
+                                    <img src="{{ archivo.archivo.url }}" 
+                                         alt="{{ publicacion.titulo }}"
+                                         class="w-full h-auto object-cover hover:scale-105 transition-transform duration-300 cursor-pointer"
+                                         onclick="abrirImagenModal('{{ archivo.archivo.url }}')">
+                                </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        {% endwith %}
+
+                        <!-- Videos -->
+                        {% for archivo in publicacion.archivos.all %}
+                            {% if archivo.tipo == 'video' %}
+                            <div class="rounded-xl overflow-hidden bg-black">
+                                <video controls class="w-full h-auto">
+                                    <source src="{{ archivo.archivo.url }}" type="video/mp4">
+                                    Tu navegador no soporta el elemento de video.
+                                </video>
+                            </div>
+                            {% endif %}
+                        {% endfor %}
                     </div>
                     {% endif %}
 
                     <!-- Acciones -->
-                     
                     <div class="flex justify-around mt-4 pt-4 border-t border-gray-200 text-gray-600">
                         <button class="flex items-center space-x-2 hover:text-blue-600 transition">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-5 h-5">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
                             </svg>
-                            <span>Me gusta</span>
+                            <span>{{ publicacion.total_likes }} Me gusta</span>
                         </button>
                         <button class="flex items-center space-x-2 hover:text-green-600 transition">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-5 h-5">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                             </svg>
-                            <span>Comentar</span>
-                        </button>
-                        <button class="flex items-center space-x-2 hover:text-purple-600 transition">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-5 h-5">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-                            </svg>
-                            <span>Compartir</span>
+                            <span>{{ publicacion.total_comentarios }} Comentarios</span>
                         </button>
                     </div>
                 </div>
@@ -268,15 +309,25 @@
                 <div class="bg-white rounded-3xl shadow p-8 text-center">
                     <div class="text-6xl mb-4">📝</div>
                     <h3 class="text-xl font-bold text-gray-700 mb-2">No tienes publicaciones aún</h3>
-                    <p class="text-gray-500">Tus publicaciones aparecerán aquí</p>
+                    <p class="text-gray-500 mb-4">Tus publicaciones aparecerán aquí</p>
+                    <a href="{% url 'publicaciones:crear_publicacion' %}"
+                       class="inline-block px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition shadow-md">
+                        ➕ Crear mi primera publicación
+                    </a>
                 </div>
             {% endif %}
         </div>
         {% endif %}
     </div>
+
+    <!-- Modal para ver imagen en grande -->
+    <div id="imagenModal" class="hidden fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center" onclick="cerrarImagenModal()">
+        <button onclick="cerrarImagenModal()" class="absolute top-4 right-4 text-white text-4xl hover:text-gray-300">×</button>
+        <img id="imagenModalSrc" src="" class="max-w-full max-h-full object-contain p-4">
+    </div>
     
     <script>
-        // ==== Ocultar mensajes después de 5 segundos ====
+        // Ocultar mensajes después de 5 segundos
         setTimeout(() => {
             const messages = document.querySelectorAll('.messages-container div');
             messages.forEach(msg => {
@@ -285,6 +336,37 @@
                 setTimeout(() => msg.remove(), 600);
             });
         }, 4000);
+
+        // Toggle menú de opciones
+        function toggleMenu(publicacionId) {
+            const menu = document.getElementById(`menu-${publicacionId}`);
+            // Cerrar todos los demás menús
+            document.querySelectorAll('[id^="menu-"]').forEach(m => {
+                if (m.id !== `menu-${publicacionId}`) {
+                    m.classList.add('hidden');
+                }
+            });
+            menu.classList.toggle('hidden');
+        }
+
+        // Cerrar menús al hacer clic fuera
+        document.addEventListener('click', function(event) {
+            if (!event.target.closest('button')) {
+                document.querySelectorAll('[id^="menu-"]').forEach(m => {
+                    m.classList.add('hidden');
+                });
+            }
+        });
+
+        // Modal para ver imagen
+        function abrirImagenModal(src) {
+            document.getElementById('imagenModalSrc').src = src;
+            document.getElementById('imagenModal').classList.remove('hidden');
+        }
+
+        function cerrarImagenModal() {
+            document.getElementById('imagenModal').classList.add('hidden');
+        }
     </script>
 </body>
 </html>

@@ -263,152 +263,204 @@
         <!-- ========================= -->
         <!--       FEED CENTRAL        -->
         <!-- ========================= -->
-        <main class="md:col-span-3 lg:col-span-3 overflow-y-auto h-[calc(100vh-5rem)] p-4 space-y-6">
 
-            {% if publicaciones %}
-            {% for publicacion in publicaciones %}
-            <!-- Publicación -->
-            <div class="bg-white rounded-3xl shadow p-4">
-                <!-- Header de la publicación -->
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center space-x-3">
-                        {% if publicacion.autor.foto %}
-                        <img src="{{ publicacion.autor.foto.url }}" alt="{{ publicacion.autor.nombre }}"
-                            class="w-10 h-10 rounded-full object-cover">
-                        {% else %}
-                        <div
-                            class="w-10 h-10 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center text-white text-xl">
-                            🏥
-                        </div>
-                        {% endif %}
-                        <div>
-                            <p class="font-bold">{{ publicacion.autor.nombre }}</p>
-                            <p class="text-sm text-gray-500">
-                                Bienestar al Aprendiz • {{ publicacion.fecha_creacion|timesince }} atrás
-                            </p>
-                        </div>
-                    </div>
+<main class="md:col-span-3 lg:col-span-3 overflow-y-auto h-[calc(100vh-5rem)] p-4 space-y-6">
 
-                    <!-- Badge de categoría -->
-                    <span class="px-3 py-1 rounded-full text-xs font-semibold
-                            {% if publicacion.categoria == 'salud' %} bg-red-100 text-red-700
-                            {% elif publicacion.categoria == 'bienestar' %} bg-green-100 text-green-700
-                            {% elif publicacion.categoria == 'evento' %} bg-purple-100 text-purple-700
-                            {% elif publicacion.categoria == 'informacion' %} bg-blue-100 text-blue-700
-                            {% else %} bg-gray-100 text-gray-700
-                            {% endif %}">
-                        {{ publicacion.get_categoria_display }}
-                    </span>
-                </div>
-
-                <!-- Título de la publicación -->
-                <div class="mt-4">
-                    <h3 class="text-xl font-bold text-gray-800">{{ publicacion.titulo }}</h3>
-                </div>
-
-                <!-- Contenido de la publicación -->
-                <div class="mt-3 text-gray-700 whitespace-pre-line">
-                    {{ publicacion.contenido }}
-                </div>
-
-                <!-- Imagen de la publicación (si existe) -->
-                {% if publicacion.imagen %}
-                <div class="mt-4 rounded-xl overflow-hidden">
-                    <img src="{{ publicacion.imagen.url }}" alt="{{ publicacion.titulo }}"
-                        class="w-full h-auto object-cover">
+    {% if publicaciones %}
+    {% for publicacion in publicaciones %}
+    <!-- Publicación -->
+    <div class="bg-white rounded-3xl shadow p-4">
+        <!-- Header de la publicación -->
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                {% if publicacion.autor.foto %}
+                <img src="{{ publicacion.autor.foto.url }}" alt="{{ publicacion.autor.nombre }}"
+                    class="w-10 h-10 rounded-full object-cover">
+                {% else %}
+                <div
+                    class="w-10 h-10 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center text-white text-xl">
+                    🏥
                 </div>
                 {% endif %}
-
-                <!-- Acciones -->
-
-                <div class="flex justify-around mt-4 pt-4 border-t border-gray-200 text-gray-600">
-<button onclick="likePost({{ publicacion.id }})">
-    ❤️ <span id="likes-{{ publicacion.id }}">
-        {{ publicacion.likes.count }}
-    </span>
-</button>
-<button onclick="openModal({{ publicacion.id }})"
-        class="flex items-center space-x-2 hover:text-green-600 transition">
-    💬
-    <span>{{ publicacion.comentarios.count }}</span>
-</button>
-<div id="modal-{{ publicacion.id }}" class="hidden fixed inset-0 bg-black/50 flex justify-center items-center z-50">
-    <div class="bg-white w-full max-w-xl rounded-xl overflow-hidden">
-
-        <!-- Header -->
-        <div class="p-4 border-b flex justify-between">
-            <h3 class="font-bold">Comentarios</h3>
-            <button onclick="closeModal({{ publicacion.id }})">✖</button>
-        </div>
-
-        <!-- Comentarios -->
-        <div class="p-4 space-y-4 max-h-96 overflow-y-auto">
-            {% for comentario in publicacion.comentarios.all %}
-<div class="flex items-start gap-3 py-2">
-
-    <!-- Avatar -->
-    <div class="w-9 h-9 rounded-full bg-gray-300 flex items-center justify-center">
-        👤
-    </div>
-
-    <!-- Contenido -->
-    <div class="flex-1">
-        <p class="text-sm">
-            <span class="font-semibold">
-                {{ comentario.autor.get_full_name|default:comentario.autor.username }}
-            </span><br>
-            {{ comentario.contenido }}
-        </p>
-        <p class="text-xs text-gray-400">
-            {{ comentario.fecha_creacion|timesince }} atrás
-        </p>
-    </div>
-
-    <!-- Eliminar -->
-    {% if user == comentario.autor or user == publicacion.autor.user %}
-    <a href="{% url 'publicaciones:eliminar_comentario' comentario.id %}"
-       class="text-red-500 text-xs hover:underline">
-        Eliminar
-    </a>
-    {% endif %}
-
-</div>
-{% empty %}
-<p class="text-gray-400 text-sm text-center">
-    Sé el primero en comentar
-</p>
-{% endfor %}
-        </div>
-
-        <!-- Input -->
-        <form method="POST" action="{% url 'publicaciones:comentar' publicacion.id %}" class="flex border-t p-3">
-            {% csrf_token %}
-            <input name="contenido" class="flex-1 outline-none" placeholder="Escribe un comentario..." required>
-            <button class="text-blue-600 font-bold">Publicar</button>
-        </form>
-    </div>
-</div>
-                    <button class="flex items-center space-x-2 hover:text-purple-600 transition">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                            class="w-5 h-5">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-                        </svg>
-                        <span>Compartir</span>
-                    </button>
+                <div>
+                    <p class="font-bold">{{ publicacion.autor.nombre }}</p>
+                    <p class="text-sm text-gray-500">
+                        Bienestar al Aprendiz • {{ publicacion.fecha_creacion|timesince }} atrás
+                    </p>
                 </div>
             </div>
-            {% endfor %}
-            {% else %}
-            <!-- Sin publicaciones -->
-            <div class="bg-white rounded-3xl shadow p-8 text-center">
-                <div class="text-6xl mb-4">📝</div>
-                <h3 class="text-xl font-bold text-gray-700 mb-2">No hay publicaciones aún</h3>
-                <p class="text-gray-500">Las publicaciones de Bienestar aparecerán aquí</p>
+
+            <!-- Badge de categoría -->
+            <span class="px-3 py-1 rounded-full text-xs font-semibold
+                    {% if publicacion.categoria == 'salud' %} bg-red-100 text-red-700
+                    {% elif publicacion.categoria == 'bienestar' %} bg-green-100 text-green-700
+                    {% elif publicacion.categoria == 'evento' %} bg-purple-100 text-purple-700
+                    {% elif publicacion.categoria == 'informacion' %} bg-blue-100 text-blue-700
+                    {% else %} bg-gray-100 text-gray-700
+                    {% endif %}">
+                {{ publicacion.get_categoria_display }}
+            </span>
+        </div>
+
+        <!-- Título de la publicación -->
+        <div class="mt-4">
+            <h3 class="text-xl font-bold text-gray-800">{{ publicacion.titulo }}</h3>
+        </div>
+
+        <!-- Contenido de la publicación -->
+        <div class="mt-3 text-gray-700 whitespace-pre-line">
+            {{ publicacion.contenido }}
+        </div>
+
+        <!-- ============================================ -->
+        <!-- ARCHIVOS MULTIMEDIA (Imágenes y Videos) -->
+        <!-- ============================================ -->
+        {% if publicacion.archivos.all %}
+        <div class="mt-4 space-y-3">
+            <!-- Contador de archivos multimedia -->
+            {% with total_archivos=publicacion.archivos.count %}
+            {% if total_archivos > 0 %}
+            <div class="text-xs text-gray-500 flex items-center gap-2">
+                <span>📎 {{ total_archivos }} archivo{% if total_archivos > 1 %}s{% endif %}</span>
             </div>
             {% endif %}
+            {% endwith %}
 
-        </main>
+            <!-- Grid de Imágenes -->
+            {% with imagenes=publicacion.archivos.all %}
+            {% if imagenes %}
+            <div class="grid {% if imagenes|length == 1 %}grid-cols-1{% elif imagenes|length == 2 %}grid-cols-2{% else %}grid-cols-2 md:grid-cols-3{% endif %} gap-2">
+                {% for archivo in imagenes %}
+                    {% if archivo.tipo == 'imagen' %}
+                    <div class="rounded-xl overflow-hidden relative group">
+                        <img src="{{ archivo.archivo.url }}" 
+                             alt="{{ publicacion.titulo }}"
+                             class="w-full h-48 object-cover hover:scale-110 transition-transform duration-300 cursor-pointer"
+                             onclick="abrirImagenModal('{{ archivo.archivo.url }}')">
+                        <!-- Overlay hover -->
+                        <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center">
+                            <svg class="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% endwith %}
+
+            <!-- Videos -->
+            {% for archivo in publicacion.archivos.all %}
+                {% if archivo.tipo == 'video' %}
+                <div class="rounded-xl overflow-hidden bg-black shadow-lg">
+                    <video controls class="w-full h-auto" preload="metadata">
+                        <source src="{{ archivo.archivo.url }}" type="video/mp4">
+                        <source src="{{ archivo.archivo.url }}" type="video/webm">
+                        <source src="{{ archivo.archivo.url }}" type="video/ogg">
+                        Tu navegador no soporta el elemento de video.
+                    </video>
+                </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Acciones -->
+        <div class="flex justify-around mt-4 pt-4 border-t border-gray-200 text-gray-600">
+            <button onclick="likePost({{ publicacion.id }})" class="flex items-center space-x-2 hover:text-red-600 transition">
+                <span class="text-lg">❤️</span>
+                <span id="likes-{{ publicacion.id }}">{{ publicacion.likes.count }}</span>
+            </button>
+            
+            <button onclick="openModal({{ publicacion.id }})"
+                    class="flex items-center space-x-2 hover:text-green-600 transition">
+                <span class="text-lg">💬</span>
+                <span>{{ publicacion.comentarios.count }}</span>
+            </button>
+
+            <button class="flex items-center space-x-2 hover:text-purple-600 transition">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                    class="w-5 h-5">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                </svg>
+                <span>Compartir</span>
+            </button>
+        </div>
+
+        <!-- Modal de comentarios -->
+        <div id="modal-{{ publicacion.id }}" class="hidden fixed inset-0 bg-black/50 flex justify-center items-center z-50">
+            <div class="bg-white w-full max-w-xl rounded-xl overflow-hidden">
+                <!-- Header -->
+                <div class="p-4 border-b flex justify-between">
+                    <h3 class="font-bold">Comentarios</h3>
+                    <button onclick="closeModal({{ publicacion.id }})">✖</button>
+                </div>
+
+                <!-- Comentarios -->
+                <div class="p-4 space-y-4 max-h-96 overflow-y-auto">
+                    {% for comentario in publicacion.comentarios.all %}
+                    <div class="flex items-start gap-3 py-2">
+                        <!-- Avatar -->
+                        <div class="w-9 h-9 rounded-full bg-gray-300 flex items-center justify-center">
+                            👤
+                        </div>
+
+                        <!-- Contenido -->
+                        <div class="flex-1">
+                            <p class="text-sm">
+                                <span class="font-semibold">
+                                    {{ comentario.autor.nombre }}
+                                </span><br>
+                                {{ comentario.contenido }}
+                            </p>
+                            <p class="text-xs text-gray-400">
+                                {{ comentario.fecha_creacion|timesince }} atrás
+                            </p>
+                        </div>
+
+                        <!-- Eliminar -->
+                        {% if user == comentario.autor or user == publicacion.autor.user %}
+                        <a href="{% url 'publicaciones:eliminar_comentario' comentario.id %}"
+                           class="text-red-500 text-xs hover:underline">
+                            Eliminar
+                        </a>
+                        {% endif %}
+                    </div>
+                    {% empty %}
+                    <p class="text-gray-400 text-sm text-center">
+                        Sé el primero en comentar
+                    </p>
+                    {% endfor %}
+                </div>
+
+                <!-- Input -->
+                <form method="POST" action="{% url 'publicaciones:comentar' publicacion.id %}" class="flex border-t p-3">
+                    {% csrf_token %}
+                    <input name="contenido" class="flex-1 outline-none" placeholder="Escribe un comentario..." required>
+                    <button class="text-blue-600 font-bold">Publicar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <!-- Sin publicaciones -->
+    <div class="bg-white rounded-3xl shadow p-8 text-center">
+        <div class="text-6xl mb-4">📝</div>
+        <h3 class="text-xl font-bold text-gray-700 mb-2">No hay publicaciones aún</h3>
+        <p class="text-gray-500">Las publicaciones de Bienestar aparecerán aquí</p>
+    </div>
+    {% endif %}
+
+</main>
+
+<!-- Modal para ver imagen en grande (agregar antes del cierre de </body>) -->
+<div id="imagenModal" class="hidden fixed inset-0 bg-black bg-opacity-95 z-[60] flex items-center justify-center p-4" onclick="cerrarImagenModal()">
+    <button onclick="cerrarImagenModal()" class="absolute top-4 right-4 text-white text-5xl hover:text-gray-300 z-10 bg-black bg-opacity-50 w-12 h-12 rounded-full flex items-center justify-center">×</button>
+    <img id="imagenModalSrc" src="" class="max-w-full max-h-full object-contain" onclick="event.stopPropagation()">
+</div>
 
 <!-- ========================= -->
 <!--      COLUMNA DERECHA     -->

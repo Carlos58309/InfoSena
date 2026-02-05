@@ -54,19 +54,16 @@ def registro_view(request):
             return render(request, 'registrar.html', {'form_data': form_data})
 
         # ========================================
-        # ⭐ VALIDACIÓN NUEVA: DOCUMENTO ÚNICO EN TODAS LAS TABLAS
+        # VALIDAR DOCUMENTO ÚNICO EN TODAS LAS TABLAS
         # ========================================
-        # Verificar si el documento ya existe en Aprendiz
         if Aprendiz.objects.filter(numero_documento=numero_documento).exists():
             messages.error(request, f'❌ El número de documento {numero_documento} ya está registrado como Aprendiz. No puedes usar este documento nuevamente.')
             return render(request, 'registrar.html', {'form_data': form_data})
         
-        # Verificar si el documento ya existe en Instructor
         if Instructor.objects.filter(numero_documento=numero_documento).exists():
             messages.error(request, f'❌ El número de documento {numero_documento} ya está registrado como Instructor. No puedes usar este documento nuevamente.')
             return render(request, 'registrar.html', {'form_data': form_data})
         
-        # Verificar si el documento ya existe en Bienestar
         if Bienestar.objects.filter(numero_documento=numero_documento).exists():
             messages.error(request, f'❌ El número de documento {numero_documento} ya está registrado como Bienestar. No puedes usar este documento nuevamente.')
             return render(request, 'registrar.html', {'form_data': form_data})
@@ -80,19 +77,16 @@ def registro_view(request):
             return render(request, 'registrar.html', {'form_data': form_data})
 
         # ========================================
-        # ⭐ VALIDACIÓN NUEVA: EMAIL ÚNICO EN TODAS LAS TABLAS
+        # VALIDAR EMAIL ÚNICO EN TODAS LAS TABLAS
         # ========================================
-        # Verificar si el email ya existe en Aprendiz
         if Aprendiz.objects.filter(email=email).exists():
             messages.error(request, f'❌ El correo electrónico {email} ya está registrado como Aprendiz. Usa otro correo.')
             return render(request, 'registrar.html', {'form_data': form_data})
         
-        # Verificar si el email ya existe en Instructor
         if Instructor.objects.filter(email=email).exists():
             messages.error(request, f'❌ El correo electrónico {email} ya está registrado como Instructor. Usa otro correo.')
             return render(request, 'registrar.html', {'form_data': form_data})
         
-        # Verificar si el email ya existe en Bienestar
         if Bienestar.objects.filter(email=email).exists():
             messages.error(request, f'❌ El correo electrónico {email} ya está registrado como Bienestar. Usa otro correo.')
             return render(request, 'registrar.html', {'form_data': form_data})
@@ -152,6 +146,7 @@ def registro_view(request):
                     messages.error(request, '⚠️ Complete todos los campos de aprendiz.')
                     return render(request, 'registrar.html', {'form_data': form_data})
                 
+                # ⭐ CREAR CON FOTO DESDE EL INICIO
                 aprendiz = Aprendiz.objects.create(
                     nombre=nombre,
                     tipo_documento=tipo_documento,
@@ -161,12 +156,9 @@ def registro_view(request):
                     jornada=jornada,
                     ficha=ficha,
                     region=region,
-                    contrasena=contrasena
+                    contrasena=contrasena,
+                    foto=foto if foto else None  # Incluir foto en create()
                 )
-                
-                if foto:
-                    aprendiz.foto = foto
-                    aprendiz.save()
                 
                 messages.success(request, f'✅ ¡Bienvenido {nombre}! Tu cuenta de aprendiz ha sido creada exitosamente.')
 
@@ -174,6 +166,7 @@ def registro_view(request):
                 if not centro_formativo:
                     centro_formativo = "Centro Agroempresarial y Desarrollo Pecuario del Huila"
                 
+                # ⭐ CREAR CON FOTO DESDE EL INICIO
                 bienestar = Bienestar.objects.create(
                     nombre=nombre,
                     tipo_documento=tipo_documento,
@@ -181,12 +174,9 @@ def registro_view(request):
                     email=email,
                     centro_formativo=centro_formativo,
                     region=region,
-                    contrasena=contrasena
+                    contrasena=contrasena,
+                    foto=foto if foto else None  # Incluir foto en create()
                 )
-                
-                if foto:
-                    bienestar.foto = foto
-                    bienestar.save()
                 
                 messages.success(request, f'✅ ¡Bienvenido {nombre}! Tu cuenta de bienestar ha sido creada exitosamente.')
 
@@ -195,6 +185,7 @@ def registro_view(request):
                     messages.error(request, '⚠️ El centro formativo es obligatorio para instructores.')
                     return render(request, 'registrar.html', {'form_data': form_data})
                 
+                # ⭐ CREAR CON FOTO DESDE EL INICIO
                 instructor = Instructor.objects.create(
                     nombre=nombre,
                     tipo_documento=tipo_documento,
@@ -202,12 +193,9 @@ def registro_view(request):
                     email=email,
                     centro_formativo=centro_formativo,
                     region=region,
-                    contrasena=contrasena
+                    contrasena=contrasena,
+                    foto=foto if foto else None  # Incluir foto en create()
                 )
-                
-                if foto:
-                    instructor.foto = foto
-                    instructor.save()
                 
                 messages.success(request, f'✅ ¡Bienvenido {nombre}! Tu cuenta de instructor ha sido creada exitosamente.')
 
