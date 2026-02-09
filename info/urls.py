@@ -23,6 +23,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('applications.index.urls')),                      # Página principal
     path('sesion/', include(('applications.sesion.urls', 'sesion'))),  # login, dashboard, etc.
+    path('busqueda/', include('applications.busqueda.urls')),
     path('registro/', include(('applications.registro.urls', 'registro'), namespace='registro')),   
     path('perfil/', include('applications.perfil.urls')),  # tu app perfil 
     path('chat/', include('applications.chat.urls')),

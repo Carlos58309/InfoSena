@@ -21,7 +21,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent  # QUÉDATE CON ESTA
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, '..', 'static'),
+    os.path.join(BASE_DIR, 'static'),
 ]
 
 # Media files
@@ -62,6 +62,7 @@ INSTALLED_APPS = [
     'applications.ficha',
     'applications.perfil',
     'applications.notificaciones',
+    'applications.busqueda',
 ]
 
 MIDDLEWARE = [

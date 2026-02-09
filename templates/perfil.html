@@ -37,20 +37,89 @@
                                 d="M3 9.75L12 3l9 6.75V21H3V9.75z" />
                         </svg>
                     </a>
-                    <a href="">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white"
-                            stroke-width="1.5" class="w-12 h-12 hover:scale-110 transition-transform duration-200">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M12 22a2 2 0 002-2H10a2 2 0 002 2zm6-6V11a6 6 0 10-12 0v5l-1.5 2.5h15L18 16z" />
-                        </svg>
-                    </a>
-                    <a href="{% url 'perfil:perfiles' %}">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white"
-                            stroke-width="2" class="w-10 h-10 hover:scale-110 transition-transform duration-200">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M12 12a5 5 0 100-10 5 5 0 000 10zm7 8c0-4-3-7-7-7s-7 3-7 7" />
-                        </svg>
-                    </a>
+                                        <div class="relative">
+    <!-- Bell -->
+    <button id="btnNotificaciones" class="relative">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white"
+            stroke-width="1.5" class="w-12 h-12">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                d="M12 22a2 2 0 002-2H10a2 2 0 002 2zm6-6V11a6 6 0 10-12 0v5l-1.5 2.5h15L18 16z" />
+        </svg>
+        <!-- Badge de contador -->
+        <span id="notificationBadge" 
+              class="hidden absolute top-0 right-0 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center animate-pulse">
+            0
+        </span>
+    </button>
+    
+    <!-- MENÚ NOTIFICACIONES -->
+    <div id="menuNotificaciones"
+        class="hidden absolute right-0 mt-3 w-80 bg-white rounded-xl shadow-2xl z-50 overflow-hidden">
+        <div class="w-6 h-6 bg-white rotate-45 absolute -top-3 right-6"></div>
+        
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-green-600 to-green-500 p-4">
+            <div class="flex justify-between items-center">
+                <h3 class="text-lg font-bold text-white">Notificaciones</h3>
+                <button onclick="marcarTodasLeidasHeader()" 
+                        class="text-white text-xs hover:text-green-100 transition">
+                    ✓ Marcar todas
+                </button>
+            </div>
+        </div>
+        
+        <!-- Body - Lista de notificaciones -->
+        <div class="max-h-96 overflow-y-auto bg-gray-50" id="listaNotificaciones">
+            <!-- Las notificaciones se cargarán aquí dinámicamente -->
+            <div class="flex flex-col items-center justify-center py-12">
+                <div class="text-4xl mb-2">🔔</div>
+                <p class="text-gray-400 text-sm">Cargando notificaciones...</p>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div class="bg-white border-t border-gray-200 p-3">
+            <a href="{% url 'notificaciones:lista' %}"
+                class="block text-center text-sm text-green-600 font-semibold hover:text-green-800 transition">
+                Ver todas las notificaciones →
+            </a>
+        </div>
+    </div>
+</div>
+                    <!-- User -->
+                    <div class="relative">
+                        <!-- ICONO PERFIL CON FOTO -->
+                        <button id="btnPerfil" class="flex items-center justify-center">
+                            {% if usuario.foto %}
+                            <img src="{{ usuario.foto.url }}" alt="{{ usuario.nombre }}"
+                                class="w-10 h-10 rounded-full object-cover border-2 border-white">
+                            {% else %}
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white"
+                                stroke-width="2" class="w-10 h-10">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M12 12a5 5 0 100-10 5 5 0 000 10zm7 8c0-4-3-7-7-7s-7 3-7 7" />
+                            </svg>
+                            {% endif %}
+                        </button>
+
+                        <!-- MENÚ DESPLEGABLE -->
+                        <div id="menuPerfil"
+                            class="hidden absolute right-0 mt-3 w-64 bg-gray-200 rounded-xl shadow-xl p-4 z-50">
+                            <div class="flex justify-center mb-3">
+                                <div class="w-6 h-6 bg-gray-200 rotate-45 absolute -top-3 right-6"></div>
+                            </div>
+                            <a href="{% url 'perfil:perfiles' %}"
+                                class="block bg-green-600 text-white text-center py-3 rounded-lg hover:bg-green-700 transition">
+                                Ver Perfil
+                            </a>
+                            <div class="my-3 border-t border-gray-400"></div>
+                            <a href="{% url 'sesion:login' %}"
+                                class="block bg-gray-400 text-white text-center py-3 rounded-lg hover:bg-gray-500 transition">
+                                Cerrar Sesión
+                            </a>
+                        </div>
+                    </div>
+                </div>
                 </div>
             </div>
         </nav>
@@ -368,5 +437,293 @@
             document.getElementById('imagenModal').classList.add('hidden');
         }
     </script>
+    <script>
+        function cerrarMenus(e) {
+            const menuP = document.getElementById("menuPerfil");
+            const btnP = document.getElementById("btnPerfil");
+            const menuN = document.getElementById("menuNotificaciones");
+            const btnN = document.getElementById("btnNotificaciones");
+
+            if (menuP && !menuP.contains(e.target) && !btnP.contains(e.target)) {
+                menuP.classList.add("hidden");
+            }
+            if (menuN && !menuN.contains(e.target) && !btnN.contains(e.target)) {
+                menuN.classList.add("hidden");
+            }
+        }
+
+        document.getElementById("btnPerfil")?.addEventListener("click", () => {
+            document.getElementById("menuPerfil").classList.toggle("hidden");
+            document.getElementById("menuNotificaciones").classList.add("hidden");
+        });
+
+        document.getElementById("btnNotificaciones").addEventListener("click", () => {
+            document.getElementById("menuNotificaciones").classList.toggle("hidden");
+            document.getElementById("menuPerfil")?.classList.add("hidden");
+        });
+
+        document.addEventListener("click", cerrarMenus);
+    </script>
+    <script>
+// ========================================
+// SISTEMA DE NOTIFICACIONES EN TIEMPO REAL
+// ========================================
+
+let notificationInterval;
+
+// Inicializar cuando el DOM esté listo
+document.addEventListener('DOMContentLoaded', function() {
+    // Cargar notificaciones inicialmente
+    cargarNotificaciones();
+    
+    // Auto-actualizar cada 30 segundos
+    notificationInterval = setInterval(cargarNotificaciones, 30000);
+    
+    // Recargar cuando vuelves a la pestaña
+    document.addEventListener('visibilitychange', function() {
+        if (!document.hidden) {
+            cargarNotificaciones();
+        }
+    });
+});
+
+// Función principal para cargar notificaciones
+async function cargarNotificaciones() {
+    try {
+        const response = await fetch("{% url 'notificaciones:obtener_notificaciones' %}");
+        const data = await response.json();
+        
+        // Actualizar badge
+        actualizarBadge(data.count);
+        
+        // Renderizar notificaciones
+        if (data.notificaciones && data.notificaciones.length > 0) {
+            renderizarNotificaciones(data.notificaciones);
+        } else {
+            mostrarNotificacionesVacias();
+        }
+    } catch (error) {
+        console.error('Error al cargar notificaciones:', error);
+        mostrarErrorNotificaciones();
+    }
+}
+
+// Actualizar badge con contador
+function actualizarBadge(count) {
+    const badge = document.getElementById('notificationBadge');
+    if (badge) {
+        if (count > 0) {
+            badge.textContent = count > 99 ? '99+' : count;
+            badge.classList.remove('hidden');
+        } else {
+            badge.classList.add('hidden');
+        }
+    }
+}
+
+// Renderizar lista de notificaciones
+function renderizarNotificaciones(notificaciones) {
+    const lista = document.getElementById('listaNotificaciones');
+    
+    const html = notificaciones.map(notif => {
+        const iconos = {
+            'solicitud_amistad': '👋',
+            'amistad_aceptada': '✅',
+            'nueva_publicacion': '📝',
+            'comentario': '💬',
+            'like': '❤️'
+        };
+        
+        const colores = {
+            'solicitud_amistad': 'bg-green-50 border-l-4 border-green-500',
+            'amistad_aceptada': 'bg-blue-50 border-l-4 border-blue-500',
+            'nueva_publicacion': 'bg-purple-50 border-l-4 border-purple-500',
+            'comentario': 'bg-yellow-50 border-l-4 border-yellow-500',
+            'like': 'bg-red-50 border-l-4 border-red-500'
+        };
+        
+        return `
+            <div class="${colores[notif.tipo] || 'bg-white'} p-4 hover:bg-gray-100 transition cursor-pointer border-b border-gray-200"
+                 onclick="irANotificacion(${notif.id}, ${notif.publicacion_id || null})">
+                <div class="flex items-start gap-3">
+                    <!-- Avatar -->
+                    <img src="${notif.emisor_foto || '{% static "img/default-avatar.png" %}'}" 
+                         alt="${notif.emisor_nombre}"
+                         class="w-10 h-10 rounded-full object-cover flex-shrink-0">
+                    
+                    <!-- Contenido -->
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="text-lg">${iconos[notif.tipo] || '📢'}</span>
+                            <span class="text-xs font-semibold text-gray-500 uppercase">${getTipoNombre(notif.tipo)}</span>
+                        </div>
+                        <p class="text-sm text-gray-800 mb-1">${notif.mensaje}</p>
+                        <p class="text-xs text-gray-500">${calcularTiempo(notif.fecha)}</p>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+    
+    lista.innerHTML = html;
+}
+
+// Mostrar estado vacío
+function mostrarNotificacionesVacias() {
+    const lista = document.getElementById('listaNotificaciones');
+    lista.innerHTML = `
+        <div class="flex flex-col items-center justify-center py-12">
+            <div class="text-5xl mb-3">🔔</div>
+            <p class="text-gray-600 font-semibold mb-1">Todo al día</p>
+            <p class="text-gray-400 text-sm">No tienes notificaciones nuevas</p>
+        </div>
+    `;
+}
+
+// Mostrar error
+function mostrarErrorNotificaciones() {
+    const lista = document.getElementById('listaNotificaciones');
+    lista.innerHTML = `
+        <div class="flex flex-col items-center justify-center py-12">
+            <div class="text-5xl mb-3">⚠️</div>
+            <p class="text-gray-600 font-semibold mb-1">Error al cargar</p>
+            <button onclick="cargarNotificaciones()" 
+                    class="mt-2 px-4 py-2 bg-green-500 text-white rounded-lg text-sm hover:bg-green-600">
+                Reintentar
+            </button>
+        </div>
+    `;
+}
+
+// Obtener nombre del tipo de notificación
+function getTipoNombre(tipo) {
+    const nombres = {
+        'solicitud_amistad': 'Solicitud',
+        'amistad_aceptada': 'Aceptada',
+        'nueva_publicacion': 'Publicación',
+        'comentario': 'Comentario',
+        'like': 'Me gusta'
+    };
+    return nombres[tipo] || tipo;
+}
+
+// Calcular tiempo transcurrido
+function calcularTiempo(fecha) {
+    const ahora = new Date();
+    const fechaNotif = new Date(fecha);
+    const diff = Math.floor((ahora - fechaNotif) / 1000);
+    
+    if (diff < 60) return 'Justo ahora';
+    if (diff < 3600) return `Hace ${Math.floor(diff / 60)} min`;
+    if (diff < 86400) return `Hace ${Math.floor(diff / 3600)} h`;
+    if (diff < 604800) return `Hace ${Math.floor(diff / 86400)} días`;
+    
+    return fechaNotif.toLocaleDateString('es-ES', { 
+        day: 'numeric', 
+        month: 'short' 
+    });
+}
+
+// Ir a notificación específica
+async function irANotificacion(notifId, publicacionId) {
+    // Marcar como leída
+    try {
+        await fetch(`{% url 'notificaciones:marcar_leida' 0 %}`.replace('0', notifId), {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+            }
+        });
+    } catch (error) {
+        console.error('Error al marcar notificación:', error);
+    }
+    
+    // Redirigir
+    if (publicacionId) {
+        window.location.href = `/publicaciones/${publicacionId}/`;
+    } else {
+        window.location.href = "{% url 'notificaciones:lista' %}";
+    }
+}
+
+// Marcar todas como leídas
+async function marcarTodasLeidasHeader() {
+    try {
+        const response = await fetch("{% url 'notificaciones:marcar_todas_leidas' %}", {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+            }
+        });
+        
+        if (response.ok) {
+            actualizarBadge(0);
+            cargarNotificaciones();
+            mostrarToast('✓ Notificaciones marcadas como leídas', 'success');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        mostrarToast('❌ Error al marcar notificaciones', 'error');
+    }
+}
+
+// Sistema de toast notifications
+function mostrarToast(mensaje, tipo = 'success') {
+    const colores = {
+        success: 'bg-green-500',
+        error: 'bg-red-500',
+        warning: 'bg-yellow-500',
+        info: 'bg-blue-500'
+    };
+    
+    const toast = document.createElement('div');
+    toast.className = `fixed bottom-6 right-6 ${colores[tipo]} text-white px-6 py-3 rounded-xl shadow-2xl z-50 animate-slide-in`;
+    toast.textContent = mensaje;
+    
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(400px)';
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+
+// Obtener cookie CSRF
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// Animación de entrada
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slide-in {
+        from {
+            opacity: 0;
+            transform: translateX(400px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+    
+    .animate-slide-in {
+        animation: slide-in 0.3s ease-out;
+    }
+`;
+document.head.appendChild(style);
+</script>
 </body>
 </html>

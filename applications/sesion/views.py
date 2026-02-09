@@ -16,7 +16,6 @@ def login_view(request):
         documento = request.POST.get("documento")
         password = request.POST.get("password")
 
-        # Evita errores si no se ingresan datos
         if not documento or not password:
             messages.warning(request, "Por favor ingresa tu documento y contraseña.")
             return render(request, "login.html")
@@ -28,8 +27,8 @@ def login_view(request):
             messages.success(request, f"Bienvenido {aprendiz.nombre} (Aprendiz)")
             request.session["rol"] = "Aprendiz"
             request.session["nombre"] = aprendiz.nombre
-            request.session["usuario_id"] = documento   # guarda el documento como ID
-            request.session["tipo_usuario"] = "aprendiz"  # o "instructor", "bienestar" según caso
+            request.session["usuario_id"] = documento
+            request.session["tipo_usuario"] = "aprendiz"
             return redirect("sesion:home")
 
         # Buscar en Instructor
@@ -39,8 +38,8 @@ def login_view(request):
             messages.success(request, f"Bienvenido {instructor.nombre} (Instructor)")
             request.session["rol"] = "Instructor"
             request.session["nombre"] = instructor.nombre
-            request.session["usuario_id"] = documento   # guarda el documento como ID
-            request.session["tipo_usuario"] = "instructor"  # o "instructor", "bienestar" según caso
+            request.session["usuario_id"] = documento
+            request.session["tipo_usuario"] = "instructor"
             return redirect("sesion:home")
 
         # Buscar en Bienestar
@@ -50,8 +49,8 @@ def login_view(request):
             messages.success(request, f"Bienvenido {bienestar.nombre} (Bienestar)")
             request.session["rol"] = "Bienestar"
             request.session["nombre"] = bienestar.nombre
-            request.session["usuario_id"] = documento   # guarda el documento como ID
-            request.session["tipo_usuario"] = "bienestar"  # o "instructor", "bienestar" según caso
+            request.session["usuario_id"] = documento
+            request.session["tipo_usuario"] = "bienestar"
             return redirect("sesion:home")
 
         # Si no coincide nada
@@ -59,16 +58,11 @@ def login_view(request):
         messages.error(request, "Número de documento o contraseña incorrectos.")
         return render(request, "login.html")
 
-    # Si es un GET (solo mostrar el formulario)
     return render(request, "login.html")
 
 
 @login_required
 def dashboard_view(request):
-    """
-    Vista para mostrar el home/dashboard del usuario
-    """
-    # Verificar si hay una sesión activa
     if 'usuario_id' not in request.session or 'tipo_usuario' not in request.session:
         return redirect('sesion:login')
     
@@ -76,7 +70,6 @@ def dashboard_view(request):
     tipo_perfil = request.session['tipo_usuario']
     datos_usuario = None
     
-    # Buscar el usuario según su tipo
     try:
         if tipo_perfil == 'aprendiz':
             datos_usuario = Aprendiz.objects.get(numero_documento=usuario_id)
@@ -87,7 +80,6 @@ def dashboard_view(request):
     except (Aprendiz.DoesNotExist, Instructor.DoesNotExist, Bienestar.DoesNotExist):
         return redirect('sesion:login')
     
-# Traer todas las publicaciones activas (ordenadas por fecha de creación)
     publicaciones = Publicacion.objects.filter(activa=True)
     
     context = {
@@ -99,46 +91,328 @@ def dashboard_view(request):
     return render(request, "home.html", context)
 
 
-@login_required
-def amigos_view(request):
-    """Vista de amigos con sugerencias inteligentes"""
-    
+# ==========================================
+# FUNCIÓN HELPER PARA OBTENER USUARIO
+# ==========================================
+def obtener_usuario_actual(request):
+    """
+    Obtiene el Usuario de la tabla Usuario basado en la sesión.
+    Retorna: (usuario_actual, datos_usuario) o (None, None)
+    """
     usuario_id = request.session.get('usuario_id')
     tipo_perfil = request.session.get('tipo_usuario')
     
-    # Obtener usuario actual
+    print(f"\n🔍 [obtener_usuario_actual] Doc: {usuario_id}, Tipo: {tipo_perfil}")
+    
+    if not usuario_id or not tipo_perfil:
+        print("❌ No hay datos de sesión")
+        return None, None
+    
+    # Buscar el perfil específico
+    try:
+        if tipo_perfil == 'aprendiz':
+            datos_usuario = Aprendiz.objects.get(numero_documento=usuario_id)
+        elif tipo_perfil == 'instructor':
+            datos_usuario = Instructor.objects.get(numero_documento=usuario_id)
+        elif tipo_perfil == 'bienestar':
+            datos_usuario = Bienestar.objects.get(numero_documento=usuario_id)
+        else:
+            print(f"❌ Tipo no reconocido: {tipo_perfil}")
+            return None, None
+    except (Aprendiz.DoesNotExist, Instructor.DoesNotExist, Bienestar.DoesNotExist) as e:
+        print(f"❌ Perfil no encontrado: {e}")
+        return None, None
+    
+    print(f"✅ Perfil: {datos_usuario.nombre} (Doc: {datos_usuario.numero_documento})")
+    
+    # Buscar Usuario correspondiente
+    try:
+        usuario_actual = Usuario.objects.get(documento=datos_usuario.numero_documento)
+        print(f"✅ Usuario: ID {usuario_actual.id}, Nombre: {usuario_actual.nombre}")
+        return usuario_actual, datos_usuario
+    except Usuario.DoesNotExist:
+        print(f"❌ No existe Usuario con documento: {datos_usuario.numero_documento}")
+        return None, datos_usuario
+    except Usuario.MultipleObjectsReturned:
+        print(f"⚠️  Múltiples Usuarios, tomando el primero")
+        usuario_actual = Usuario.objects.filter(documento=datos_usuario.numero_documento).first()
+        return usuario_actual, datos_usuario
+
+
+# ==========================================
+# FUNCIÓN DE SUGERENCIAS MEJORADA
+# ==========================================
+def obtener_sugerencias_inteligentes(usuario_actual, tipo_perfil_actual, limite=10):
+    """
+    Algoritmo mejorado que SIEMPRE retorna sugerencias si hay usuarios disponibles.
+    """
+    
+    print(f"\n💡 [obtener_sugerencias] Usuario: {usuario_actual.nombre} (ID: {usuario_actual.id})")
+    
+    # 1. Obtener amigos
+    mis_amigos = Amistad.obtener_amigos(usuario_actual)
+    ids_mis_amigos = set(amigo.id for amigo in mis_amigos)
+    print(f"   👥 Amigos: {len(ids_mis_amigos)}")
+    
+    # 2. Obtener solicitudes (enviadas Y recibidas)
+    ids_solicitudes_enviadas = set(Amistad.objects.filter(
+        emisor=usuario_actual, estado=Amistad.PENDIENTE
+    ).values_list('receptor_id', flat=True))
+    
+    ids_solicitudes_recibidas = set(Amistad.objects.filter(
+        receptor=usuario_actual, estado=Amistad.PENDIENTE
+    ).values_list('emisor_id', flat=True))
+    
+    # 3. Obtener amistades aceptadas (en ambas direcciones)
+    ids_amistades_emisor = set(Amistad.objects.filter(
+        emisor=usuario_actual, estado=Amistad.ACEPTADA
+    ).values_list('receptor_id', flat=True))
+    
+    ids_amistades_receptor = set(Amistad.objects.filter(
+        receptor=usuario_actual, estado=Amistad.ACEPTADA
+    ).values_list('emisor_id', flat=True))
+    
+    print(f"   📤 Solicitudes enviadas: {len(ids_solicitudes_enviadas)}")
+    print(f"   📥 Solicitudes recibidas: {len(ids_solicitudes_recibidas)}")
+    print(f"   ✅ Amistades (emisor): {len(ids_amistades_emisor)}")
+    print(f"   ✅ Amistades (receptor): {len(ids_amistades_receptor)}")
+    
+    # 4. Combinar TODOS los IDs a excluir
+    ids_excluidos = (
+        {usuario_actual.id} | 
+        ids_solicitudes_enviadas | 
+        ids_solicitudes_recibidas | 
+        ids_amistades_emisor | 
+        ids_amistades_receptor
+    )
+    
+    print(f"   🚫 Total IDs excluidos: {len(ids_excluidos)} - {ids_excluidos}")
+    
+    # 5. Obtener candidatos
+    candidatos = Usuario.objects.exclude(id__in=ids_excluidos)
+    print(f"   🎯 Candidatos encontrados: {candidatos.count()}")
+    
+    if candidatos.count() == 0:
+        print("   ⚠️  No hay candidatos disponibles")
+        return []
+    
+    # Listar candidatos
+    for c in candidatos:
+        print(f"      - ID: {c.id} | {c.nombre} | {c.tipo}")
+    
+    # 6. Calcular scores
+    sugerencias_con_score = []
+    
+    for candidato in candidatos:
+        score = 5  # Base score para que todos aparezcan
+        
+        # Amigos en común (solo si tengo amigos)
+        amigos_comunes_ids = set()
+        cantidad_amigos_comun = 0
+        
+        if len(ids_mis_amigos) > 0:
+            amigos_candidato = Amistad.obtener_amigos(candidato)
+            ids_amigos_candidato = set(amigo.id for amigo in amigos_candidato)
+            amigos_comunes_ids = ids_mis_amigos & ids_amigos_candidato
+            cantidad_amigos_comun = len(amigos_comunes_ids)
+            score += cantidad_amigos_comun * 100
+        
+        # Mismo tipo (+50 puntos)
+        mismo_tipo = candidato.tipo == tipo_perfil_actual
+        if mismo_tipo:
+            score += 50
+        
+        # Tiene foto (+10 puntos)
+        if candidato.foto:
+            score += 10
+        
+        # Lista de amigos en común (max 3)
+        amigos_comunes_lista = []
+        if amigos_comunes_ids:
+            amigos_comunes_lista = list(Usuario.objects.filter(
+                id__in=list(amigos_comunes_ids)[:3]
+            ))
+        
+        sugerencias_con_score.append({
+            'usuario': candidato,
+            'amigos_en_comun': cantidad_amigos_comun,
+            'amigos_en_comun_lista': amigos_comunes_lista,
+            'prioridad': score,
+            'mismo_tipo': mismo_tipo
+        })
+    
+    # 7. Ordenar por prioridad
+    sugerencias_ordenadas = sorted(
+        sugerencias_con_score,
+        key=lambda x: (-x['prioridad'], x['usuario'].nombre)
+    )
+    
+    # Debug
+    print(f"   📊 Sugerencias ordenadas:")
+    for i, sug in enumerate(sugerencias_ordenadas[:5], 1):
+        print(f"      {i}. {sug['usuario'].nombre} - "
+              f"Score: {sug['prioridad']} - "
+              f"Amigos común: {sug['amigos_en_comun']}")
+    
+    resultado = sugerencias_ordenadas[:limite]
+    print(f"   ✅ Retornando {len(resultado)} sugerencias\n")
+    
+    return resultado
+
+
+# ==========================================
+# ⭐ VISTA HOME CORREGIDA
+# ==========================================
+@login_required
+def home_view(request):
+    """Vista principal con publicaciones y datos de amistades"""
+    
+    print("\n" + "=" * 100)
+    print("🏠 HOME VIEW")
+    print("=" * 100)
+    
+    # Obtener usuario
     usuario_actual, datos_usuario = obtener_usuario_actual(request)
     
     if not datos_usuario:
+        print("❌ No se encontró datos_usuario")
+        return redirect('sesion:login')
+    
+    tipo_perfil = request.session.get('tipo_usuario')
+    print(f"📋 Tipo perfil: {tipo_perfil}")
+    
+    # Publicaciones
+    publicaciones = Publicacion.objects.filter(activa=True).order_by('-fecha_creacion')
+    print(f"📰 Publicaciones: {publicaciones.count()}")
+    
+    # INICIALIZAR VARIABLES CON VALORES POR DEFECTO
+    solicitudes_recibidas = []
+    sugerencias = []
+    amigos = []
+    
+    # Si existe usuario_actual, obtener datos de amistades
+    if usuario_actual:
+        print(f"✅ usuario_actual existe: {usuario_actual.nombre} (ID: {usuario_actual.id})")
+        
+        # 1. SOLICITUDES RECIBIDAS - Convertir a lista
+        try:
+            solicitudes_queryset = Amistad.objects.filter(
+                receptor=usuario_actual,
+                estado=Amistad.PENDIENTE
+            ).select_related('emisor').order_by('-fecha_solicitud')[:5]
+            
+            solicitudes_recibidas = list(solicitudes_queryset)  # ⭐ CONVERTIR A LISTA
+            print(f"📬 Solicitudes recibidas: {len(solicitudes_recibidas)}")
+            
+            if len(solicitudes_recibidas) > 0:
+                print(f"   Ejemplo: {solicitudes_recibidas[0].emisor.nombre}")
+        except Exception as e:
+            print(f"❌ Error al obtener solicitudes: {e}")
+            solicitudes_recibidas = []
+        
+        # 2. AMIGOS - Convertir a lista
+        try:
+            amigos = list(Amistad.obtener_amigos(usuario_actual))  # ⭐ CONVERTIR A LISTA
+            print(f"👥 Amigos: {len(amigos)}")
+            
+            if len(amigos) > 0:
+                print(f"   Ejemplo: {amigos[0].nombre}")
+        except Exception as e:
+            print(f"❌ Error al obtener amigos: {e}")
+            amigos = []
+        
+        # 3. SUGERENCIAS - Ya es lista
+        try:
+            sugerencias = obtener_sugerencias_inteligentes(usuario_actual, tipo_perfil, limite=10)
+            print(f"💡 Sugerencias generadas: {len(sugerencias)}")
+            
+            if len(sugerencias) == 0:
+                print("⚠️  Sugerencias está vacía - Verificar algoritmo")
+            else:
+                print("✅ Sugerencias OK:")
+                for i, sug in enumerate(sugerencias[:3], 1):
+                    print(f"   {i}. {sug['usuario'].nombre} (Amigos común: {sug['amigos_en_comun']})")
+        except Exception as e:
+            print(f"❌ ERROR al obtener sugerencias: {e}")
+            import traceback
+            traceback.print_exc()
+            sugerencias = []
+    else:
+        print("⚠️  usuario_actual es None - No se cargarán datos de amistades")
+    
+    # PREPARAR CONTEXT
+    context = {
+        'tipo_perfil': tipo_perfil,
+        'usuario': datos_usuario,
+        'publicaciones': publicaciones,
+        'solicitudes_recibidas': solicitudes_recibidas,
+        'sugerencias': sugerencias,
+        'amigos': amigos,
+    }
+    
+    # ⭐ DEBUG FINAL - VERIFICACIÓN EXHAUSTIVA
+    print(f"\n📦 Context preparado para enviar al template:")
+    print(f"   - tipo_perfil: '{context['tipo_perfil']}' (tipo: {type(context['tipo_perfil']).__name__})")
+    print(f"   - usuario: {context['usuario'].nombre if context['usuario'] else 'None'}")
+    print(f"   - publicaciones: {len(context['publicaciones'])} items (tipo: {type(context['publicaciones']).__name__})")
+    print(f"   - solicitudes_recibidas: {len(context['solicitudes_recibidas'])} items (tipo: {type(context['solicitudes_recibidas']).__name__})")
+    print(f"   - sugerencias: {len(context['sugerencias'])} items (tipo: {type(context['sugerencias']).__name__}) ⭐")
+    print(f"   - amigos: {len(context['amigos'])} items (tipo: {type(context['amigos']).__name__})")
+    
+    # Verificar si son listas vacías o None
+    if context['solicitudes_recibidas'] is None:
+        print("   ⚠️  solicitudes_recibidas es None!")
+    if context['sugerencias'] is None:
+        print("   ⚠️  sugerencias es None!")
+    if context['amigos'] is None:
+        print("   ⚠️  amigos es None!")
+    
+    print("=" * 100 + "\n")
+    
+    return render(request, 'home.html', context)
+
+
+# ==========================================
+# VISTA AMIGOS
+# ==========================================
+@login_required
+def amigos_view(request):
+    """Vista de amigos con sugerencias"""
+    
+    print("\n" + "=" * 100)
+    print("👥 VISTA AMIGOS")
+    print("=" * 100)
+    
+    usuario_actual, datos_usuario = obtener_usuario_actual(request)
+    
+    if not datos_usuario:
+        messages.error(request, 'No se pudo cargar tu perfil.')
         return redirect('sesion:login')
     
     if not usuario_actual:
-        messages.error(request, 'No se pudo cargar tu perfil de usuario.')
+        messages.error(request, 'Tu perfil no está sincronizado.')
         return redirect('sesion:home')
+    
+    tipo_perfil = request.session.get('tipo_usuario')
     
     # Solicitudes recibidas
     solicitudes_recibidas = Amistad.objects.filter(
         receptor=usuario_actual,
         estado=Amistad.PENDIENTE
-    ).select_related('emisor')
+    ).select_related('emisor').order_by('-fecha_solicitud')
     
     # Solicitudes enviadas
     solicitudes_enviadas = Amistad.objects.filter(
         emisor=usuario_actual,
         estado=Amistad.PENDIENTE
     ).select_related('receptor')
-    
-    ids_con_solicitud = {sol.receptor.id for sol in solicitudes_enviadas}
+    ids_con_solicitud = set(sol.receptor.id for sol in solicitudes_enviadas)
     
     # Amigos
     amigos = Amistad.obtener_amigos(usuario_actual)
     
-    # ⭐ SUGERENCIAS INTELIGENTES
-    sugerencias = obtener_sugerencias_inteligentes(
-        usuario_actual,
-        tipo_perfil,
-        limite=20  # Más sugerencias en la página de amigos
-    )
+    # Sugerencias
+    sugerencias = obtener_sugerencias_inteligentes(usuario_actual, tipo_perfil, limite=20)
     
     context = {
         'tipo_perfil': tipo_perfil,
@@ -149,200 +423,10 @@ def amigos_view(request):
         'amigos': amigos,
     }
     
+    print("=" * 100 + "\n")
+    
     return render(request, 'amigos.html', context)
 
-@login_required
-def obtener_usuario_actual(request):
-    """Función helper para obtener el Usuario correcto basado en la sesión"""
-    usuario_id = request.session.get('usuario_id')
-    tipo_perfil = request.session.get('tipo_usuario')
-    
-    print(f"🔍 obtener_usuario_actual - usuario_id: {usuario_id}, tipo: {tipo_perfil}")
-    
-    try:
-        if tipo_perfil == 'aprendiz':
-            datos_usuario = Aprendiz.objects.get(numero_documento=usuario_id)
-        elif tipo_perfil == 'instructor':
-            datos_usuario = Instructor.objects.get(numero_documento=usuario_id)
-        elif tipo_perfil == 'bienestar':
-            datos_usuario = Bienestar.objects.get(numero_documento=usuario_id)
-        else:
-            print(f"❌ tipo_perfil no reconocido: {tipo_perfil}")
-            return None, None
-    except (Aprendiz.DoesNotExist, Instructor.DoesNotExist, Bienestar.DoesNotExist) as e:
-        print(f"❌ Error al buscar perfil: {e}")
-        return None, None
-    
-    print(f"✅ Perfil encontrado: {datos_usuario.nombre} (doc: {datos_usuario.numero_documento})")
-    
-    try:
-        usuario_actual = Usuario.objects.get(documento=datos_usuario.numero_documento)
-        print(f"✅ Usuario encontrado: ID {usuario_actual.id}, Nombre: {usuario_actual.nombre}")
-        return usuario_actual, datos_usuario
-    except Usuario.DoesNotExist:
-        print(f"❌ No existe Usuario con documento: {datos_usuario.numero_documento}")
-        print(f"💡 Usuarios existentes en BD:")
-        for u in Usuario.objects.all():
-            print(f"   - ID: {u.id}, Documento: {u.documento}, Nombre: {u.nombre}")
-        return None, datos_usuario
-
-
-def obtener_sugerencias_inteligentes(usuario_actual, tipo_perfil_actual, limite=10):
-    """Obtiene sugerencias priorizadas por amigos en común"""
-    
-    print(f"\n🔍 obtener_sugerencias_inteligentes para {usuario_actual.nombre}")
-    
-    # Obtener amigos del usuario actual
-    mis_amigos = Amistad.obtener_amigos(usuario_actual)
-    ids_mis_amigos = {amigo.id for amigo in mis_amigos}
-    print(f"   Mis amigos: {len(mis_amigos)} - IDs: {ids_mis_amigos}")
-    
-    # Solicitudes enviadas y recibidas
-    solicitudes_enviadas = Amistad.objects.filter(
-        emisor=usuario_actual,
-        estado=Amistad.PENDIENTE
-    )
-    ids_con_solicitud = {sol.receptor.id for sol in solicitudes_enviadas}
-    print(f"   Solicitudes enviadas: {len(ids_con_solicitud)}")
-    
-    solicitudes_recibidas = Amistad.objects.filter(
-        receptor=usuario_actual,
-        estado=Amistad.PENDIENTE
-    )
-    ids_solicitudes_recibidas = {sol.emisor.id for sol in solicitudes_recibidas}
-    print(f"   Solicitudes recibidas: {len(ids_solicitudes_recibidas)}")
-    
-    # Obtener todos los usuarios candidatos
-    candidatos = Usuario.objects.exclude(
-        id=usuario_actual.id
-    ).exclude(
-        id__in=ids_mis_amigos
-    ).exclude(
-        id__in=ids_con_solicitud
-    ).exclude(
-        id__in=ids_solicitudes_recibidas
-    )
-    
-    print(f"   Candidatos totales: {candidatos.count()}")
-    
-    # Calcular amigos en común para cada candidato
-    sugerencias_con_score = []
-    
-    for candidato in candidatos:
-        # Obtener amigos del candidato
-        amigos_candidato = Amistad.obtener_amigos(candidato)
-        ids_amigos_candidato = {amigo.id for amigo in amigos_candidato}
-        
-        # Calcular amigos en común
-        amigos_en_comun = ids_mis_amigos.intersection(ids_amigos_candidato)
-        cantidad_amigos_comun = len(amigos_en_comun)
-        
-        # Calcular prioridad
-        prioridad = cantidad_amigos_comun * 100
-        
-        # +50 puntos si es del mismo tipo
-        if hasattr(candidato, 'tipo') and candidato.tipo == tipo_perfil_actual:
-            prioridad += 50
-        
-        # Agregar a la lista
-        sugerencias_con_score.append({
-            'usuario': candidato,
-            'amigos_en_comun': cantidad_amigos_comun,
-            'amigos_en_comun_lista': [Usuario.objects.get(id=aid) for aid in list(amigos_en_comun)[:3]],
-            'prioridad': prioridad,
-            'mismo_tipo': hasattr(candidato, 'tipo') and candidato.tipo == tipo_perfil_actual
-        })
-    
-    # Ordenar por prioridad
-    sugerencias_ordenadas = sorted(
-        sugerencias_con_score, 
-        key=lambda x: x['prioridad'], 
-        reverse=True
-    )
-    
-    print(f"   Sugerencias ordenadas: {len(sugerencias_ordenadas)}")
-    for i, sug in enumerate(sugerencias_ordenadas[:5]):
-        print(f"      {i+1}. {sug['usuario'].nombre} - {sug['amigos_en_comun']} amigos común - Prioridad: {sug['prioridad']}")
-    
-    return sugerencias_ordenadas[:limite]
-
-
-@login_required
-def home_view(request):
-    """Vista principal del home con publicaciones y datos de amistades"""
-    
-    print("\n" + "=" * 80)
-    print("🏠 HOME VIEW - INICIO")
-    print("=" * 80)
-    
-    # Obtener datos de la sesión
-    usuario_id = request.session.get('usuario_id')
-    tipo_perfil = request.session.get('tipo_usuario')
-    
-    print(f"📋 Sesión - usuario_id: {usuario_id}, tipo: {tipo_perfil}")
-    
-    if not usuario_id or not tipo_perfil:
-        print("❌ No hay datos en sesión, redirigiendo a login")
-        return redirect('sesion:login')
-    
-    # Obtener el usuario actual y su perfil
-    usuario_actual, datos_usuario = obtener_usuario_actual(request)
-    
-    if not datos_usuario:
-        print("❌ No se encontró datos_usuario, redirigiendo a login")
-        return redirect('sesion:login')
-    
-    # Obtener todas las publicaciones
-    publicaciones = Publicacion.objects.all().order_by('-fecha_creacion')
-    print(f"📰 Publicaciones encontradas: {publicaciones.count()}")
-    
-    # DATOS DE AMISTADES
-    solicitudes_recibidas = []
-    sugerencias = []
-    amigos = []
-    
-    if usuario_actual:
-        print(f"✅ Usuario actual existe: {usuario_actual.nombre} (ID: {usuario_actual.id})")
-        
-        # Solicitudes recibidas
-        solicitudes_recibidas = Amistad.objects.filter(
-            receptor=usuario_actual,
-            estado=Amistad.PENDIENTE
-        ).select_related('emisor')[:5]
-        print(f"📬 Solicitudes recibidas: {solicitudes_recibidas.count()}")
-        
-        # Amigos
-        amigos = Amistad.obtener_amigos(usuario_actual)
-        print(f"👥 Amigos: {len(amigos)}")
-        
-        # SUGERENCIAS INTELIGENTES
-        try:
-            sugerencias = obtener_sugerencias_inteligentes(
-                usuario_actual, 
-                tipo_perfil,
-                limite=10
-            )
-            print(f"💡 Sugerencias generadas: {len(sugerencias)}")
-        except Exception as e:
-            print(f"❌ ERROR al obtener sugerencias: {e}")
-            import traceback
-            traceback.print_exc()
-            sugerencias = []
-    else:
-        print("❌ usuario_actual es None - No se pueden obtener datos de amistades")
-        print("💡 Verifica que el Usuario exista en la tabla Usuario")
-    
-
-    context = {
-        'tipo_perfil': tipo_perfil,
-        'usuario': datos_usuario,
-        'publicaciones': publicaciones,
-        'solicitudes_recibidas': solicitudes_recibidas,
-        'sugerencias': sugerencias,
-        'amigos': amigos,
-    }
-    
-    return render(request, 'home.html', context)
 
 def perfil_view(request):
     return render(request, "perfil.html")
@@ -384,11 +468,6 @@ def solicitar_correo(request):
     return render(request, "solicitar_correo.html")
 
 
-
-# ------------------------------------------
-#   VALIDAR TOKEN Y MOSTRAR FORMULARIO
-# ------------------------------------------
-
 def restablecer_contrasena(request, uid, token):
     usuario = (
         Aprendiz.objects.filter(pk=uid).first() or
@@ -412,7 +491,7 @@ def restablecer_contrasena(request, uid, token):
         usuario.save()
 
         messages.success(request, "Tu contraseña ha sido restablecida con éxito.")
-        return redirect("sesion:login")  # ✔ te lleva al login correctamente
+        return redirect("sesion:login")
 
     return render(request, "restablecer_password.html")
 

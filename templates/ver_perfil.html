@@ -2,108 +2,359 @@
 
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ usuario.nombre }} - Perfil</title>
+    <title>{{ usuario_perfil.nombre }} - InfoSena</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
-<body class="bg-gray-200">
+<body class="bg-gray-100">
 
-<header class="hero bg-gradient-to-r from-[#0d3604] to-[#2b9e15] shadow-lg">
-    <nav class="container mx-auto px-4 py-4">
-        <div class="flex justify-between items-center">
-            <img src="{% static 'img/logo2.png' %}" width="200px" />
+    <!-- Mensajes -->
+    {% if messages %}
+    <div class="fixed top-4 right-4 z-50 space-y-2">
+        {% for message in messages %}
+        <div class="px-6 py-3 rounded-lg shadow-lg text-white font-semibold
+                    {% if message.tags == 'success' %} bg-green-500
+                    {% elif message.tags == 'error' %} bg-red-500
+                    {% else %} bg-blue-500 {% endif %}">
+            {{ message }}
         </div>
-    </nav>
-</header>
+        {% endfor %}
+    </div>
+    {% endif %}
 
-<div class="container mx-auto px-4 py-8">
-    <div class="max-w-4xl mx-auto bg-white rounded-3xl shadow-xl overflow-hidden">
-        
-        <!-- BANNER SUPERIOR -->
-        <div class="h-48 bg-gradient-to-r from-green-600 to-green-400 relative">
-            <!-- FOTO DE PERFIL -->
-            <div class="absolute -bottom-16 left-8">
-                {% if usuario.foto %}
-                    <img src="{{ usuario.foto.url }}" 
-                         alt="{{ usuario.nombre }}"
-                         class="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg">
-                {% else %}
-                    <div class="w-32 h-32 bg-gradient-to-br from-gray-300 to-gray-400 rounded-full border-4 border-white shadow-lg flex items-center justify-center text-6xl">
-                        {% if usuario.tipo_perfil == 'instructor' %}
-                            👨‍🏫
-                        {% elif usuario.tipo_perfil == 'bienestar' %}
-                            🏥
-                        {% elif usuario.tipo_perfil == 'aprendiz' %}
-                            🎓
-                        {% else %}
-                            👤
+    <div class="min-h-screen py-8 px-4">
+        <div class="max-w-6xl mx-auto">
+
+            <!-- Botón volver -->
+            <div class="mb-6">
+                <a href="{% url 'sesion:home' %}" 
+                   class="inline-flex items-center gap-2 px-4 py-2 bg-white rounded-lg shadow hover:bg-gray-50 transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-5 h-5">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                    </svg>
+                    Volver al inicio
+                </a>
+            </div>
+
+            <!-- ========================================= -->
+            <!-- HEADER DEL PERFIL -->
+            <!-- ========================================= -->
+            <div class="bg-white rounded-2xl shadow-lg overflow-hidden mb-6">
+                <!-- Banner -->
+                <div class="h-48 bg-gradient-to-r 
+                    {% if tipo_perfil == 'aprendiz' %} from-blue-500 to-blue-600
+                    {% elif tipo_perfil == 'instructor' %} from-purple-500 to-purple-600
+                    {% elif tipo_perfil == 'bienestar' %} from-green-500 to-green-600
+                    {% endif %}">
+                </div>
+
+                <!-- Información del perfil -->
+                <div class="px-8 pb-8">
+                    <div class="flex flex-col md:flex-row items-center md:items-end gap-6 -mt-20">
+                        
+                        <!-- Foto de perfil -->
+                        <div class="relative">
+                            {% if usuario_perfil.foto %}
+                            <img src="{{ usuario_perfil.foto.url }}" 
+                                 alt="{{ usuario_perfil.nombre }}"
+                                 class="w-40 h-40 rounded-full object-cover border-8 border-white shadow-xl">
+                            {% else %}
+                            <div class="w-40 h-40 rounded-full bg-gradient-to-br 
+                                {% if tipo_perfil == 'aprendiz' %} from-blue-400 to-blue-600
+                                {% elif tipo_perfil == 'instructor' %} from-purple-400 to-purple-600
+                                {% elif tipo_perfil == 'bienestar' %} from-green-400 to-green-600
+                                {% endif %}
+                                flex items-center justify-center text-white text-6xl border-8 border-white shadow-xl">
+                                {% if tipo_perfil == 'aprendiz' %}🎓
+                                {% elif tipo_perfil == 'instructor' %}👨‍🏫
+                                {% elif tipo_perfil == 'bienestar' %}🏥
+                                {% endif %}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Información y botones -->
+                        <div class="flex-1 text-center md:text-left">
+                            <h1 class="text-3xl font-bold text-gray-800 mb-2">{{ usuario_perfil.nombre }}</h1>
+                            
+                            <!-- Badge de rol -->
+                            <div class="flex items-center justify-center md:justify-start gap-3 mb-3">
+                                <span class="px-4 py-1.5 rounded-full font-semibold text-sm
+                                    {% if tipo_perfil == 'aprendiz' %} bg-blue-100 text-blue-700
+                                    {% elif tipo_perfil == 'instructor' %} bg-purple-100 text-purple-700
+                                    {% elif tipo_perfil == 'bienestar' %} bg-green-100 text-green-700
+                                    {% endif %}">
+                                    {% if tipo_perfil == 'aprendiz' %}
+                                        Aprendiz
+                                    {% elif tipo_perfil == 'instructor' %}
+                                        Instructor
+                                    {% elif tipo_perfil == 'bienestar' %}
+                                        Bienestar al Aprendiz
+                                    {% endif %}
+                                </span>
+                                
+                                {% if tipo_perfil == 'aprendiz' %}
+                                <span class="text-gray-600 text-sm">
+                                    📚 Ficha {{ usuario_perfil.ficha }}
+                                </span>
+                                {% endif %}
+                            </div>
+
+                            <!-- Estadísticas -->
+                            <div class="flex items-center justify-center md:justify-start gap-6 text-sm">
+                                <div class="text-center">
+                                    <p class="font-bold text-xl text-gray-800">{{ cantidad_amigos }}</p>
+                                    <p class="text-gray-600">Amigos</p>
+                                </div>
+                                {% if mostrar_publicaciones %}
+                                <div class="text-center">
+                                    <p class="font-bold text-xl text-gray-800">{{ cantidad_publicaciones }}</p>
+                                    <p class="text-gray-600">Publicaciones</p>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Botón de amistad -->
+                        <div class="flex flex-col gap-2">
+                            {% if es_amigo %}
+                                <span class="px-6 py-3 bg-gray-100 text-gray-700 rounded-lg font-semibold flex items-center gap-2">
+                                    ✓ Son amigos
+                                </span>
+                            {% elif solicitud_pendiente %}
+                                <div class="flex gap-2">
+                                    <a href="{% url 'amistades:aceptar_solicitud' solicitud_id %}" 
+                                       class="px-6 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition">
+                                        ✓ Aceptar solicitud
+                                    </a>
+                                    <a href="{% url 'amistades:rechazar_solicitud' solicitud_id %}" 
+                                       class="px-6 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition">
+                                        ✕ Rechazar
+                                    </a>
+                                </div>
+                            {% elif solicitud_enviada %}
+                                <span class="px-6 py-3 bg-yellow-100 text-yellow-700 rounded-lg font-semibold">
+                                    ⏳ Solicitud enviada
+                                </span>
+                            {% else %}
+                                <a href="{% url 'amistades:enviar_solicitud' usuario_obj.id %}"
+                                   class="px-6 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition flex items-center gap-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-5 h-5">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                                    </svg>
+                                    Agregar amigo
+                                </a>
+                            {% endif %}
+
+                            <button onclick="window.history.back()" 
+                                    class="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-300 transition">
+                                Volver
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========================================= -->
+            <!-- INFORMACIÓN ADICIONAL -->
+            <!-- ========================================= -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                
+                <!-- Información personal -->
+                <div class="lg:col-span-2 bg-white rounded-2xl shadow-lg p-6">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4">Información</h2>
+                    
+                    <div class="space-y-3">
+                        <div class="flex items-center gap-3 text-gray-700">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-5 h-5 text-gray-400">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                            </svg>
+                            <span>{{ usuario_perfil.email }}</span>
+                        </div>
+
+                        <div class="flex items-center gap-3 text-gray-700">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-5 h-5 text-gray-400">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"/>
+                            </svg>
+                            <span>{{ usuario_perfil.tipo_documento }}: {{ usuario_perfil.numero_documento }}</span>
+                        </div>
+
+                        <div class="flex items-center gap-3 text-gray-700">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-5 h-5 text-gray-400">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                            </svg>
+                            <span>{{ usuario_perfil.centro_formativo }}</span>
+                        </div>
+
+                        <div class="flex items-center gap-3 text-gray-700">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-5 h-5 text-gray-400">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            </svg>
+                            <span>{{ usuario_perfil.region }}</span>
+                        </div>
+
+                        {% if tipo_perfil == 'aprendiz' %}
+                        <div class="flex items-center gap-3 text-gray-700">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-5 h-5 text-gray-400">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            <span>Jornada: {{ usuario_perfil.jornada }}</span>
+                        </div>
                         {% endif %}
                     </div>
+                </div>
+
+                <!-- Amigos -->
+                <div class="bg-white rounded-2xl shadow-lg p-6">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4">
+                        Amigos ({{ cantidad_amigos }})
+                    </h2>
+
+                    {% if amigos %}
+                    <div class="space-y-3">
+                        {% for amigo in amigos|slice:":6" %}
+                        <a href="{% url 'perfil:ver_perfil' amigo.documento %}" 
+                           class="flex items-center gap-3 hover:bg-gray-50 p-2 rounded-lg transition">
+                            {% if amigo.foto %}
+                            <img src="{{ amigo.foto.url }}" 
+                                 alt="{{ amigo.nombre }}"
+                                 class="w-10 h-10 rounded-full object-cover">
+                            {% else %}
+                            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-gray-300 to-gray-400 flex items-center justify-center text-white">
+                                👤
+                            </div>
+                            {% endif %}
+                            <div class="flex-1 min-w-0">
+                                <p class="font-semibold text-sm text-gray-800 truncate">{{ amigo.nombre }}</p>
+                                <p class="text-xs text-gray-500">{{ amigo.get_tipo_perfil_display }}</p>
+                            </div>
+                        </a>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="text-gray-500 text-sm text-center py-4">
+                        Sin amigos aún
+                    </p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- ========================================= -->
+            <!-- PUBLICACIONES (SOLO BIENESTAR) -->
+            <!-- ========================================= -->
+            {% if mostrar_publicaciones %}
+            <div class="bg-white rounded-2xl shadow-lg p-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                    </svg>
+                    Publicaciones de {{ usuario_perfil.nombre }}
+                </h2>
+
+                {% if publicaciones %}
+                <div class="space-y-6">
+                    {% for publicacion in publicaciones %}
+                    <div class="border-b border-gray-200 pb-6 last:border-b-0">
+                        
+                        <!-- Header de la publicación -->
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="flex items-center gap-3">
+                                {% if usuario_perfil.foto %}
+                                <img src="{{ usuario_perfil.foto.url }}" 
+                                     alt="{{ usuario_perfil.nombre }}"
+                                     class="w-10 h-10 rounded-full object-cover">
+                                {% else %}
+                                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-white text-xl">
+                                    🏥
+                                </div>
+                                {% endif %}
+                                <div>
+                                    <p class="font-bold text-gray-800">{{ usuario_perfil.nombre }}</p>
+                                    <p class="text-sm text-gray-500">
+                                        {{ publicacion.fecha_creacion|timesince }} atrás
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- Badge de categoría -->
+                            <span class="px-3 py-1 rounded-full text-xs font-semibold
+                                {% if publicacion.categoria == 'salud' %} bg-red-100 text-red-700
+                                {% elif publicacion.categoria == 'bienestar' %} bg-green-100 text-green-700
+                                {% elif publicacion.categoria == 'evento' %} bg-purple-100 text-purple-700
+                                {% elif publicacion.categoria == 'informacion' %} bg-blue-100 text-blue-700
+                                {% else %} bg-gray-100 text-gray-700
+                                {% endif %}">
+                                {{ publicacion.get_categoria_display }}
+                            </span>
+                        </div>
+
+                        <!-- Título -->
+                        <h3 class="text-xl font-bold text-gray-800 mb-2">
+                            {{ publicacion.titulo }}
+                        </h3>
+
+                        <!-- Contenido -->
+                        <p class="text-gray-700 whitespace-pre-line mb-3">
+                            {{ publicacion.contenido }}
+                        </p>
+
+                        <!-- Imagen -->
+                        {% if publicacion.imagen %}
+                        <img src="{{ publicacion.imagen.url }}" 
+                             alt="{{ publicacion.titulo }}"
+                             class="rounded-lg w-full h-auto max-h-96 object-cover mb-3">
+                        {% endif %}
+
+                        <!-- Acciones -->
+                        <div class="flex items-center gap-6 pt-3 border-t border-gray-100">
+                            <button class="flex items-center gap-2 text-gray-600 hover:text-red-500 transition">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-5 h-5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                                </svg>
+                                <span>{{ publicacion.likes.count }}</span>
+                            </button>
+
+                            <button class="flex items-center gap-2 text-gray-600 hover:text-blue-500 transition">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-5 h-5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                                </svg>
+                                <span>{{ publicacion.comentarios.count }}</span>
+                            </button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-12">
+                    <div class="text-6xl mb-4">📝</div>
+                    <p class="text-gray-600 font-semibold">Sin publicaciones aún</p>
+                    <p class="text-gray-400 text-sm mt-2">
+                        Este usuario no ha creado publicaciones todavía
+                    </p>
+                </div>
                 {% endif %}
             </div>
+            {% endif %}
+
         </div>
-
-        <!-- INFORMACIÓN DEL PERFIL -->
-        <div class="pt-20 px-8 pb-8">
-            <h1 class="text-3xl font-bold text-gray-800 mb-2">{{ usuario.nombre }}</h1>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                
-                <div>
-                    <h3 class="text-sm text-gray-500 font-semibold mb-1">Número de documento</h3>
-                    <p class="text-gray-800">{{ usuario.numero_documento|default:"No especificado" }}</p>
-                </div>
-
-                <div>
-                    <h3 class="text-sm text-gray-500 font-semibold mb-1">Tipo de documento</h3>
-                    <p class="text-gray-800">{{ usuario.tipo_documento|default:"No especificado" }}</p>
-                </div>
-
-                <div>
-                    <h3 class="text-sm text-gray-500 font-semibold mb-1">Correo electrónico</h3>
-                    <p class="text-gray-800">{{ usuario.email }}</p>
-                </div>
-
-                <div>
-                    <h3 class="text-sm text-gray-500 font-semibold mb-1">Centro formativo</h3>
-                    <p class="text-gray-800">{{ usuario.centro_formativo|default:"No especificado" }}</p>
-                </div>
-
-                <div>
-                    <h3 class="text-sm text-gray-500 font-semibold mb-1">Región</h3>
-                    <p class="text-gray-800">{{ usuario.region|default:"No especificada" }}</p>
-                </div>
-
-                <div>
-                    <h3 class="text-sm text-gray-500 font-semibold mb-1">Tipo de usuario</h3>
-                    <p class="text-gray-800">{{ usuario.get_tipo_perfil_display|default:"No especificado" }}</p>
-                </div>
-
-            </div>
-
-            <!-- BOTONES -->
-            <div class="mt-8 flex gap-4">
-                {% if es_perfil_propio %}
-                    <!-- Si es su propio perfil -->
-                    <a href="{% url 'perfil:editar_perfil' %}" 
-                       class="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
-                        🖊️ Editar perfil
-                    </a>
-                {% endif %}
-                
-                <!-- Botón para volver -->
-                <button onclick="window.history.back()" 
-                        class="px-6 py-3 bg-gray-400 text-white rounded-lg hover:bg-gray-500 transition">
-                    🏠 Volver
-                </button>
-            </div>
-        </div>
-
     </div>
-</div>
+
+    <script>
+        // Ocultar mensajes después de 5 segundos
+        setTimeout(() => {
+            const messages = document.querySelectorAll('.fixed > div');
+            messages.forEach(msg => {
+                msg.style.transition = 'opacity 0.5s ease';
+                msg.style.opacity = '0';
+                setTimeout(() => msg.remove(), 500);
+            });
+        }, 5000);
+    </script>
 
 </body>
 </html>
