@@ -1,0 +1,109 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Esperando Aprobación - INFOSENA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-green-200 min-h-screen flex items-center justify-center p-4">
+
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl p-10">
+        
+        <!-- LOGO -->
+        <div class="text-center mb-8">
+            <img src="{% static 'img/logo.png' %}" alt="INFOSENA" class="w-48 mx-auto mb-6">
+            
+            <!-- ICONO DE RELOJ -->
+            <div class="w-24 h-24 mx-auto mb-4 bg-yellow-100 rounded-full flex items-center justify-center">
+                <svg class="w-12 h-12 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+            </div>
+            
+            <h2 class="text-3xl font-bold text-gray-800 mb-2">
+                ⏳ Esperando Aprobación
+            </h2>
+            <p class="text-gray-600 text-lg">
+                Tu cuenta como <strong>{{ rol }}</strong> está pendiente de verificación
+            </p>
+        </div>
+
+        <!-- INFORMACIÓN -->
+        <div class="bg-blue-50 border-l-4 border-blue-500 p-6 mb-6 rounded-r-lg">
+            <div class="flex items-start">
+                <svg class="w-6 h-6 text-blue-500 mr-3 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                </svg>
+                <div>
+                    <h3 class="font-semibold text-blue-800 mb-2">¿Qué sigue ahora?</h3>
+                    <ul class="text-blue-700 space-y-2 text-sm">
+                        <li>✅ <strong>Tu correo ha sido verificado exitosamente</strong></li>
+                        <li>📧 Se ha enviado una notificación al administrador</li>
+                        <li>⏰ El administrador revisará tu solicitud</li>
+                        <li>🔔 Recibirás un correo cuando tu cuenta sea aprobada</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- DATOS DEL USUARIO -->
+        <div class="bg-gray-50 rounded-lg p-6 mb-6">
+            <h3 class="font-semibold text-gray-700 mb-4">📋 Datos de tu solicitud</h3>
+            <div class="space-y-2 text-sm">
+                <div class="flex justify-between">
+                    <span class="text-gray-600">Nombre:</span>
+                    <span class="font-semibold">{{ nombre }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-600">Correo:</span>
+                    <span class="font-semibold">{{ email }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-600">Rol solicitado:</span>
+                    <span class="font-semibold text-green-600">{{ rol }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-600">Estado:</span>
+                    <span class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-semibold">
+                        Pendiente de aprobación
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- TIEMPO ESTIMADO -->
+        <div class="bg-green-50 rounded-lg p-4 mb-6 text-center">
+            <p class="text-green-800 text-sm">
+                <strong>⏱️ Tiempo estimado de aprobación:</strong> 24-48 horas hábiles
+            </p>
+        </div>
+
+        <!-- BOTONES -->
+        <div class="flex flex-col sm:flex-row gap-4">
+            <a href="{% url 'sesion:index' %}"
+               class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 py-3 px-6 rounded-lg font-semibold text-center transition-all">
+                ← Volver al Inicio
+            </a>
+            
+            <button onclick="location.reload()"
+                    class="flex-1 bg-green-600 hover:bg-green-700 text-white py-3 px-6 rounded-lg font-semibold transition-all">
+                🔄 Verificar Estado
+            </button>
+        </div>
+
+        <!-- NOTA ADICIONAL -->
+        <div class="mt-8 pt-6 border-t border-gray-200">
+            <p class="text-xs text-gray-500 text-center">
+                Si tienes preguntas, contacta al administrador en: 
+                <a href="mailto:perezpolancocarlosmario@gmail.com" class="text-green-600 hover:underline">
+                    perezpolancocarlosmario@gmail.com
+                </a>
+            </p>
+        </div>
+
+    </div>
+
+</body>
+</html>

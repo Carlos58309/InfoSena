@@ -11,6 +11,7 @@ from .models import Sesion
 from django.contrib.auth.decorators import login_required
 from applications.publicaciones.models import Publicacion
 
+
 def login_view(request):
     if request.method == "POST":
         documento = request.POST.get("documento")
@@ -20,9 +21,18 @@ def login_view(request):
             messages.warning(request, "Por favor ingresa tu documento y contraseña.")
             return render(request, "login.html")
         
+        # ========================================
         # Buscar en Aprendiz
+        # ========================================
         aprendiz = Aprendiz.objects.filter(numero_documento=documento).first()
         if aprendiz and aprendiz.contrasena == password:
+            
+            # ✅ VERIFICAR SI EL CORREO ESTÁ VERIFICADO
+            if not aprendiz.verificado:
+                messages.error(request, '⚠️ Debes verificar tu correo electrónico antes de iniciar sesión.')
+                return render(request, "login.html")
+            
+            # Login exitoso
             Sesion.objects.create(numero_documento=documento, rol="Aprendiz", exito=True)
             messages.success(request, f"Bienvenido {aprendiz.nombre} (Aprendiz)")
             request.session["rol"] = "Aprendiz"
@@ -31,9 +41,23 @@ def login_view(request):
             request.session["tipo_usuario"] = "aprendiz"
             return redirect("sesion:home")
 
+        # ========================================
         # Buscar en Instructor
+        # ========================================
         instructor = Instructor.objects.filter(numero_documento=documento).first()
         if instructor and instructor.contrasena == password:
+            
+            # ✅ VERIFICAR SI EL CORREO ESTÁ VERIFICADO
+            if not instructor.verificado:
+                messages.error(request, '⚠️ Debes verificar tu correo electrónico antes de iniciar sesión.')
+                return render(request, "login.html")
+            
+            # ✅ VERIFICAR SI ESTÁ APROBADO POR ADMIN
+            if not instructor.verificado_admin:
+                messages.warning(request, '⏳ Tu cuenta está pendiente de aprobación administrativa. Te notificaremos cuando sea aprobada.')
+                return render(request, "login.html")
+            
+            # Login exitoso
             Sesion.objects.create(numero_documento=documento, rol="Instructor", exito=True)
             messages.success(request, f"Bienvenido {instructor.nombre} (Instructor)")
             request.session["rol"] = "Instructor"
@@ -42,9 +66,23 @@ def login_view(request):
             request.session["tipo_usuario"] = "instructor"
             return redirect("sesion:home")
 
+        # ========================================
         # Buscar en Bienestar
+        # ========================================
         bienestar = Bienestar.objects.filter(numero_documento=documento).first()
         if bienestar and bienestar.contrasena == password:
+            
+            # ✅ VERIFICAR SI EL CORREO ESTÁ VERIFICADO
+            if not bienestar.verificado:
+                messages.error(request, '⚠️ Debes verificar tu correo electrónico antes de iniciar sesión.')
+                return render(request, "login.html")
+            
+            # ✅ VERIFICAR SI ESTÁ APROBADO POR ADMIN
+            if not bienestar.verificado_admin:
+                messages.warning(request, '⏳ Tu cuenta está pendiente de aprobación administrativa. Te notificaremos cuando sea aprobada.')
+                return render(request, "login.html")
+            
+            # Login exitoso
             Sesion.objects.create(numero_documento=documento, rol="Bienestar", exito=True)
             messages.success(request, f"Bienvenido {bienestar.nombre} (Bienestar)")
             request.session["rol"] = "Bienestar"
@@ -53,7 +91,9 @@ def login_view(request):
             request.session["tipo_usuario"] = "bienestar"
             return redirect("sesion:home")
 
+        # ========================================
         # Si no coincide nada
+        # ========================================
         Sesion.objects.create(numero_documento=documento, rol="Desconocido", exito=False)
         messages.error(request, "Número de documento o contraseña incorrectos.")
         return render(request, "login.html")
@@ -339,7 +379,7 @@ def home_view(request):
             sugerencias = []
     else:
         print("⚠️  usuario_actual es None - No se cargarán datos de amistades")
-    
+    usuario = Usuario.objects.get(documento=request.session['usuario_id'])
     # PREPARAR CONTEXT
     context = {
         'tipo_perfil': tipo_perfil,
@@ -348,16 +388,8 @@ def home_view(request):
         'solicitudes_recibidas': solicitudes_recibidas,
         'sugerencias': sugerencias,
         'amigos': amigos,
+        'es_admin': usuario.es_admin,
     }
-    
-    # ⭐ DEBUG FINAL - VERIFICACIÓN EXHAUSTIVA
-    print(f"\n📦 Context preparado para enviar al template:")
-    print(f"   - tipo_perfil: '{context['tipo_perfil']}' (tipo: {type(context['tipo_perfil']).__name__})")
-    print(f"   - usuario: {context['usuario'].nombre if context['usuario'] else 'None'}")
-    print(f"   - publicaciones: {len(context['publicaciones'])} items (tipo: {type(context['publicaciones']).__name__})")
-    print(f"   - solicitudes_recibidas: {len(context['solicitudes_recibidas'])} items (tipo: {type(context['solicitudes_recibidas']).__name__})")
-    print(f"   - sugerencias: {len(context['sugerencias'])} items (tipo: {type(context['sugerencias']).__name__}) ⭐")
-    print(f"   - amigos: {len(context['amigos'])} items (tipo: {type(context['amigos']).__name__})")
     
     # Verificar si son listas vacías o None
     if context['solicitudes_recibidas'] is None:
@@ -413,7 +445,7 @@ def amigos_view(request):
     
     # Sugerencias
     sugerencias = obtener_sugerencias_inteligentes(usuario_actual, tipo_perfil, limite=20)
-    
+    usuario = Usuario.objects.get(documento=request.session['usuario_id'])
     context = {
         'tipo_perfil': tipo_perfil,
         'usuario': datos_usuario,
@@ -421,6 +453,7 @@ def amigos_view(request):
         'solicitudes_enviadas_ids': ids_con_solicitud,
         'sugerencias': sugerencias,
         'amigos': amigos,
+        'es_admin': usuario.es_admin,
     }
     
     print("=" * 100 + "\n")

@@ -96,11 +96,12 @@ def perfiles(request):
         return redirect('sesion:login')
 
     print(f"{'='*60}\n")
-
+    usuario = Usuario.objects.get(documento=request.session['usuario_id'])
     context = {
         'tipo_perfil': tipo_perfil,
         'usuario': datos_usuario,
         'publicaciones': publicaciones,
+        'es_admin': usuario.es_admin,
     }
 
     return render(request, 'perfil.html', context)
@@ -137,11 +138,12 @@ def dashboard_view(request):
         return redirect('sesion:login')
     
     publicaciones = Publicacion.objects.filter(activa=True).order_by('-fecha_creacion')
-    
+    usuario = Usuario.objects.get(documento=request.session['usuario_id'])
     context = {
         'usuario': datos_usuario,
         'tipo_perfil': tipo_perfil,
         'publicaciones': publicaciones,
+        'es_admin': usuario.es_admin,
     }
     return render(request, "home.html", context)
 
@@ -377,7 +379,7 @@ def ver_perfil(request, documento):
             amigos = []
     
     print(f"{'='*70}\n")
-    
+    usuario = Usuario.objects.get(documento=request.session['usuario_id'])
     # ========================================
     # PREPARAR CONTEXTO
     # ========================================
@@ -394,6 +396,7 @@ def ver_perfil(request, documento):
         'amigos': amigos,
         'cantidad_amigos': len(amigos),
         'cantidad_publicaciones': publicaciones.count() if publicaciones else 0,
+        'es_admin': usuario.es_admin,
     }
     
     return render(request, 'ver_perfil.html', context)

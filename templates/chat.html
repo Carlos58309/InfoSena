@@ -1,389 +1,602 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>InfoSena</title>
+    <title>{% if chat %}Chat - {{ chat_nombre }}{% else %}Mensajes{% endif %}</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
+<body class="bg-gray-100 h-screen overflow-hidden">
 
-<body class="bg-gray-200">
-    {% if messages %}
-    <div class="messages-container fixed top-20 left-1/2 transform -translate-x-1/2 z-50 w-11/12 md:w-1/3">
-        {% for message in messages %}
-        <div class="p-4 mb-3 rounded-xl text-white font-semibold shadow-lg
-                    {% if message.tags == 'success' %} bg-green-500
-                    {% elif message.tags == 'error' %} bg-red-500
-                    {% elif message.tags == 'warning' %} bg-yellow-500
-                    {% else %} bg-blue-500 {% endif %}">
-            {{ message }}
+    <!-- Contenedor principal -->
+    <div class="flex h-screen">
+        
+        <!-- ========================================== -->
+        <!-- SIDEBAR - Lista de chats -->
+        <!-- ========================================== -->
+        <div class="w-1/4 bg-white border-r border-gray-200 flex flex-col">
+            
+            <!-- Header del sidebar -->
+            <div class="p-4 border-b border-gray-200 bg-gradient-to-r from-green-600 to-green-700">
+                <div class="flex items-center justify-between mb-3">
+                    <h2 class="text-xl font-bold text-white">Mensajes</h2>
+                    <div class="flex items-center space-x-2">
+                        <!-- Botón para crear grupo -->
+                        <a href="{% url 'chat:crear_grupo' %}" 
+                           class="bg-white text-green-600 p-2 rounded-full hover:bg-green-50 transition"
+                           title="Crear grupo">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                            </svg>
+                        </a>
+                        <!-- Botón para volver al inicio -->
+                        <a href="{% url 'sesion:home' %}" 
+                           class="bg-white text-green-600 p-2 rounded-full hover:bg-green-50 transition"
+                           title="Volver al inicio">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Búsqueda -->
+                <div>
+                    <input type="text" 
+                           id="searchChats"
+                           placeholder="Buscar conversaciones..." 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-white text-sm">
+                </div>
+            </div>
+            
+            <!-- Lista de chats -->
+            <div class="flex-1 overflow-y-auto">
+                {% for item in chats %}
+                <a href="{% url 'chat:chat_room' item.chat.id %}" 
+                   class="flex items-center p-4 hover:bg-gray-50 transition cursor-pointer border-b border-gray-100
+                          {% if item.activo %}bg-green-50 border-l-4 border-l-green-600{% endif %}"
+                   data-chat-name="{{ item.nombre }}">
+                    
+                    <!-- Foto de perfil -->
+                    <div class="relative">
+                        {% if item.foto %}
+                        <img src="{{ item.foto }}" 
+                             alt="{{ item.nombre }}" 
+                             class="w-12 h-12 rounded-full object-cover">
+                        {% else %}
+                        <div class="w-12 h-12 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-white font-bold">
+                            {{ item.nombre|first|upper }}
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Indicador de mensajes no leídos -->
+                        {% if item.mensajes_no_leidos > 0 %}
+                        <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-semibold">
+                            {{ item.mensajes_no_leidos }}
+                        </span>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Info del chat -->
+                    <div class="ml-3 flex-1 overflow-hidden">
+                        <div class="flex items-center justify-between">
+                            <h3 class="font-semibold text-gray-800 truncate">{{ item.nombre }}</h3>
+                            {% if item.ultimo_mensaje %}
+                            <span class="text-xs text-gray-500">{{ item.ultimo_mensaje.tiempo_transcurrido }}</span>
+                            {% endif %}
+                        </div>
+                        
+                        {% if item.ultimo_mensaje %}
+                        <p class="text-sm text-gray-600 truncate">
+                            {% if item.ultimo_mensaje.autor.id == usuario.id %}
+                            <span class="font-medium">Tú:</span> 
+                            {% endif %}
+                            {{ item.ultimo_mensaje.contenido }}
+                        </p>
+                        {% else %}
+                        <p class="text-sm text-gray-400 italic">Sin mensajes</p>
+                        {% endif %}
+                    </div>
+                </a>
+                {% empty %}
+                <div class="p-8 text-center text-gray-500">
+                    <svg class="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                    </svg>
+                    <p class="font-medium mb-2">No tienes conversaciones aún</p>
+                    <p class="text-sm mb-4">Inicia un chat con tus amigos</p>
+                    <a href="{% url 'sesion:amigos' %}" class="text-green-600 hover:text-green-700 font-medium hover:underline">
+                        Ver mis amigos →
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
         </div>
-        {% endfor %}
+        
+        <!-- ========================================== -->
+        <!-- ÁREA DE CHAT PRINCIPAL -->
+        <!-- ========================================== -->
+        <div class="flex-1 flex flex-col bg-gray-50">
+            
+            {% if chat %}
+            <!-- ========================================== -->
+            <!-- CHAT ACTIVO -->
+            <!-- ========================================== -->
+            
+            <!-- Header del chat -->
+            <div class="bg-white border-b border-gray-200 p-4 shadow-sm">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <!-- Foto del contacto/grupo -->
+                        {% if chat_foto %}
+                        <img src="{{ chat_foto }}" 
+                             alt="{{ chat_nombre }}" 
+                             class="w-10 h-10 rounded-full object-cover">
+                        {% else %}
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-white font-bold">
+                            {{ chat_nombre|first|upper }}
+                        </div>
+                        {% endif %}
+                        
+                        <div class="ml-3">
+                            <h2 class="font-semibold text-gray-800">{{ chat_nombre }}</h2>
+                            <p id="typingIndicator" class="text-xs text-green-600 hidden">está escribiendo...</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Opciones -->
+                    <div class="flex items-center space-x-3">
+                        {% if is_group %}
+                        <button class="p-2 hover:bg-gray-100 rounded-full transition" title="Ver miembros">
+                            <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                            </svg>
+                        </button>
+                        {% endif %}
+                        
+                        <button class="p-2 hover:bg-gray-100 rounded-full transition" title="Más opciones">
+                            <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Área de mensajes -->
+            <div id="messagesContainer" 
+                 class="flex-1 overflow-y-auto p-4 space-y-4"
+                 style="background-image: url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23e5e7eb\' fill-opacity=\'0.2\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');">
+                
+                {% for mensaje in mensajes %}
+                <div class="flex {% if mensaje.autor.id == usuario.id %}justify-end{% else %}justify-start{% endif %} animate-fadeIn">
+                    <div class="max-w-md {% if mensaje.autor.id == usuario.id %}order-2{% endif %}">
+                        <!-- Nombre del autor (solo en grupos y si no es el usuario actual) -->
+                        {% if is_group and mensaje.autor.id != usuario.id %}
+                        <p class="text-xs text-gray-500 mb-1 ml-2">{{ mensaje.autor.nombre }}</p>
+                        {% endif %}
+                        
+                        <div class="flex items-end space-x-2 {% if mensaje.autor.id == usuario.id %}flex-row-reverse space-x-reverse{% endif %}">
+                            <!-- Foto del autor (solo si no es el usuario actual) -->
+                            {% if mensaje.autor.id != usuario.id %}
+                            {% if mensaje.autor.foto %}
+                            <img src="{{ mensaje.autor.foto.url }}" 
+                                 alt="{{ mensaje.autor.nombre }}" 
+                                 class="w-8 h-8 rounded-full object-cover">
+                            {% else %}
+                            <div class="w-8 h-8 rounded-full bg-gray-400 flex items-center justify-center text-white text-xs font-bold">
+                                {{ mensaje.autor.nombre|first|upper }}
+                            </div>
+                            {% endif %}
+                            {% endif %}
+                            
+                            <!-- Burbuja del mensaje -->
+                            <div class="{% if mensaje.autor.id == usuario.id %}bg-green-600 text-white{% else %}bg-white text-gray-800{% endif %} 
+                                        rounded-2xl px-4 py-2 shadow-sm max-w-xs">
+                                <p class="break-words">{{ mensaje.contenido }}</p>
+                                <p class="text-xs {% if mensaje.autor.id == usuario.id %}text-green-100{% else %}text-gray-500{% endif %} mt-1 text-right">
+                                    {{ mensaje.tiempo_transcurrido }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Input de mensaje -->
+            <div class="bg-white border-t border-gray-200 p-4">
+                <form id="messageForm" class="flex items-center space-x-3">
+                    {% csrf_token %}
+                    
+                    <!-- Botón de adjuntar (opcional) -->
+                    <button type="button" class="p-2 text-gray-500 hover:text-gray-700 transition" title="Adjuntar archivo">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/>
+                        </svg>
+                    </button>
+                    
+                    <!-- Campo de texto -->
+                    <input type="text" 
+                           id="messageInput"
+                           name="contenido"
+                           placeholder="Escribe un mensaje..." 
+                           autocomplete="off"
+                           class="flex-1 border border-gray-300 rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
+                    
+                    <!-- Botón de enviar -->
+                    <button type="submit" 
+                            class="bg-green-600 text-white p-3 rounded-full hover:bg-green-700 transition shadow-lg">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+                        </svg>
+                    </button>
+                </form>
+            </div>
+            
+            {% else %}
+            <!-- ========================================== -->
+            <!-- SIN CHAT SELECCIONADO -->
+            <!-- ========================================== -->
+            <div class="flex-1 flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
+                <div class="text-center max-w-md px-8">
+                    <!-- Icono grande -->
+                    <div class="mb-6">
+                        <svg class="w-32 h-32 mx-auto text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                        </svg>
+                    </div>
+                    
+                    <!-- Texto -->
+                    <h2 class="text-2xl font-bold text-gray-700 mb-3">
+                        Bienvenido a Mensajes
+                    </h2>
+                    <p class="text-gray-500 mb-6">
+                        Selecciona una conversación del panel izquierdo para comenzar a chatear
+                    </p>
+                    
+                    <!-- Botones de acción -->
+                    <div class="flex flex-col space-y-3">
+                        <a href="{% url 'chat:crear_grupo' %}" 
+                           class="inline-flex items-center justify-center bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition shadow-md">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                            </svg>
+                            Crear nuevo grupo
+                        </a>
+                        
+                        <a href="{% url 'sesion:amigos' %}" 
+                           class="inline-flex items-center justify-center border-2 border-green-600 text-green-600 px-6 py-3 rounded-lg hover:bg-green-50 transition">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+                            </svg>
+                            Ver mis amigos
+                        </a>
+                    </div>
+                    
+                    <!-- Sugerencia -->
+                    <div class="mt-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                        <p class="text-sm text-blue-800">
+                            💡 <strong>Tip:</strong> Puedes iniciar un chat con cualquiera de tus amigos desde la sección de amigos
+                        </p>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
     </div>
-    {% endif %}
 
-    <!-- ========================= -->
-    <!--        HEADER FIJO        -->
-    <!-- ========================= -->
-    <header class="hero bg-gradient-to-r from-[#0d3604] to-[#2b9e15] shadow-lg sticky top-0 z-50">
-
-        <nav class="container mx-auto px-2 py-2 relative">
-            <div class="flex justify-between items-center">
-
-                <!-- LOGO -->
-                <div class="flex flex-row-reverse items-center">
-                    {% load static %}
-                    <img src="{% static 'img/logo2.png' %}" width="200px" />
-                </div>
-
-                <!-- INPUT (solo desktop) -->
-                <div class="hidden md:flex items-center w-full max-w-md bg-white rounded-full px-4 py-2 shadow-lg">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#777"
-                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 mr-3">
-                        <circle cx="11" cy="11" r="7"></circle>
-                        <line x1="16" y1="16" x2="21" y2="21"></line>
-                    </svg>
-
-                    <input type="text" placeholder="Search..."
-                        class="flex-1 outline-none text-gray-700 placeholder-gray-400" />
-
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#777" class="w-5 h-5 ml-3">
-                        <circle cx="12" cy="5" r="1.5" />
-                        <circle cx="12" cy="12" r="1.5" />
-                        <circle cx="12" cy="19" r="1.5" />
-                    </svg>
-                </div>
-
-
-                <!-- ICONOS DESKTOP -->
-                <div class="hidden md:flex items-center space-x-6">
-
-                    <!-- Home -->
-                    <a href="home.html">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white"
-                            stroke-width="2" class="w-10 h-10">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 9.75L12 3l9 6.75V21H3V9.75z" />
-                        </svg>
-                    </a>
-                    <!-- Bell -->
-                    <a href="{% url 'perfil:perfiles' %}">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white"
-                            stroke-width="2" class="w-10 h-10">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M12 12a5 5 0 100-10 5 5 0 000 10zm7 8c0-4-3-7-7-7s-7 3-7 7" />
-                        </svg>
-                    </a>
-                    <!-- User -->
-                    <a href="">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white"
-                            stroke-width="2" class="w-10 h-10">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M12 12a5 5 0 100-10 5 5 0 000 10zm7 8c0-4-3-7-7-7s-7 3-7 7" />
-                        </svg>
-                    </a>
-                </div>
-
-
-                <!-- BOTONES MOBILE -->
-                <div class="flex md:hidden items-center space-x-4">
-                    <!-- Botón lupa -->
-                    <button id="btnSearch">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="white" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" class="w-8 h-8">
-                            <circle cx="11" cy="11" r="7"></circle>
-                            <line x1="16" y1="16" x2="21" y2="21"></line>
-                        </svg>
-                    </button>
-
-                    <!-- Botón menú -->
-                    <button id="btnMenu">
-                        <svg fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round"
-                            stroke-linejoin="round" class="w-10 h-10">
-                            <path d="M4 6h16M4 12h16M4 18h16" />
-                        </svg>
-                    </button>
-                </div>
-
-            </div>
-
-
-            <!-- INPUT MOBILE DESPLEGABLE -->
-            <div id="searchBox" class="hidden mt-3 bg-white rounded-full px-4 py-2 shadow-lg md:hidden">
-                <input type="text" placeholder="Search..."
-                    class="w-full outline-none text-gray-700 placeholder-gray-400" />
-            </div>
-
-            <!-- MENU MOBILE DESPLEGABLE -->
-            <div id="mobileMenu" class="hidden mt-3 flex flex-col space-y-3 md:hidden">
-
-                <a href="home.html" class="flex items-center space-x-3 bg-white/20 p-3 rounded-xl text-white">
-                    <span>Home</span>
-                </a>
-
-                <a class="flex items-center space-x-3 bg-white/20 p-3 rounded-xl text-white">
-                    <span>Notifications</span>
-                </a>
-
-                <a href="{% url 'perfil:perfiles' %}"
-                    class="flex items-center space-x-3 bg-white/20 p-3 rounded-xl text-white">
-                    <span>Profile</span>
-                </a>
-
-                <a class="flex items-center space-x-3 bg-white/20 p-3 rounded-xl text-white">
-                    <span>Chat</span>
-                </a>
-
-                <a href="amigos.html" class="flex items-center space-x-3 bg-white/20 p-3 rounded-xl text-white">
-                    <span>Amigos</span>
-                </a>
-
-
-            </div>
-
-        </nav>
-    </header>
-
-    <!-- ========================= -->
-    <!--   CONTENEDOR PRINCIPAL    -->
-    <!-- ========================= -->
-
-    <div class="pt-20 grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 h-screen">
-
-        <!-- ========================= -->
-        <!--     COLUMNA IZQUIERDA    -->
-        <!-- ========================= -->
-        <aside
-            class="hidden md:block md:col-span-1 bg-transparent overflow-y-auto h-[calc(100vh-5rem)] sticky top-20 p-4">
-
-            <div class="space-y-4">
-                <a href="{% url 'perfil:perfiles' %}"
-                    class="flex items-center space-x-3 bg-white p-3 rounded-xl shadow hover:bg-green-200 hover:text-green-700 transition cursor-pointer">
-                    <div class="w-10 h-10 bg-gray-300 rounded-full"></div>
-                    <span>Mi perfil</span>
-                </a>
-
-                <a href="home.html"
-                    class="flex items-center space-x-3 bg-white  p-3 rounded-xl shadow hover:bg-green-200 hover:text-green-700">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path d="M3 9.75L12 3l9 6.75V21H3V9.75z"></path>
-                    </svg>
-                    <span>Inicio</span>
-                </a>
-
-                <a href="{% url 'lista_chats' %}" 
-                    class="flex items-center space-x-3 bg-white p-3 rounded-xl shadow hover:bg-green-200 hover:text-green-700 transition">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="1"
-                        stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6">
-                        <path
-                            d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6A8.38 8.38 0 0111.5 3h1a8.5 8.5 0 018.5 8.5z" />
-
-                    </svg>
-                    <span>Chat</span>
-                </a>
-
-                <a href="amigos.html"
-                    class="flex items-center space-x-3 bg-white p-3 rounded-xl shadow hover:bg-green-200 hover:text-green-700 transition">
-
-
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="1"
-                        stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" class="w-6 h-6">
-
-                        <!-- Persona 1 -->
-                        <circle cx="7" cy="7" r="4"></circle>
-                        <path d="M1 21v-2a6 6 0 016-6h0a6 6 0 016 6v2"></path>
-
-                        <!-- Persona 2 -->
-                        <circle cx="17" cy="9" r="3.5"></circle>
-                        <path d="M14 21v-2a4 4 0 014-4h0a4 4 0 014 4v2"></path>
-
-                    </svg>
-
-                    <span>Amigos</span>
-                </a>
-
-        </aside>
-
-        <!-- ========================= -->
-        <!--       FEED CENTRAL        -->
-        <!-- ========================= -->
-        <div class="flex h-screen">
-
-            <!-- LISTA DE CHATS -->
-            <div class="w-1/4 bg-gray-100 border-r overflow-y-auto">
-                <h2 class="text-xl font-bold p-4">Chats</h2>
-
-                {% for c in chats %}
-                <a href="{% url 'chat_room' c.id %}">
-                    <div class="flex items-center gap-3 p-4 hover:bg-gray-200 cursor-pointer 
-                    {% if c.id == chat.id %}bg-gray-300{% endif %}">
-
-                        <div class="w-10 h-10 bg-gray-400 rounded-full"></div>
-
-                        <div>
-                            <p class="font-bold">
-                                {% if c.is_group %}
-                                {{ c.nombre_grupo }}
-                                {% else %}
-                                {{ c.participantes.exclude(id=request.user.id).first.nombre }}
-                                {% endif %}
+    <!-- ========================================== -->
+    <!-- JAVASCRIPT - WebSocket y funcionalidades -->
+    <!-- ========================================== -->
+    {% if chat %}
+    <script>
+        // Configuración
+        const chatId = {{ chat.id }};
+        const usuarioId = {{ usuario.id }};
+        const usuarioNombre = "{{ usuario.nombre }}";
+        
+        // Elementos del DOM
+        const messagesContainer = document.getElementById('messagesContainer');
+        const messageForm = document.getElementById('messageForm');
+        const messageInput = document.getElementById('messageInput');
+        const typingIndicator = document.getElementById('typingIndicator');
+        
+        // WebSocket
+        let chatSocket = null;
+        let typingTimer = null;
+        let reconnectAttempts = 0;
+        const maxReconnectAttempts = 5;
+        
+        // ==========================================
+        // INICIALIZAR WEBSOCKET
+        // ==========================================
+        function initWebSocket() {
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsUrl = `${protocol}//${window.location.host}/ws/chat/${chatId}/?usuario_id=${usuarioId}`;
+            
+            chatSocket = new WebSocket(wsUrl);
+            
+            chatSocket.onopen = function(e) {
+                console.log('✅ WebSocket conectado');
+                reconnectAttempts = 0;
+            };
+            
+            chatSocket.onmessage = function(e) {
+                const data = JSON.parse(e.data);
+                handleWebSocketMessage(data);
+            };
+            
+            chatSocket.onerror = function(e) {
+                console.error('❌ Error en WebSocket:', e);
+            };
+            
+            chatSocket.onclose = function(e) {
+                console.log('🔌 WebSocket cerrado');
+                
+                // Intentar reconectar
+                if (reconnectAttempts < maxReconnectAttempts) {
+                    reconnectAttempts++;
+                    console.log(`🔄 Reintentando conexión (${reconnectAttempts}/${maxReconnectAttempts})...`);
+                    setTimeout(initWebSocket, 3000);
+                } else {
+                    console.log('❌ No se pudo reconectar. Usando fallback HTTP.');
+                    usarFallbackHTTP();
+                }
+            };
+        }
+        
+        // ==========================================
+        // MANEJAR MENSAJES DEL WEBSOCKET
+        // ==========================================
+        function handleWebSocketMessage(data) {
+            if (data.type === 'new_message') {
+                agregarMensaje(data.mensaje);
+            } else if (data.type === 'typing') {
+                mostrarIndicadorEscribiendo(data.is_typing, data.user_nombre);
+            }
+        }
+        
+        // ==========================================
+        // ENVIAR MENSAJE
+        // ==========================================
+        messageForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const contenido = messageInput.value.trim();
+            
+            if (!contenido) return;
+            
+            // Enviar a través de WebSocket
+            if (chatSocket && chatSocket.readyState === WebSocket.OPEN) {
+                chatSocket.send(JSON.stringify({
+                    'action': 'send_message',
+                    'contenido': contenido
+                }));
+                
+                messageInput.value = '';
+            } else {
+                // Fallback: enviar por HTTP
+                enviarMensajePorHTTP(contenido);
+            }
+        });
+        
+        // ==========================================
+        // DETECTAR CUANDO USUARIO ESTÁ ESCRIBIENDO
+        // ==========================================
+        messageInput.addEventListener('input', function() {
+            if (chatSocket && chatSocket.readyState === WebSocket.OPEN) {
+                // Cancelar timer anterior
+                clearTimeout(typingTimer);
+                
+                // Enviar evento de "está escribiendo"
+                chatSocket.send(JSON.stringify({
+                    'action': 'typing',
+                    'is_typing': true
+                }));
+                
+                // Después de 2 segundos de inactividad, enviar "dejó de escribir"
+                typingTimer = setTimeout(function() {
+                    chatSocket.send(JSON.stringify({
+                        'action': 'typing',
+                        'is_typing': false
+                    }));
+                }, 2000);
+            }
+        });
+        
+        // ==========================================
+        // AGREGAR MENSAJE AL DOM
+        // ==========================================
+        function agregarMensaje(mensaje) {
+            const esMio = mensaje.autor_id === usuarioId;
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `flex ${esMio ? 'justify-end' : 'justify-start'} animate-fadeIn`;
+            
+            messageDiv.innerHTML = `
+                <div class="max-w-md ${esMio ? 'order-2' : ''}">
+                    ${!esMio && {{ is_group|yesno:"true,false" }} ? `<p class="text-xs text-gray-500 mb-1 ml-2">${escapeHtml(mensaje.autor_nombre)}</p>` : ''}
+                    
+                    <div class="flex items-end space-x-2 ${esMio ? 'flex-row-reverse space-x-reverse' : ''}">
+                        ${!esMio ? `
+                            ${mensaje.autor_foto ? 
+                                `<img src="${mensaje.autor_foto}" alt="${escapeHtml(mensaje.autor_nombre)}" class="w-8 h-8 rounded-full object-cover">` :
+                                `<div class="w-8 h-8 rounded-full bg-gray-400 flex items-center justify-center text-white text-xs font-bold">
+                                    ${mensaje.autor_nombre.charAt(0).toUpperCase()}
+                                </div>`
+                            }
+                        ` : ''}
+                        
+                        <div class="${esMio ? 'bg-green-600 text-white' : 'bg-white text-gray-800'} rounded-2xl px-4 py-2 shadow-sm max-w-xs">
+                            <p class="break-words">${escapeHtml(mensaje.contenido)}</p>
+                            <p class="text-xs ${esMio ? 'text-green-100' : 'text-gray-500'} mt-1 text-right">
+                                ${mensaje.tiempo_transcurrido}
                             </p>
                         </div>
                     </div>
-                </a>
-                {% endfor %}
-            </div>
-
-            <!-- PANEL DE CHAT -->
-            <div class="w-3/4 flex flex-col">
-
-                <!-- HEADER -->
-                <div class="p-4 border-b bg-white font-bold flex items-center gap-3">
-                    <div class="w-10 h-10 bg-gray-400 rounded-full"></div>
-
-                    {% if chat.is_group %}
-                    {{ chat.nombre_grupo }}
-                    {% else %}
-                    {{ chat.participantes.exclude(id=request.user.id).first.nombre }}
-                    {% endif %}
                 </div>
-
-                <!-- MENSAJES -->
-                <div id="messages" class="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50">
-
-                    {% for msg in mensajes %}
-                    <div class="{% if msg.autor.id == request.user.id %}text-right{% endif %}">
-                        <div class="inline-block px-4 py-2 rounded-2xl 
-                        {% if msg.autor.id == request.user.id %}
-                            bg-blue-600 text-white
-                        {% else %}
-                            bg-gray-300 text-black
-                        {% endif %}">
-                            {{ msg.contenido }}
-                        </div>
-                    </div>
-                    {% endfor %}
-
-                </div>
-
-                <!-- INPUT -->
-                <form action="{% url 'send_message' chat.id %}" method="POST" class="p-4 bg-white border-t flex gap-3">
-                    {% csrf_token %}
-                    <input name="contenido" class="flex-1 border rounded-full px-4 py-2"
-                        placeholder="Escribe un mensaje..." required>
-                    <button class="px-4 py-2 bg-blue-500 text-white rounded-full">Enviar</button>
-                </form>
-
-            </div>
-        </div>
-
-        {% extends "base.html" %}
-{% block content %}
-
-<div class="chat-container">
-
-    <h2>Chat con {{ otro.nombre }}</h2>
-
-    <div class="chat-box">
-        {% for m in mensajes %}
-            <div class="{% if m.autor == yo %}msg-me{% else %}msg-other{% endif %}">
-                <p>{{ m.contenido }}</p>
-                <small>{{ m.enviado }}</small>
-            </div>
-        {% endfor %}
-    </div>
-
-    <form method="POST">
-        {% csrf_token %}
-        <input type="text" name="mensaje" placeholder="Escribe un mensaje..." required>
-        <button type="submit">Enviar</button>
-    </form>
-
-</div>
-
-<style>
-.chat-box {
-    height: 400px;
-    overflow-y: scroll;
-    background: #f1f1f1;
-    padding: 10px;
-    border-radius: 10px;
-}
-
-.msg-me {
-    text-align: right;
-    background: #d1ffd1;
-    margin: 5px 0;
-    padding: 8px;
-    border-radius: 10px;
-}
-
-.msg-other {
-    text-align: left;
-    background: #fff;
-    margin: 5px 0;
-    padding: 8px;
-    border-radius: 10px;
-}
-</style>
-
-{% endblock %}
-
-    </div>
-    <script>
-        const btnSearch = document.getElementById("btnSearch");
-        const btnMenu = document.getElementById("btnMenu");
-        const searchBox = document.getElementById("searchBox");
-        const mobileMenu = document.getElementById("mobileMenu");
-
-        btnSearch.onclick = () => {
-            searchBox.classList.toggle("hidden");
-            mobileMenu.classList.add("hidden");
-        };
-
-        btnMenu.onclick = () => {
-            mobileMenu.classList.toggle("hidden");
-            searchBox.classList.add("hidden");
-        };
-
-        // ==== Ocultar mensajes después de 5 segundos ====
-        setTimeout(() => {
-            const messages = document.querySelectorAll('.messages-container div');
-            messages.forEach(msg => {
-                msg.style.transition = 'opacity 0.6s ease';
-                msg.style.opacity = '0';
-                setTimeout(() => msg.remove(), 600);
-            });
-        }, 4000);
-
-
-    </script>
-    <script>
-        const sendBtn = document.getElementById("sendBtn");
-        const messageInput = document.getElementById("messageInput");
-        const chatMessages = document.getElementById("chatMessages");
-
-        sendBtn.addEventListener("click", enviarMensaje);
-        messageInput.addEventListener("keypress", (e) => {
-            if (e.key === "Enter") enviarMensaje();
+            `;
+            
+            messagesContainer.appendChild(messageDiv);
+            scrollToBottom();
+        }
+        
+        // ==========================================
+        // MOSTRAR INDICADOR DE "ESCRIBIENDO..."
+        // ==========================================
+        function mostrarIndicadorEscribiendo(isTyping, nombreUsuario) {
+            if (isTyping) {
+                typingIndicator.textContent = `${nombreUsuario} está escribiendo...`;
+                typingIndicator.classList.remove('hidden');
+            } else {
+                typingIndicator.classList.add('hidden');
+            }
+        }
+        
+        // ==========================================
+        // SCROLL AUTOMÁTICO AL FINAL
+        // ==========================================
+        function scrollToBottom() {
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+        
+        // ==========================================
+        // FALLBACK: ENVIAR POR HTTP SI WEBSOCKET FALLA
+        // ==========================================
+        function enviarMensajePorHTTP(contenido) {
+            fetch("{% url 'chat:api_enviar_mensaje' chat.id %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({ contenido: contenido })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    agregarMensaje(data.mensaje);
+                    messageInput.value = '';
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+        
+        // ==========================================
+        // FALLBACK: POLLING SI WEBSOCKET NO ESTÁ DISPONIBLE
+        // ==========================================
+        let ultimoMensajeId = {{ mensajes.last.id|default:0 }};
+        let pollingInterval = null;
+        
+        function usarFallbackHTTP() {
+            pollingInterval = setInterval(function() {
+                fetch(`{% url 'chat:api_obtener_mensajes' chat.id %}?ultimo_id=${ultimoMensajeId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.mensajes && data.mensajes.length > 0) {
+                            data.mensajes.forEach(mensaje => {
+                                agregarMensaje(mensaje);
+                                ultimoMensajeId = Math.max(ultimoMensajeId, mensaje.id);
+                            });
+                        }
+                    })
+                    .catch(error => console.error('Error en polling:', error));
+            }, 3000); // Cada 3 segundos
+        }
+        
+        // ==========================================
+        // UTILIDADES
+        // ==========================================
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+        
+        // ==========================================
+        // INICIALIZACIÓN
+        // ==========================================
+        window.addEventListener('DOMContentLoaded', function() {
+            scrollToBottom();
+            initWebSocket();
         });
-
-        function enviarMensaje() {
-            const texto = messageInput.value.trim();
-            if (texto === "") return;
-
-            const mensajeDiv = document.createElement("div");
-            mensajeDiv.classList.add("mb-4", "flex", "justify-end");
-            mensajeDiv.innerHTML = `
-      <div class="bg-green-600 text-white p-3 rounded-lg max-w-xs">
-        ${texto}
-      </div>
-    `;
-            chatMessages.appendChild(mensajeDiv);
-
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-            messageInput.value = "";
+        
+        // Limpiar al salir
+        window.addEventListener('beforeunload', function() {
+            if (chatSocket) {
+                chatSocket.close();
+            }
+            if (pollingInterval) {
+                clearInterval(pollingInterval);
+            }
+        });
+    </script>
+    {% endif %}
+    
+    <!-- ========================================== -->
+    <!-- BÚSQUEDA DE CHATS (siempre activa) -->
+    <!-- ========================================== -->
+    <script>
+        const searchChats = document.getElementById('searchChats');
+        if (searchChats) {
+            searchChats.addEventListener('input', function(e) {
+                const query = e.target.value.toLowerCase();
+                const chatItems = document.querySelectorAll('[data-chat-name]');
+                
+                chatItems.forEach(item => {
+                    const nombre = item.getAttribute('data-chat-name').toLowerCase();
+                    if (nombre.includes(query)) {
+                        item.style.display = 'flex';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+            });
         }
     </script>
+    
+    <!-- Animaciones CSS -->
+    <style>
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .animate-fadeIn {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        
+        /* Personalizar scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+    </style>
 
 </body>
+</html>

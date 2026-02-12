@@ -40,6 +40,7 @@ ALLOWED_HOSTS = ["*", "infosena.site"]
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -58,11 +59,11 @@ INSTALLED_APPS = [
     'applications.miembros_grupo',
     'applications.amistades',
     'applications.chat',
-    'applications.mensaje',
     'applications.ficha',
     'applications.perfil',
     'applications.notificaciones',
     'applications.busqueda',
+    'channels',
 ]
 
 MIDDLEWARE = [
@@ -93,7 +94,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'info.wsgi.application'
-
+ASGI_APPLICATION = 'info.asgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
@@ -132,6 +133,15 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('127.0.0.1', 6379)],
+        },
+    },
+}
+
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
@@ -168,3 +178,4 @@ EMAIL_HOST_PASSWORD = "qwoyxgwfdszxnfmb"  # NO la contraseña normal
 
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
+ADMIN_EMAIL = EMAIL_HOST_USER

@@ -11,21 +11,23 @@ from django.contrib.auth.models import User
 # ======================================
 @receiver(post_save, sender=Aprendiz)
 def sincronizar_aprendiz(sender, instance, created, **kwargs):
-    if created:
+    # ⚠️ SOLO SINCRONIZAR SI ESTÁ VERIFICADO
+    if not instance.verificado:
+        print(f"⏸️ Aprendiz {instance.nombre} aún no verificado - Signal pausado")
+        return
+    
+    if created or not Usuario.objects.filter(documento=instance.numero_documento).exists():
         # Crear usuario de Django
         user, user_created = User.objects.get_or_create(
-            username=instance.email,  # ⭐ Usar email como username para evitar duplicados
-            defaults={
-                'email': instance.email,
-            }
+            username=instance.email,
+            defaults={'email': instance.email}
         )
         
-        # Solo si el User es nuevo, asignar contraseña
         if user_created:
             user.set_password(instance.contrasena)
             user.save()
         
-        # Crear registro en Usuario (solo si no existe)
+        # Crear registro en Usuario
         usuario, usuario_created = Usuario.objects.get_or_create(
             documento=instance.numero_documento,
             defaults={
@@ -49,7 +51,6 @@ def sincronizar_aprendiz(sender, instance, created, **kwargs):
                 usuario.foto = instance.foto
             usuario.save()
             
-            # Actualizar User de Django
             if usuario.user:
                 usuario.user.email = instance.email
                 usuario.user.save()
@@ -62,7 +63,12 @@ def sincronizar_aprendiz(sender, instance, created, **kwargs):
 # ======================================
 @receiver(post_save, sender=Instructor)
 def sincronizar_instructor(sender, instance, created, **kwargs):
-    if created:
+    # ⚠️ SOLO SINCRONIZAR SI ESTÁ VERIFICADO Y APROBADO
+    if not instance.verificado or not instance.verificado_admin:
+        print(f"⏸️ Instructor {instance.nombre} pendiente de verificación - Signal pausado")
+        return
+    
+    if created or not Usuario.objects.filter(documento=instance.numero_documento).exists():
         user, user_created = User.objects.get_or_create(
             username=instance.email,
             defaults={'email': instance.email}
@@ -106,7 +112,12 @@ def sincronizar_instructor(sender, instance, created, **kwargs):
 # ======================================
 @receiver(post_save, sender=Bienestar)
 def sincronizar_bienestar(sender, instance, created, **kwargs):
-    if created:
+    # ⚠️ SOLO SINCRONIZAR SI ESTÁ VERIFICADO Y APROBADO
+    if not instance.verificado or not instance.verificado_admin:
+        print(f"⏸️ Bienestar {instance.nombre} pendiente de verificación - Signal pausado")
+        return
+    
+    if created or not Usuario.objects.filter(documento=instance.numero_documento).exists():
         user, user_created = User.objects.get_or_create(
             username=instance.email,
             defaults={'email': instance.email}

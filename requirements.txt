@@ -5,3 +5,8 @@ packaging==25.0
 PyMySQL==1.1.2
 sqlparse==0.5.3
 tzdata==2025.2
+channels==4.0.0
+channels-redis==4.1.0
+redis==5.0.1
+daphne==4.0.0
+python-dateutil==2.8.2

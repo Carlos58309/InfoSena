@@ -88,37 +88,51 @@
 </div>
                     <!-- User -->
                     <div class="relative">
-                        <!-- ICONO PERFIL CON FOTO -->
-                        <button id="btnPerfil" class="flex items-center justify-center">
-                            {% if usuario.foto %}
-                            <img src="{{ usuario.foto.url }}" alt="{{ usuario.nombre }}"
-                                class="w-10 h-10 rounded-full object-cover border-2 border-white">
-                            {% else %}
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white"
-                                stroke-width="2" class="w-10 h-10">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M12 12a5 5 0 100-10 5 5 0 000 10zm7 8c0-4-3-7-7-7s-7 3-7 7" />
-                            </svg>
-                            {% endif %}
-                        </button>
+    <!-- ICONO PERFIL CON FOTO -->
+    <button id="btnPerfil" class="flex items-center justify-center">
+        {% if usuario.foto %}
+        <img src="{{ usuario.foto.url }}" alt="{{ usuario.nombre }}"
+            class="w-10 h-10 rounded-full object-cover border-2 border-white">
+        {% else %}
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white"
+            stroke-width="2" class="w-10 h-10">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                d="M12 12a5 5 0 100-10 5 5 0 000 10zm7 8c0-4-3-7-7-7s-7 3-7 7" />
+        </svg>
+        {% endif %}
+    </button>
 
-                        <!-- MENÚ DESPLEGABLE -->
-                        <div id="menuPerfil"
-                            class="hidden absolute right-0 mt-3 w-64 bg-gray-200 rounded-xl shadow-xl p-4 z-50">
-                            <div class="flex justify-center mb-3">
-                                <div class="w-6 h-6 bg-gray-200 rotate-45 absolute -top-3 right-6"></div>
-                            </div>
-                            <a href="{% url 'perfil:perfiles' %}"
-                                class="block bg-green-600 text-white text-center py-3 rounded-lg hover:bg-green-700 transition">
-                                Ver Perfil
-                            </a>
-                            <div class="my-3 border-t border-gray-400"></div>
-                            <a href="{% url 'sesion:login' %}"
-                                class="block bg-gray-400 text-white text-center py-3 rounded-lg hover:bg-gray-500 transition">
-                                Cerrar Sesión
-                            </a>
-                        </div>
-                    </div>
+    <!-- MENÚ DESPLEGABLE -->
+    <div id="menuPerfil"
+        class="hidden absolute right-0 mt-3 w-64 bg-gray-200 rounded-xl shadow-xl p-4 z-50">
+        <div class="flex justify-center mb-3">
+            <div class="w-6 h-6 bg-gray-200 rotate-45 absolute -top-3 right-6"></div>
+        </div>
+        
+        <!-- Ver Perfil -->
+        <a href="{% url 'perfil:perfiles' %}"
+            class="block bg-green-600 text-white text-center py-3 rounded-lg hover:bg-green-700 transition mb-3">
+            👤 Ver Perfil
+        </a>
+        
+        <!-- ✅ NUEVO: Panel de Aprobación (solo para admin) -->
+        {% if es_admin %}
+        <a href="{% url 'registro:panel_aprobacion' %}"
+            class="block bg-yellow-500 text-white text-center py-3 rounded-lg hover:bg-yellow-600 transition mb-3 font-semibold shadow-md">
+            ⚙️ Panel de Aprobación
+        </a>
+        {% endif %}
+        
+        <!-- Separador -->
+        <div class="my-3 border-t border-gray-400"></div>
+        
+        <!-- Cerrar Sesión -->
+        <a href="{% url 'sesion:login' %}"
+            class="block bg-gray-400 text-white text-center py-3 rounded-lg hover:bg-gray-500 transition">
+            🚪 Cerrar Sesión
+        </a>
+    </div>
+</div>
                 </div>
                 </div>
             </div>

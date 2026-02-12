@@ -1,0 +1,165 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Aprobación - INFOSENA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen p-6">
+
+    <div class="max-w-6xl mx-auto">
+        
+        <!-- HEADER -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <img src="{% static 'img/logo.png' %}" alt="INFOSENA" class="h-16">
+                    <div>
+                        <h1 class="text-3xl font-bold text-gray-800">Panel de Aprobación</h1>
+                        <p class="text-gray-600">Gestión de cuentas pendientes</p>
+                    </div>
+                </div>
+                <a href="{% url 'sesion:home' %}" 
+                   class="bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded-lg font-semibold transition-all">
+                    ← Volver
+                </a>
+            </div>
+        </div>
+
+        <!-- MENSAJES -->
+        {% if messages %}
+        <div class="mb-6">
+            {% for m in messages %}
+            <div class="p-4 rounded-lg text-white mb-2
+                        {% if 'error' in m.tags or '❌' in m.message %}bg-red-500
+                        {% elif 'success' in m.tags or '✅' in m.message %}bg-green-600
+                        {% else %}bg-blue-500{% endif %}">
+                {{ m }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- CONTADOR -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <div class="flex items-center gap-4">
+                <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center">
+                    <svg class="w-8 h-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-800">
+                        {{ total_pendientes }} cuenta{{ total_pendientes|pluralize }} pendiente{{ total_pendientes|pluralize }}
+                    </h2>
+                    <p class="text-gray-600">Instructores y personal de Bienestar esperando aprobación</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- LISTA DE PENDIENTES -->
+        {% if pendientes %}
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+            <div class="bg-green-600 text-white px-6 py-4">
+                <h3 class="text-xl font-bold">Cuentas Pendientes de Aprobación</h3>
+            </div>
+            
+            <div class="divide-y divide-gray-200">
+                {% for usuario in pendientes %}
+                <div class="p-6 hover:bg-gray-50 transition-colors">
+                    <div class="flex items-start justify-between gap-6">
+                        
+                        <!-- INFO DEL USUARIO -->
+                        <div class="flex-1">
+                            <div class="flex items-center gap-3 mb-3">
+                                <span class="px-3 py-1 rounded-full text-sm font-semibold
+                                             {% if usuario.tipo == 'Instructor' %}bg-blue-100 text-blue-800
+                                             {% else %}bg-purple-100 text-purple-800{% endif %}">
+                                    {{ usuario.tipo }}
+                                </span>
+                                <h4 class="text-xl font-bold text-gray-800">{{ usuario.nombre }}</h4>
+                            </div>
+                            
+                            <div class="grid grid-cols-2 gap-4 text-sm">
+                                <div>
+                                    <span class="text-gray-600">📧 Email:</span>
+                                    <span class="font-semibold">{{ usuario.email }}</span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-600">🆔 Documento:</span>
+                                    <span class="font-semibold">{{ usuario.tipo_documento }} - {{ usuario.documento }}</span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-600">🏫 Centro:</span>
+                                    <span class="font-semibold">{{ usuario.centro_formativo }}</span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-600">📍 Región:</span>
+                                    <span class="font-semibold">{{ usuario.region }}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- FORMULARIO DE APROBACIÓN -->
+                        <div class="w-80">
+                            <form method="POST" action="{% url 'registro:aprobar_cuenta' %}" class="space-y-3">
+                                {% csrf_token %}
+                                <input type="hidden" name="documento" value="{{ usuario.documento }}">
+                                
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                        Código de Aprobación
+                                    </label>
+                                    <input type="text" 
+                                           name="codigo_admin" 
+                                           maxlength="6"
+                                           pattern="[0-9]{6}"
+                                           placeholder="000000"
+                                           class="w-full px-4 py-2 text-center text-lg font-bold tracking-widest border-2 border-gray-300 rounded-lg focus:border-green-600 focus:outline-none"
+                                           required>
+                                    <p class="text-xs text-gray-500 mt-1 text-center">
+                                        Revisa el código en el correo: infosena@gmail.com
+                                    </p>
+                                </div>
+                                
+                                <button type="submit"
+                                        class="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg font-semibold transition-all">
+                                    ✅ Aprobar Cuenta
+                                </button>
+                            </form>
+                        </div>
+
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        {% else %}
+        <!-- SIN PENDIENTES -->
+        <div class="bg-white rounded-lg shadow-lg p-12 text-center">
+            <div class="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg class="w-12 h-12 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-800 mb-2">¡Todo al día!</h3>
+            <p class="text-gray-600">No hay cuentas pendientes de aprobación en este momento.</p>
+        </div>
+        {% endif %}
+
+    </div>
+
+    <!-- Auto-formatear código -->
+    <script>
+        document.querySelectorAll('input[name="codigo_admin"]').forEach(input => {
+            input.addEventListener('input', (e) => {
+                e.target.value = e.target.value.replace(/[^0-9]/g, '');
+            });
+        });
+    </script>
+
+</body>
+</html>

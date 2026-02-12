@@ -118,7 +118,22 @@
             </div>
         </div>
     </div>
+<script>
+        const inputDocumento = document.getElementById("documento");
+        const errorDocumento = document.getElementById("error_documento");
 
+        inputDocumento.addEventListener("input", (e) => {
+            // Eliminar cualquier carácter que no sea número
+            e.target.value = e.target.value.replace(/[^0-9]/g, '');
+            
+            // Mostrar error si se intentó ingresar algo que no es número
+            if (/[^0-9]/.test(e.target.value)) {
+                errorDocumento.classList.remove("hidden");
+            } else {
+                errorDocumento.classList.add("hidden");
+            }
+        });
+</script>
     <!-- LIMPIAR CAMPOS AL CARGAR -->
     <script>
         window.addEventListener('load', () => {

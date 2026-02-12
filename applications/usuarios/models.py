@@ -16,7 +16,7 @@ class Usuario(models.Model):
     nombre = models.CharField(max_length=150)
     email = models.EmailField()
     foto = models.ImageField(upload_to='perfils/', null=True, blank=True)
-
+    es_admin = models.BooleanField(default=False)
     class Meta:
         db_table = 'usuario_unificado'
 
