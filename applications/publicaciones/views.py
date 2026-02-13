@@ -8,7 +8,7 @@ from applications.registro.models import Bienestar
 @login_required
 def crear_publicacion(request):
     """
-    Vista para crear publicaciones - VERSIÓN CON DEBUGGING CORREGIDO
+    Vista para crear publicaciones - VERSIÓN FINAL CORREGIDA
     """
     # Verificar sesión
     if 'usuario_id' not in request.session or 'tipo_usuario' not in request.session:
@@ -24,52 +24,25 @@ def crear_publicacion(request):
     usuario_id = request.session['usuario_id']
     
     try:
+        # IMPORTANTE: Obtener el objeto Bienestar directamente
         datos_bienestar = Bienestar.objects.get(numero_documento=usuario_id)
+        
+        # DEBUG: Verificar el tipo de objeto
+        print(f"\n🔍 VERIFICACIÓN DE OBJETO:")
+        print(f"   Tipo de objeto: {type(datos_bienestar)}")
+        print(f"   Es Bienestar: {isinstance(datos_bienestar, Bienestar)}")
+        print(f"   Nombre: {datos_bienestar.nombre}")
+        print(f"   Documento: {datos_bienestar.numero_documento}")
+        
     except Bienestar.DoesNotExist:
-        messages.error(request, "Usuario no encontrado")
+        messages.error(request, "Usuario de bienestar no encontrado")
         return redirect('perfil:perfiles')
     
     if request.method == 'POST':
-        # ================================================================
-        # DEBUGGING SIN ACCEDER A request.body
-        # ================================================================
-        print("\n" + "="*100)
-        print("🔍 DEBUGGING - CREAR PUBLICACIÓN")
-        print("="*100)
-        
-        # Headers importantes (SIN leer request.body)
-        print(f"\n📨 HEADERS:")
-        print(f"   Content-Type: {request.META.get('CONTENT_TYPE', 'No encontrado')}")
-        print(f"   Content-Length: {request.META.get('CONTENT_LENGTH', 'No encontrado')}")
-        
-        # Datos POST
-        print(f"\n📝 DATOS POST:")
-        print(f"   POST.keys(): {list(request.POST.keys())}")
-        
-        # Archivos - Verificación
-        print(f"\n📁 ARCHIVOS:")
-        print(f"   request.FILES.keys(): {list(request.FILES.keys())}")
-        print(f"   request.FILES vacío: {len(request.FILES) == 0}")
-        
-        imagenes = request.FILES.getlist('imagenes')
-        videos = request.FILES.getlist('videos')
-        
-        print(f"\n📷 IMÁGENES:")
-        print(f"   Cantidad: {len(imagenes)}")
-        for idx, img in enumerate(imagenes, 1):
-            print(f"   Imagen {idx}: {img.name} ({img.size} bytes)")
-        
-        print(f"\n🎥 VIDEOS:")
-        print(f"   Cantidad: {len(videos)}")
-        for idx, vid in enumerate(videos, 1):
-            print(f"   Video {idx}: {vid.name} ({vid.size} bytes)")
-        
-        print("="*100 + "\n")
-        
         # Obtener datos del formulario
-        titulo = request.POST.get('titulo')
-        contenido = request.POST.get('contenido')
-        categoria = request.POST.get('categoria')
+        titulo = request.POST.get('titulo', '').strip()
+        contenido = request.POST.get('contenido', '').strip()
+        categoria = request.POST.get('categoria', 'informacion')
         
         # Validación básica
         if not titulo or not contenido:
@@ -89,86 +62,150 @@ def crear_publicacion(request):
             })
         
         try:
+            # Obtener archivos
+            imagenes = request.FILES.getlist('imagenes')
+            videos = request.FILES.getlist('videos')
+            
+            print("\n" + "="*80)
+            print("📝 CREANDO PUBLICACIÓN")
+            print(f"   Autor: {datos_bienestar.nombre}")
+            print(f"   Tipo autor: {type(datos_bienestar)}")
+            print(f"   Título: {titulo}")
+            print(f"   Categoría: {categoria}")
+            print(f"   Imágenes: {len(imagenes)}")
+            print(f"   Videos: {len(videos)}")
+            
+            # Validar cantidad de archivos
+            if len(imagenes) > 10:
+                messages.error(request, "Máximo 10 imágenes permitidas")
+                return render(request, 'crear_publicacion.html', {
+                    'usuario': datos_bienestar,
+                    'tipo_perfil': tipo_perfil,
+                    'categorias': Publicacion.CATEGORIA_CHOICES
+                })
+            
+            if len(videos) > 5:
+                messages.error(request, "Máximo 5 videos permitidos")
+                return render(request, 'crear_publicacion.html', {
+                    'usuario': datos_bienestar,
+                    'tipo_perfil': tipo_perfil,
+                    'categorias': Publicacion.CATEGORIA_CHOICES
+                })
+            
+            # Validar tamaño de archivos
+            MAX_IMAGE_SIZE = 10 * 1024 * 1024  # 10MB
+            MAX_VIDEO_SIZE = 50 * 1024 * 1024  # 50MB
+            
+            for imagen in imagenes:
+                if imagen.size > MAX_IMAGE_SIZE:
+                    messages.error(request, f"La imagen '{imagen.name}' excede el tamaño máximo de 10MB")
+                    return render(request, 'crear_publicacion.html', {
+                        'usuario': datos_bienestar,
+                        'tipo_perfil': tipo_perfil,
+                        'categorias': Publicacion.CATEGORIA_CHOICES
+                    })
+            
+            for video in videos:
+                if video.size > MAX_VIDEO_SIZE:
+                    messages.error(request, f"El video '{video.name}' excede el tamaño máximo de 50MB")
+                    return render(request, 'crear_publicacion.html', {
+                        'usuario': datos_bienestar,
+                        'tipo_perfil': tipo_perfil,
+                        'categorias': Publicacion.CATEGORIA_CHOICES
+                    })
+            
+            # CRÍTICO: Asegurarse de usar el objeto Bienestar directamente
+            print(f"\n🔧 CREANDO PUBLICACIÓN CON:")
+            print(f"   autor={datos_bienestar} (tipo: {type(datos_bienestar).__name__})")
+            
             # Crear la publicación
             publicacion = Publicacion.objects.create(
-                autor=datos_bienestar,
+                autor=datos_bienestar,  # Objeto Bienestar directo
                 titulo=titulo,
                 contenido=contenido,
                 categoria=categoria
             )
             
-            print(f"✅ Publicación creada: ID {publicacion.id}")
+            print(f"✅ Publicación creada con ID: {publicacion.id}")
             
             # Contador de archivos guardados
             imagenes_guardadas = 0
             videos_guardados = 0
+            errores = []
             
             # Guardar imágenes
-            if len(imagenes) > 0:
-                print(f"\n💾 GUARDANDO {len(imagenes)} IMÁGENES:")
-                for i, imagen in enumerate(imagenes):
-                    try:
-                        archivo = ArchivoPublicacion.objects.create(
-                            publicacion=publicacion,
-                            tipo='imagen',
-                            archivo=imagen,
-                            orden=i
-                        )
-                        imagenes_guardadas += 1
-                        print(f"   ✅ Imagen {i+1} guardada - ID: {archivo.id} - Ruta: {archivo.archivo.name}")
-                    except Exception as e:
-                        print(f"   ❌ Error guardando imagen {i+1}: {e}")
-            else:
-                print(f"\n⚠️ NO HAY IMÁGENES PARA GUARDAR")
+            for i, imagen in enumerate(imagenes):
+                try:
+                    archivo = ArchivoPublicacion.objects.create(
+                        publicacion=publicacion,
+                        tipo='imagen',
+                        archivo=imagen,
+                        orden=i
+                    )
+                    imagenes_guardadas += 1
+                    print(f"   ✅ Imagen {i+1} guardada: {archivo.archivo.name}")
+                except Exception as e:
+                    error_msg = f"Error guardando imagen {i+1}: {str(e)}"
+                    print(f"   ❌ {error_msg}")
+                    errores.append(error_msg)
             
             # Guardar videos
-            if len(videos) > 0:
-                print(f"\n💾 GUARDANDO {len(videos)} VIDEOS:")
-                for i, video in enumerate(videos):
-                    try:
-                        archivo = ArchivoPublicacion.objects.create(
-                            publicacion=publicacion,
-                            tipo='video',
-                            archivo=video,
-                            orden=len(imagenes) + i
-                        )
-                        videos_guardados += 1
-                        print(f"   ✅ Video {i+1} guardado - ID: {archivo.id} - Ruta: {archivo.archivo.name}")
-                    except Exception as e:
-                        print(f"   ❌ Error guardando video {i+1}: {e}")
-            else:
-                print(f"\n⚠️ NO HAY VIDEOS PARA GUARDAR")
+            for i, video in enumerate(videos):
+                try:
+                    archivo = ArchivoPublicacion.objects.create(
+                        publicacion=publicacion,
+                        tipo='video',
+                        archivo=video,
+                        orden=len(imagenes) + i
+                    )
+                    videos_guardados += 1
+                    print(f"   ✅ Video {i+1} guardado: {archivo.archivo.name}")
+                except Exception as e:
+                    error_msg = f"Error guardando video {i+1}: {str(e)}"
+                    print(f"   ❌ {error_msg}")
+                    errores.append(error_msg)
             
             # Verificación final
-            archivos_db = ArchivoPublicacion.objects.filter(publicacion=publicacion)
+            total_archivos = ArchivoPublicacion.objects.filter(publicacion=publicacion).count()
             print(f"\n📊 RESUMEN:")
-            print(f"   Total archivos en DB: {archivos_db.count()}")
-            for archivo in archivos_db:
-                print(f"      - {archivo.tipo}: {archivo.archivo.name}")
+            print(f"   Total archivos guardados en DB: {total_archivos}")
+            print(f"   Imágenes: {imagenes_guardadas}")
+            print(f"   Videos: {videos_guardados}")
+            print("="*80 + "\n")
             
-            print("="*100 + "\n")
-            
+            # Mensajes al usuario
             if imagenes_guardadas > 0 or videos_guardados > 0:
-                messages.success(request, f"✅ Publicación creada con {imagenes_guardadas} imágenes y {videos_guardados} videos")
+                messages.success(
+                    request, 
+                    f"✅ Publicación creada exitosamente con {imagenes_guardadas} imagen(es) y {videos_guardados} video(s)"
+                )
             else:
-                messages.warning(request, "⚠️ Publicación creada pero sin archivos multimedia")
+                messages.warning(
+                    request, 
+                    "⚠️ Publicación creada pero no se guardaron archivos multimedia"
+                )
+            
+            if errores:
+                for error in errores:
+                    messages.warning(request, error)
             
             return redirect('perfil:perfiles')
             
         except Exception as e:
-            print(f"\n❌ ERROR CRÍTICO:")
+            print(f"\n❌ ERROR CRÍTICO AL CREAR PUBLICACIÓN:")
             print(f"   {str(e)}")
             import traceback
             traceback.print_exc()
-            print("="*100 + "\n")
+            print("="*80 + "\n")
             
-            messages.error(request, "Hubo un error al crear la publicación. Por favor, intenta de nuevo.")
+            messages.error(request, f"Error al crear la publicación: {str(e)}")
             return render(request, 'crear_publicacion.html', {
                 'usuario': datos_bienestar,
                 'tipo_perfil': tipo_perfil,
                 'categorias': Publicacion.CATEGORIA_CHOICES
             })
     
+    # GET request
     context = {
         'usuario': datos_bienestar,
         'tipo_perfil': tipo_perfil,

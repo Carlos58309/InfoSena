@@ -8,6 +8,273 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ usuario_perfil.nombre }} - InfoSena</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* ============================================ */
+/* GRID DE MEDIA UNIFICADO - ESTILO FACEBOOK */
+/* ============================================ */
+
+/* Grid para 1 archivo */
+.media-grid-1 {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2px;
+    max-height: 600px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #000;
+}
+
+/* Grid para 2 archivos */
+.media-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+    max-height: 500px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #000;
+}
+
+/* Grid para 3 archivos */
+.media-grid-3 {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 2px;
+    max-height: 500px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #000;
+}
+
+.media-grid-3 .media-item:first-child {
+    grid-row: 1 / 3;
+}
+
+/* Grid para 4 archivos */
+.media-grid-4 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 2px;
+    max-height: 500px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #000;
+}
+
+/* Grid para 5+ archivos */
+.media-grid-5plus {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 2px;
+    max-height: 500px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #000;
+}
+
+.media-grid-5plus .media-item:nth-child(1) {
+    grid-column: 1 / 3;
+}
+
+.media-grid-5plus .media-item:nth-child(2) {
+    grid-column: 3 / 4;
+    grid-row: 1 / 3;
+}
+
+/* Estilo común para items */
+.media-item {
+    position: relative;
+    overflow: hidden;
+    background: #000;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+}
+
+.media-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.media-item:hover img {
+    transform: scale(1.05);
+}
+
+/* Videos */
+.media-item.video-item {
+    position: relative;
+}
+
+.media-item video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    pointer-events: none;
+}
+
+.video-play-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.3);
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.video-play-overlay:hover {
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.video-play-overlay svg {
+    filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3));
+    transition: transform 0.3s ease;
+}
+
+.video-play-overlay:hover svg {
+    transform: scale(1.1);
+}
+
+/* Overlay +N */
+.media-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.75);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 2.5rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    z-index: 10;
+}
+
+.media-overlay:hover {
+    background: rgba(0, 0, 0, 0.85);
+}
+
+/* Modales */
+.modal-media {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.95);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+
+.modal-media.hidden {
+    display: none;
+}
+
+.modal-media img,
+.modal-media video {
+    max-width: 90%;
+    max-height: 90%;
+    object-fit: contain;
+    border-radius: 8px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+.modal-close-btn {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    width: 3.5rem;
+    height: 3.5rem;
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    font-size: 2rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    z-index: 10000;
+}
+
+.modal-close-btn:hover {
+    background: rgba(0, 0, 0, 0.8);
+    transform: scale(1.1);
+}
+
+.modal-nav-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3rem;
+    height: 3rem;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.modal-nav-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-50%) scale(1.1);
+}
+
+.modal-nav-btn.prev {
+    left: 1rem;
+}
+
+.modal-nav-btn.next {
+    right: 1rem;
+}
+
+.modal-nav-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.modal-counter {
+    position: absolute;
+    top: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    backdrop-filter: blur(10px);
+}
+
+/* Responsividad */
+@media (max-width: 768px) {
+    .media-grid-1,
+    .media-grid-2,
+    .media-grid-3,
+    .media-grid-4,
+    .media-grid-5plus {
+        max-height: 400px;
+    }
+    
+    .media-overlay {
+        font-size: 2rem;
+    }
+}
+    </style>
 </head>
 
 <body class="bg-gray-100">
@@ -89,11 +356,11 @@
                                     {% elif tipo_perfil == 'bienestar' %} bg-green-100 text-green-700
                                     {% endif %}">
                                     {% if tipo_perfil == 'aprendiz' %}
-                                        Aprendiz
+                                        🎓 Aprendiz
                                     {% elif tipo_perfil == 'instructor' %}
-                                        Instructor
+                                        👨‍🏫 Instructor
                                     {% elif tipo_perfil == 'bienestar' %}
-                                        Bienestar al Aprendiz
+                                        🏥 Bienestar al Aprendiz
                                     {% endif %}
                                 </span>
                                 
@@ -119,30 +386,50 @@
                             </div>
                         </div>
 
-                        <!-- Botón de amistad -->
+                        <!-- ✅ BOTONES DE ACCIÓN MEJORADOS -->
                         <div class="flex flex-col gap-2">
                             {% if es_amigo %}
-                                <span class="px-6 py-3 bg-gray-100 text-gray-700 rounded-lg font-semibold flex items-center gap-2">
+                                <!-- ✅ SI SON AMIGOS: Mostrar botón de Chat -->
+                                <a href="{% url 'chat:iniciar_chat' usuario_obj.id %}"
+                                   class="px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition flex items-center gap-2 shadow-md hover:shadow-lg">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-5 h-5">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                                    </svg>
+                                    Enviar mensaje
+                                </a>
+                                
+                                <span class="px-6 py-3 bg-gray-100 text-gray-700 rounded-lg font-semibold flex items-center gap-2 justify-center">
                                     ✓ Son amigos
                                 </span>
+                                
                             {% elif solicitud_pendiente %}
+                                <!-- ✅ SI HAY SOLICITUD RECIBIDA: Botones de Aceptar/Rechazar -->
                                 <div class="flex gap-2">
                                     <a href="{% url 'amistades:aceptar_solicitud' solicitud_id %}" 
-                                       class="px-6 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition">
-                                        ✓ Aceptar solicitud
+                                       class="flex-1 px-4 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition text-center">
+                                        ✓ Aceptar
                                     </a>
                                     <a href="{% url 'amistades:rechazar_solicitud' solicitud_id %}" 
-                                       class="px-6 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition">
+                                       class="flex-1 px-4 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition text-center">
                                         ✕ Rechazar
                                     </a>
                                 </div>
+                                
                             {% elif solicitud_enviada %}
-                                <span class="px-6 py-3 bg-yellow-100 text-yellow-700 rounded-lg font-semibold">
+                                <!-- ✅ SI YA ENVIÓ SOLICITUD: Botón de Cancelar -->
+                                <a href="{% url 'amistades:cancelar_solicitud' usuario_obj.id %}"
+                                   class="px-6 py-3 bg-yellow-100 text-yellow-700 rounded-lg font-semibold hover:bg-yellow-200 transition flex items-center gap-2 justify-center">
+                                    ✕ Cancelar solicitud
+                                </a>
+                                
+                                <span class="px-6 py-3 bg-yellow-50 text-yellow-700 rounded-lg font-semibold flex items-center gap-2 justify-center text-sm">
                                     ⏳ Solicitud enviada
                                 </span>
+                                
                             {% else %}
+                                <!-- ✅ SI NO HAY RELACIÓN: Botón de Agregar amigo -->
                                 <a href="{% url 'amistades:enviar_solicitud' usuario_obj.id %}"
-                                   class="px-6 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition flex items-center gap-2">
+                                   class="px-6 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition flex items-center gap-2 shadow-md hover:shadow-lg">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-5 h-5">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                                     </svg>
@@ -150,6 +437,7 @@
                                 </a>
                             {% endif %}
 
+                            <!-- Botón Volver (siempre visible) -->
                             <button onclick="window.history.back()" 
                                     class="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-300 transition">
                                 Volver
@@ -216,8 +504,8 @@
                     </h2>
 
                     {% if amigos %}
-                    <div class="space-y-3">
-                        {% for amigo in amigos|slice:":6" %}
+                    <div class="space-y-3 max-h-96 overflow-y-auto scrollbar-thin">
+                        {% for amigo in amigos %}
                         <a href="{% url 'perfil:ver_perfil' amigo.documento %}" 
                            class="flex items-center gap-3 hover:bg-gray-50 p-2 rounded-lg transition">
                             {% if amigo.foto %}
@@ -226,12 +514,20 @@
                                  class="w-10 h-10 rounded-full object-cover">
                             {% else %}
                             <div class="w-10 h-10 rounded-full bg-gradient-to-br from-gray-300 to-gray-400 flex items-center justify-center text-white">
-                                👤
+                                {% if amigo.tipo == 'aprendiz' %}🎓
+                                {% elif amigo.tipo == 'instructor' %}👨‍🏫
+                                {% elif amigo.tipo == 'bienestar' %}🏥
+                                {% else %}👤{% endif %}
                             </div>
                             {% endif %}
                             <div class="flex-1 min-w-0">
                                 <p class="font-semibold text-sm text-gray-800 truncate">{{ amigo.nombre }}</p>
-                                <p class="text-xs text-gray-500">{{ amigo.get_tipo_perfil_display }}</p>
+                                <p class="text-xs text-gray-500">
+                                    {% if amigo.tipo == 'aprendiz' %}Aprendiz
+                                    {% elif amigo.tipo == 'instructor' %}Instructor
+                                    {% elif amigo.tipo == 'bienestar' %}Bienestar al Aprendiz
+                                    {% endif %}
+                                </p>
                             </div>
                         </a>
                         {% endfor %}
@@ -304,11 +600,85 @@
                         </p>
 
                         <!-- Imagen -->
-                        {% if publicacion.imagen %}
-                        <img src="{{ publicacion.imagen.url }}" 
-                             alt="{{ publicacion.titulo }}"
-                             class="rounded-lg w-full h-auto max-h-96 object-cover mb-3">
-                        {% endif %}
+                        <!-- ============================================ -->
+<!-- GRID DE MEDIA UNIFICADO - ESTILO FACEBOOK -->
+<!-- ============================================ -->
+{% if publicacion.archivos.all %}
+    {% with total_media=publicacion.archivos.all|length %}
+    
+    <!-- CONTENEDOR ÚNICO PARA TODO EL MEDIA -->
+    <div class="
+        {% if total_media == 1 %}media-grid-1
+        {% elif total_media == 2 %}media-grid-2
+        {% elif total_media == 3 %}media-grid-3
+        {% elif total_media == 4 %}media-grid-4
+        {% else %}media-grid-5plus
+        {% endif %}
+    ">
+        {% for archivo in publicacion.archivos.all|slice:":5" %}
+            
+            <!-- IMAGEN -->
+            {% if archivo.tipo == 'imagen' %}
+            <div class="media-item">
+                <img src="{{ archivo.archivo.url }}" 
+                     alt="{{ publicacion.titulo }}"
+                     onclick="abrirMediaModal({{ publicacion.id }}, {{ forloop.counter0 }})">
+                
+                <!-- Overlay +N si es el último y hay más de 5 -->
+                {% if forloop.last and total_media > 5 %}
+                <div class="media-overlay" 
+                     onclick="abrirMediaModal({{ publicacion.id }}, {{ forloop.counter0 }})">
+                    +{{ total_media|add:"-5" }}
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+            
+            <!-- VIDEO -->
+            {% if archivo.tipo == 'video' %}
+            <div class="media-item video-item">
+                <video 
+                    src="{{ archivo.archivo.url }}"
+                    class="w-full h-full object-cover">
+                </video>
+                
+                <!-- Botón de play -->
+                <div class="video-play-overlay" 
+                     onclick="abrirMediaModal({{ publicacion.id }}, {{ forloop.counter0 }})">
+                    <svg class="w-16 h-16 text-white" fill="currentColor" viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="10" fill="white" fill-opacity="0.9"/>
+                        <path d="M8 5v14l11-7z" fill="#000"/>
+                    </svg>
+                </div>
+                
+                <!-- Overlay +N si es el último y hay más de 5 -->
+                {% if forloop.last and total_media > 5 %}
+                <div class="media-overlay" 
+                     onclick="abrirMediaModal({{ publicacion.id }}, {{ forloop.counter0 }})">
+                    +{{ total_media|add:"-5" }}
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+            
+        {% endfor %}
+    </div>
+    
+    <!-- Inicializar archivos de la publicación en JavaScript -->
+    <script>
+        inicializarMediaPublicacion({{ publicacion.id }}, [
+            {% for archivo in publicacion.archivos.all %}
+            {
+                tipo: '{{ archivo.tipo }}',
+                url: '{{ archivo.archivo.url }}',
+                alt: '{{ publicacion.titulo|escapejs }}'
+            }{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ]);
+    </script>
+    
+    {% endwith %}
+{% endif %}
 
                         <!-- Acciones -->
                         <div class="flex items-center gap-6 pt-3 border-t border-gray-100">
@@ -355,6 +725,163 @@
             });
         }, 5000);
     </script>
+<script>
+// ============================================
+// SISTEMA DE MODALES PARA MEDIA
+// ============================================
+
+const publicacionesMedia = {};
+
+function inicializarMediaPublicacion(publicacionId, archivos) {
+    publicacionesMedia[publicacionId] = archivos;
+}
+
+function abrirMediaModal(publicacionId, index) {
+    const archivos = publicacionesMedia[publicacionId];
+    if (!archivos || !archivos[index]) return;
+    
+    const archivo = archivos[index];
+    const modal = crearModalMedia(publicacionId, index, archivos.length);
+    
+    document.body.appendChild(modal);
+    document.body.style.overflow = 'hidden';
+    
+    cargarArchivoEnModal(modal, archivo);
+}
+
+function crearModalMedia(publicacionId, indexActual, totalArchivos) {
+    const modal = document.createElement('div');
+    modal.className = 'modal-media';
+    modal.dataset.publicacionId = publicacionId;
+    modal.dataset.currentIndex = indexActual;
+    
+    modal.onclick = (e) => {
+        if (e.target === modal) cerrarModal(modal);
+    };
+    
+    modal.innerHTML = `
+        <button class="modal-close-btn" onclick="cerrarModal(this.parentElement)">×</button>
+        
+        ${totalArchivos > 1 ? `
+            <div class="modal-counter">
+                <span id="modal-counter-text">${indexActual + 1} / ${totalArchivos}</span>
+            </div>
+            
+            <button class="modal-nav-btn prev" onclick="navegarMedia(this, -1)">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7"/>
+                </svg>
+            </button>
+            
+            <button class="modal-nav-btn next" onclick="navegarMedia(this, 1)">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"/>
+                </svg>
+            </button>
+        ` : ''}
+        
+        <div id="modal-content-container"></div>
+    `;
+    
+    return modal;
+}
+
+function cargarArchivoEnModal(modal, archivo) {
+    const container = modal.querySelector('#modal-content-container');
+    
+    if (archivo.tipo === 'imagen') {
+        container.innerHTML = `
+            <img src="${archivo.url}" 
+                 alt="${archivo.alt || 'Imagen'}"
+                 onclick="event.stopPropagation()">
+        `;
+    } else if (archivo.tipo === 'video') {
+        container.innerHTML = `
+            <video controls autoplay onclick="event.stopPropagation()">
+                <source src="${archivo.url}" type="video/mp4">
+                <source src="${archivo.url}" type="video/webm">
+                <source src="${archivo.url}" type="video/ogg">
+            </video>
+        `;
+    }
+}
+
+function navegarMedia(btn, direccion) {
+    const modal = btn.closest('.modal-media');
+    const publicacionId = modal.dataset.publicacionId;
+    const archivos = publicacionesMedia[publicacionId];
+    let indexActual = parseInt(modal.dataset.currentIndex);
+    
+    indexActual += direccion;
+    
+    if (indexActual < 0 || indexActual >= archivos.length) return;
+    
+    modal.dataset.currentIndex = indexActual;
+    
+    const counter = modal.querySelector('#modal-counter-text');
+    if (counter) {
+        counter.textContent = `${indexActual + 1} / ${archivos.length}`;
+    }
+    
+    actualizarBotonesNavegacion(modal, indexActual, archivos.length);
+    cargarArchivoEnModal(modal, archivos[indexActual]);
+}
+
+function actualizarBotonesNavegacion(modal, indexActual, totalArchivos) {
+    const btnPrev = modal.querySelector('.modal-nav-btn.prev');
+    const btnNext = modal.querySelector('.modal-nav-btn.next');
+    
+    if (btnPrev) btnPrev.disabled = indexActual === 0;
+    if (btnNext) btnNext.disabled = indexActual === totalArchivos - 1;
+}
+
+function cerrarModal(modal) {
+    const videos = modal.querySelectorAll('video');
+    videos.forEach(video => {
+        video.pause();
+        video.currentTime = 0;
+    });
+    
+    modal.remove();
+    document.body.style.overflow = 'auto';
+}
+
+// Atajos de teclado
+document.addEventListener('keydown', (e) => {
+    const modal = document.querySelector('.modal-media');
+    if (!modal) return;
+    
+    switch(e.key) {
+        case 'Escape':
+            cerrarModal(modal);
+            break;
+        case 'ArrowLeft':
+            const btnPrev = modal.querySelector('.modal-nav-btn.prev');
+            if (btnPrev && !btnPrev.disabled) navegarMedia(btnPrev, -1);
+            break;
+        case 'ArrowRight':
+            const btnNext = modal.querySelector('.modal-nav-btn.next');
+            if (btnNext && !btnNext.disabled) navegarMedia(btnNext, 1);
+            break;
+    }
+});
+</script>
+    <style>
+        .scrollbar-thin::-webkit-scrollbar {
+            width: 6px;
+        }
+        .scrollbar-thin::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        .scrollbar-thin::-webkit-scrollbar-thumb {
+            background: #d1d5db;
+            border-radius: 10px;
+        }
+        .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+            background: #9ca3af;
+        }
+    </style>
 
 </body>
 </html>

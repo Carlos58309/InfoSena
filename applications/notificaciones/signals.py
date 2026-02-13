@@ -49,6 +49,10 @@ def notificar_nueva_publicacion(sender, instance, created, **kwargs):
     Solo notifica a usuarios que son AMIGOS del autor.
     """
     if created:
+        from applications.registro.models import Bienestar
+        if isinstance(instance.autor, Bienestar):
+            print(f"⚠️ Notificaciones desactivadas para Bienestar: {instance.autor}")
+            return
         # Obtener todos los amigos del autor de la publicación
         amigos = Amistad.obtener_amigos(instance.autor)
         

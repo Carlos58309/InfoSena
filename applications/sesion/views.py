@@ -10,6 +10,11 @@ from applications.amistades.models import Amistad
 from .models import Sesion
 from django.contrib.auth.decorators import login_required
 from applications.publicaciones.models import Publicacion
+import random
+from django.utils import timezone
+from .models import CodigoRecuperacion
+from django.contrib.auth import authenticate, login
+from django.db import transaction, connection
 
 
 def login_view(request):
@@ -468,65 +473,137 @@ def chat_view(request):
     return render(request, "chat.html")
 
 def solicitar_correo(request):
+
     if request.method == "POST":
         email = request.POST.get("email")
 
-        usuario = (
-            Aprendiz.objects.filter(email=email).first() or
-            Instructor.objects.filter(email=email).first() or
-            Bienestar.objects.filter(email=email).first()
-        )
+        try:
+            usuario = Usuario.objects.get(email=email)
 
-        if not usuario:
-            messages.error(request, "No existe una cuenta asociada a ese correo.")
-            return render(request, "solicitar_correo.html")
+            # Eliminar códigos anteriores
+            CodigoRecuperacion.objects.filter(usuario=usuario).delete()
 
-        token = token_generator.make_token(usuario)
-        uid = usuario.pk
+            # Generar código
+            codigo = str(random.randint(100000, 999999))
 
-        reset_url = request.build_absolute_uri(
-            reverse("sesion:restablecer", args=[uid, token])
-        )
+            # Guardar código
+            CodigoRecuperacion.objects.create(
+                usuario=usuario,
+                codigo=codigo
+            )
 
-        send_mail(
-            "Restablecer contraseña",
-            f"Hola, usa este enlace para restablecer tu contraseña:\n\n{reset_url}",
-            "infosenasystem@gmail.com",
-            [email],
-        )
+            # Enviar correo
+            send_mail(
+                "Código de recuperación",
+                f"Tu código de verificación es: {codigo}",
+                settings.EMAIL_HOST_USER,
+                [email],
+                fail_silently=False,
+            )
 
-        messages.success(request, "Se ha enviado un enlace de recuperación a tu correo.")
-        return redirect("sesion:login")
+            request.session["usuario_recuperacion"] = usuario.id
+
+            return redirect("sesion:verificar_codigo")
+
+        except Usuario.DoesNotExist:
+            messages.error(request, "El correo no está registrado.")
 
     return render(request, "solicitar_correo.html")
 
 
-def restablecer_contrasena(request, uid, token):
-    usuario = (
-        Aprendiz.objects.filter(pk=uid).first() or
-        Instructor.objects.filter(pk=uid).first() or
-        Bienestar.objects.filter(pk=uid).first()
-    )
 
-    if not usuario or not token_generator.check_token(usuario, token):
-        messages.error(request, "El enlace no es válido o ha expirado.")
-        return redirect("sesion:solicitar_correo")
 
-    if request.method == "POST":
-        nueva = request.POST.get("password1")
-        confirmar = request.POST.get("password2")
-
-        if nueva != confirmar:
-            messages.error(request, "Las contraseñas no coinciden.")
-            return render(request, "restablecer_password.html")
-
-        usuario.contrasena = nueva
-        usuario.save()
-
-        messages.success(request, "Tu contraseña ha sido restablecida con éxito.")
-        return redirect("sesion:login")
-
-    return render(request, "restablecer_password.html")
 
 def home(request):
     return render(request, 'index.html')
+
+def verificar_codigo(request):
+
+    if request.method == "POST":
+        codigo_ingresado = request.POST.get("codigo")
+        usuario_id = request.session.get("usuario_recuperacion")
+
+        if not usuario_id:
+            return redirect("sesion:login")
+
+        try:
+            codigo_obj = CodigoRecuperacion.objects.get(
+                usuario_id=usuario_id,
+                codigo=codigo_ingresado
+            )
+
+            return redirect("sesion:nueva_contrasena")
+
+        except CodigoRecuperacion.DoesNotExist:
+            messages.error(request, "Código incorrecto.")
+
+    return render(request, "codigo_restablecer_contraseña.html")
+
+def nueva_contrasena(request):
+    usuario_id = request.session.get("usuario_recuperacion")
+
+    if not usuario_id:
+        return redirect("sesion:login")
+
+    if request.method == "POST":
+        password1 = request.POST.get("password1")
+        password2 = request.POST.get("password2")
+
+        if password1 != password2:
+            messages.error(request, "Las contraseñas no coinciden.")
+            return redirect("sesion:nueva_contrasena")
+
+        try:
+            # Cerrar cualquier conexión existente antes de empezar
+            connection.close()
+            
+            with transaction.atomic():
+                usuario = Usuario.objects.select_for_update().get(id=usuario_id)
+
+                # Actualizar auth_user
+                if hasattr(usuario, 'user') and usuario.user:
+                    usuario.user.set_password(password1)
+                    usuario.user.save(update_fields=['password'])
+
+                # Actualizar la tabla correspondiente
+                if usuario.tipo == "aprendiz":
+                    Aprendiz.objects.filter(numero_documento=usuario.numero_documento).update(
+                        contrasena=password1
+                    )
+
+                elif usuario.tipo == "instructor":
+                    Instructor.objects.filter(numero_documento=usuario.numero_documento).update(
+                        contrasena=password1
+                    )
+
+                elif usuario.tipo == "bienestar":
+                    Bienestar.objects.filter(numero_documento=usuario.numero_documento).update(
+                        contrasena=password1
+                    )
+
+                # Eliminar códigos de recuperación
+                CodigoRecuperacion.objects.filter(usuario=usuario).delete()
+
+            # Limpiar sesión
+            request.session.pop("usuario_recuperacion", None)
+            request.session.modified = True
+
+            messages.success(request, "Contraseña actualizada correctamente.")
+            
+            # Cerrar conexión antes de redirigir
+            connection.close()
+            
+            return redirect("sesion:login")
+
+        except Usuario.DoesNotExist:
+            connection.close()
+            messages.error(request, "Usuario no encontrado.")
+            return redirect("sesion:login")
+            
+        except Exception as e:
+            connection.close()
+            messages.error(request, f"Error al actualizar la contraseña.")
+            print(f"Error detallado: {e}")  # Para debug
+            return redirect("sesion:nueva_contrasena")
+
+    return render(request, "restablecer_password.html")

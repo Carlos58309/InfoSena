@@ -8,10 +8,10 @@ urlpatterns = [
     path("home/", home_view, name="home"),
     path("amigos/", amigos_view, name="amigos"),
     path("solicitar-correo/", solicitar_correo, name="solicitar_correo"),
-    path("restablecer/<uid>/<token>/", restablecer_contrasena, name="restablecer"),
     path("chat/", chat_view, name="chat"),  # <-- ESTA LA AGREGAMOS
     path("perfil/", perfil_view, name="perfil"),  # <-- ESTA TAMBIÉN
     path('', home, name='index'),
-
+    path("verificar-codigo/", verificar_codigo, name="verificar_codigo"),
+    path("nueva-contrasena/", nueva_contrasena, name="nueva_contrasena"),
 ]
 

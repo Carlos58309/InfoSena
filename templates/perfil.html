@@ -5,6 +5,273 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mi Perfil - InfoSena</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* ============================================ */
+/* GRID DE MEDIA UNIFICADO - ESTILO FACEBOOK */
+/* ============================================ */
+
+/* Grid para 1 archivo */
+.media-grid-1 {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2px;
+    max-height: 600px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #000;
+}
+
+/* Grid para 2 archivos */
+.media-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+    max-height: 500px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #000;
+}
+
+/* Grid para 3 archivos */
+.media-grid-3 {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 2px;
+    max-height: 500px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #000;
+}
+
+.media-grid-3 .media-item:first-child {
+    grid-row: 1 / 3;
+}
+
+/* Grid para 4 archivos */
+.media-grid-4 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 2px;
+    max-height: 500px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #000;
+}
+
+/* Grid para 5+ archivos */
+.media-grid-5plus {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 2px;
+    max-height: 500px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #000;
+}
+
+.media-grid-5plus .media-item:nth-child(1) {
+    grid-column: 1 / 3;
+}
+
+.media-grid-5plus .media-item:nth-child(2) {
+    grid-column: 3 / 4;
+    grid-row: 1 / 3;
+}
+
+/* Estilo común para items */
+.media-item {
+    position: relative;
+    overflow: hidden;
+    background: #000;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+}
+
+.media-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.media-item:hover img {
+    transform: scale(1.05);
+}
+
+/* Videos */
+.media-item.video-item {
+    position: relative;
+}
+
+.media-item video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    pointer-events: none;
+}
+
+.video-play-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.3);
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.video-play-overlay:hover {
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.video-play-overlay svg {
+    filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3));
+    transition: transform 0.3s ease;
+}
+
+.video-play-overlay:hover svg {
+    transform: scale(1.1);
+}
+
+/* Overlay +N */
+.media-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.75);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 2.5rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    z-index: 10;
+}
+
+.media-overlay:hover {
+    background: rgba(0, 0, 0, 0.85);
+}
+
+/* Modales */
+.modal-media {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.95);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+
+.modal-media.hidden {
+    display: none;
+}
+
+.modal-media img,
+.modal-media video {
+    max-width: 90%;
+    max-height: 90%;
+    object-fit: contain;
+    border-radius: 8px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+.modal-close-btn {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    width: 3.5rem;
+    height: 3.5rem;
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    font-size: 2rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    z-index: 10000;
+}
+
+.modal-close-btn:hover {
+    background: rgba(0, 0, 0, 0.8);
+    transform: scale(1.1);
+}
+
+.modal-nav-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3rem;
+    height: 3rem;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.modal-nav-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-50%) scale(1.1);
+}
+
+.modal-nav-btn.prev {
+    left: 1rem;
+}
+
+.modal-nav-btn.next {
+    right: 1rem;
+}
+
+.modal-nav-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.modal-counter {
+    position: absolute;
+    top: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    backdrop-filter: blur(10px);
+}
+
+/* Responsividad */
+@media (max-width: 768px) {
+    .media-grid-1,
+    .media-grid-2,
+    .media-grid-3,
+    .media-grid-4,
+    .media-grid-5plus {
+        max-height: 400px;
+    }
+    
+    .media-overlay {
+        font-size: 2rem;
+    }
+}
+    </style>
 </head>
 <body class="bg-gray-200">
     {% if messages %}
@@ -336,40 +603,85 @@
                     </div>
 
                     <!-- ARCHIVOS MULTIMEDIA (Imágenes y Videos) -->
-                    {% if publicacion.archivos.all %}
-                    <div class="mt-4 space-y-3">
-                        <!-- Imágenes -->
-                        {% with imagenes=publicacion.archivos.all|dictsort:"orden" %}
-                        {% if imagenes %}
-                        <div class="grid grid-cols-1 {% if imagenes|length > 1 %}md:grid-cols-2{% endif %} gap-3">
-                            {% for archivo in imagenes %}
-                                {% if archivo.tipo == 'imagen' %}
-                                <div class="rounded-xl overflow-hidden">
-                                    <img src="{{ archivo.archivo.url }}" 
-                                         alt="{{ publicacion.titulo }}"
-                                         class="w-full h-auto object-cover hover:scale-105 transition-transform duration-300 cursor-pointer"
-                                         onclick="abrirImagenModal('{{ archivo.archivo.url }}')">
-                                </div>
-                                {% endif %}
-                            {% endfor %}
-                        </div>
-                        {% endif %}
-                        {% endwith %}
-
-                        <!-- Videos -->
-                        {% for archivo in publicacion.archivos.all %}
-                            {% if archivo.tipo == 'video' %}
-                            <div class="rounded-xl overflow-hidden bg-black">
-                                <video controls class="w-full h-auto">
-                                    <source src="{{ archivo.archivo.url }}" type="video/mp4">
-                                    Tu navegador no soporta el elemento de video.
-                                </video>
-                            </div>
-                            {% endif %}
-                        {% endfor %}
-                    </div>
-                    {% endif %}
-
+                    <!-- ============================================ -->
+<!-- GRID DE MEDIA UNIFICADO - ESTILO FACEBOOK -->
+<!-- ============================================ -->
+{% if publicacion.archivos.all %}
+    {% with total_media=publicacion.archivos.all|length %}
+    
+    <!-- CONTENEDOR ÚNICO PARA TODO EL MEDIA -->
+    <div class="
+        {% if total_media == 1 %}media-grid-1
+        {% elif total_media == 2 %}media-grid-2
+        {% elif total_media == 3 %}media-grid-3
+        {% elif total_media == 4 %}media-grid-4
+        {% else %}media-grid-5plus
+        {% endif %}
+    ">
+        {% for archivo in publicacion.archivos.all|slice:":5" %}
+            
+            <!-- IMAGEN -->
+            {% if archivo.tipo == 'imagen' %}
+            <div class="media-item">
+                <img src="{{ archivo.archivo.url }}" 
+                     alt="{{ publicacion.titulo }}"
+                     onclick="abrirMediaModal({{ publicacion.id }}, {{ forloop.counter0 }})">
+                
+                <!-- Overlay +N si es el último y hay más de 5 -->
+                {% if forloop.last and total_media > 5 %}
+                <div class="media-overlay" 
+                     onclick="abrirMediaModal({{ publicacion.id }}, {{ forloop.counter0 }})">
+                    +{{ total_media|add:"-5" }}
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+            
+            <!-- VIDEO -->
+            {% if archivo.tipo == 'video' %}
+            <div class="media-item video-item">
+                <video 
+                    src="{{ archivo.archivo.url }}"
+                    class="w-full h-full object-cover">
+                </video>
+                
+                <!-- Botón de play -->
+                <div class="video-play-overlay" 
+                     onclick="abrirMediaModal({{ publicacion.id }}, {{ forloop.counter0 }})">
+                    <svg class="w-16 h-16 text-white" fill="currentColor" viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="10" fill="white" fill-opacity="0.9"/>
+                        <path d="M8 5v14l11-7z" fill="#000"/>
+                    </svg>
+                </div>
+                
+                <!-- Overlay +N si es el último y hay más de 5 -->
+                {% if forloop.last and total_media > 5 %}
+                <div class="media-overlay" 
+                     onclick="abrirMediaModal({{ publicacion.id }}, {{ forloop.counter0 }})">
+                    +{{ total_media|add:"-5" }}
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+            
+        {% endfor %}
+    </div>
+    
+    <!-- Inicializar archivos de la publicación en JavaScript -->
+    <script>
+        inicializarMediaPublicacion({{ publicacion.id }}, [
+            {% for archivo in publicacion.archivos.all %}
+            {
+                tipo: '{{ archivo.tipo }}',
+                url: '{{ archivo.archivo.url }}',
+                alt: '{{ publicacion.titulo|escapejs }}'
+            }{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ]);
+    </script>
+    
+    {% endwith %}
+{% endif %}
                     <!-- Acciones -->
                     <div class="flex justify-around mt-4 pt-4 border-t border-gray-200 text-gray-600">
                         <button class="flex items-center space-x-2 hover:text-blue-600 transition">
@@ -738,6 +1050,147 @@ style.textContent = `
     }
 `;
 document.head.appendChild(style);
+</script>
+<script>
+// ============================================
+// SISTEMA DE MODALES PARA MEDIA
+// ============================================
+
+const publicacionesMedia = {};
+
+function inicializarMediaPublicacion(publicacionId, archivos) {
+    publicacionesMedia[publicacionId] = archivos;
+}
+
+function abrirMediaModal(publicacionId, index) {
+    const archivos = publicacionesMedia[publicacionId];
+    if (!archivos || !archivos[index]) return;
+    
+    const archivo = archivos[index];
+    const modal = crearModalMedia(publicacionId, index, archivos.length);
+    
+    document.body.appendChild(modal);
+    document.body.style.overflow = 'hidden';
+    
+    cargarArchivoEnModal(modal, archivo);
+}
+
+function crearModalMedia(publicacionId, indexActual, totalArchivos) {
+    const modal = document.createElement('div');
+    modal.className = 'modal-media';
+    modal.dataset.publicacionId = publicacionId;
+    modal.dataset.currentIndex = indexActual;
+    
+    modal.onclick = (e) => {
+        if (e.target === modal) cerrarModal(modal);
+    };
+    
+    modal.innerHTML = `
+        <button class="modal-close-btn" onclick="cerrarModal(this.parentElement)">×</button>
+        
+        ${totalArchivos > 1 ? `
+            <div class="modal-counter">
+                <span id="modal-counter-text">${indexActual + 1} / ${totalArchivos}</span>
+            </div>
+            
+            <button class="modal-nav-btn prev" onclick="navegarMedia(this, -1)">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7"/>
+                </svg>
+            </button>
+            
+            <button class="modal-nav-btn next" onclick="navegarMedia(this, 1)">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"/>
+                </svg>
+            </button>
+        ` : ''}
+        
+        <div id="modal-content-container"></div>
+    `;
+    
+    return modal;
+}
+
+function cargarArchivoEnModal(modal, archivo) {
+    const container = modal.querySelector('#modal-content-container');
+    
+    if (archivo.tipo === 'imagen') {
+        container.innerHTML = `
+            <img src="${archivo.url}" 
+                 alt="${archivo.alt || 'Imagen'}"
+                 onclick="event.stopPropagation()">
+        `;
+    } else if (archivo.tipo === 'video') {
+        container.innerHTML = `
+            <video controls autoplay onclick="event.stopPropagation()">
+                <source src="${archivo.url}" type="video/mp4">
+                <source src="${archivo.url}" type="video/webm">
+                <source src="${archivo.url}" type="video/ogg">
+            </video>
+        `;
+    }
+}
+
+function navegarMedia(btn, direccion) {
+    const modal = btn.closest('.modal-media');
+    const publicacionId = modal.dataset.publicacionId;
+    const archivos = publicacionesMedia[publicacionId];
+    let indexActual = parseInt(modal.dataset.currentIndex);
+    
+    indexActual += direccion;
+    
+    if (indexActual < 0 || indexActual >= archivos.length) return;
+    
+    modal.dataset.currentIndex = indexActual;
+    
+    const counter = modal.querySelector('#modal-counter-text');
+    if (counter) {
+        counter.textContent = `${indexActual + 1} / ${archivos.length}`;
+    }
+    
+    actualizarBotonesNavegacion(modal, indexActual, archivos.length);
+    cargarArchivoEnModal(modal, archivos[indexActual]);
+}
+
+function actualizarBotonesNavegacion(modal, indexActual, totalArchivos) {
+    const btnPrev = modal.querySelector('.modal-nav-btn.prev');
+    const btnNext = modal.querySelector('.modal-nav-btn.next');
+    
+    if (btnPrev) btnPrev.disabled = indexActual === 0;
+    if (btnNext) btnNext.disabled = indexActual === totalArchivos - 1;
+}
+
+function cerrarModal(modal) {
+    const videos = modal.querySelectorAll('video');
+    videos.forEach(video => {
+        video.pause();
+        video.currentTime = 0;
+    });
+    
+    modal.remove();
+    document.body.style.overflow = 'auto';
+}
+
+// Atajos de teclado
+document.addEventListener('keydown', (e) => {
+    const modal = document.querySelector('.modal-media');
+    if (!modal) return;
+    
+    switch(e.key) {
+        case 'Escape':
+            cerrarModal(modal);
+            break;
+        case 'ArrowLeft':
+            const btnPrev = modal.querySelector('.modal-nav-btn.prev');
+            if (btnPrev && !btnPrev.disabled) navegarMedia(btnPrev, -1);
+            break;
+        case 'ArrowRight':
+            const btnNext = modal.querySelector('.modal-nav-btn.next');
+            if (btnNext && !btnNext.disabled) navegarMedia(btnNext, 1);
+            break;
+    }
+});
 </script>
 </body>
 </html>

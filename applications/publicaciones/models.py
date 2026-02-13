@@ -1,9 +1,10 @@
 from django.db import models
 from applications.registro.models import Bienestar
-from django.contrib.auth.models import User
-from django.conf import settings
 
 class Publicacion(models.Model):
+    """
+    Modelo de Publicación - CORREGIDO para usar Bienestar directamente
+    """
     CATEGORIA_CHOICES = [
         ('salud', 'Salud'),
         ('bienestar', 'Bienestar'),
@@ -12,10 +13,10 @@ class Publicacion(models.Model):
         ('otro', 'Otro'),
     ]
     
-    # Campo autor usando Bienestar
+    # Campo autor usando Bienestar DIRECTAMENTE
     autor = models.ForeignKey(
-        Bienestar, 
-        on_delete=models.CASCADE, 
+        Bienestar,
+        on_delete=models.CASCADE,
         related_name='publicaciones'
     )
     
@@ -53,13 +54,11 @@ class ArchivoPublicacion(models.Model):
     publicacion = models.ForeignKey(
         Publicacion,
         on_delete=models.CASCADE,
-        related_name='archivos',
-        null=True,
-        blank=True,
+        related_name='archivos'
     )
     tipo = models.CharField(max_length=10, choices=TIPO_CHOICES)
     archivo = models.FileField(upload_to='publicaciones/%Y/%m/%d/')
-    orden = models.PositiveIntegerField(default=0)  # Para ordenar los archivos
+    orden = models.PositiveIntegerField(default=0)
     fecha_subida = models.DateTimeField(auto_now_add=True)
     
     class Meta:
@@ -81,15 +80,15 @@ class ArchivoPublicacion(models.Model):
 
 class Like(models.Model):
     """
-    Sistema de likes - usando Bienestar en lugar de User
+    Sistema de likes - usando Bienestar
     """
     publicacion = models.ForeignKey(
-        Publicacion, 
+        Publicacion,
         on_delete=models.CASCADE,
         related_name='likes'
     )
     usuario = models.ForeignKey(
-        Bienestar,  # CAMBIADO: Usar Bienestar en lugar de User
+        Bienestar,
         on_delete=models.CASCADE
     )
     creado = models.DateTimeField(auto_now_add=True)
@@ -104,13 +103,16 @@ class Like(models.Model):
 
 
 class Comentario(models.Model):
+    """
+    Sistema de comentarios - usando Bienestar
+    """
     publicacion = models.ForeignKey(
         Publicacion,
         related_name='comentarios',
         on_delete=models.CASCADE
     )
     autor = models.ForeignKey(
-        Bienestar,  # CAMBIADO: Usar Bienestar en lugar de User
+        Bienestar,
         on_delete=models.CASCADE
     )
     contenido = models.TextField()

@@ -975,7 +975,7 @@ document.head.appendChild(style);
 
 <script>
 // ===================================
-// VARIABLES GLOBALES
+// BÚSQUEDA DE USUARIOS MEJORADA
 // ===================================
 const searchInput = document.getElementById('searchInput');
 const mobileSearchInput = document.getElementById('mobileSearchInput');
@@ -1000,14 +1000,9 @@ let searchTimeout;
 let currentQuery = '';
 let isMobile = false;
 
-// ===================================
-// INICIALIZACIÓN
-// ===================================
 document.addEventListener('DOMContentLoaded', function() {
-    // Cargar historial al inicio
     cargarHistorial();
     
-    // Event listeners DESKTOP
     if (searchInput) {
         searchInput.addEventListener('input', (e) => manejarBusqueda(e, false));
         searchInput.addEventListener('focus', () => mostrarPanel(false));
@@ -1021,7 +1016,6 @@ document.addEventListener('DOMContentLoaded', function() {
         clearHistoryBtn.addEventListener('click', limpiarHistorialCompleto);
     }
     
-    // Event listeners MOBILE
     if (mobileSearchInput) {
         mobileSearchInput.addEventListener('input', (e) => manejarBusqueda(e, true));
         mobileSearchInput.addEventListener('focus', () => mostrarPanel(true));
@@ -1035,13 +1029,10 @@ document.addEventListener('DOMContentLoaded', function() {
         clearMobileHistoryBtn.addEventListener('click', limpiarHistorialCompleto);
     }
     
-    // Cerrar panel al hacer click fuera
     document.addEventListener('click', function(e) {
-        // Desktop
         if (searchPanel && !searchPanel.contains(e.target) && !searchInput.contains(e.target)) {
             ocultarPanel(false);
         }
-        // Mobile
         if (mobileSearchPanel && !mobileSearchPanel.contains(e.target) && 
             !mobileSearchInput.contains(e.target) && !document.getElementById('mobileSearchBox').contains(e.target)) {
             ocultarPanel(true);
@@ -1049,15 +1040,11 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// ===================================
-// FUNCIÓN PRINCIPAL DE BÚSQUEDA
-// ===================================
 function manejarBusqueda(e, mobile) {
     const query = e.target.value.trim();
     currentQuery = query;
     isMobile = mobile;
     
-    // Mostrar/ocultar botón limpiar
     const clearBtn = mobile ? clearMobileSearchBtn : clearSearchBtn;
     if (query.length > 0) {
         clearBtn?.classList.remove('hidden');
@@ -1065,32 +1052,24 @@ function manejarBusqueda(e, mobile) {
         clearBtn?.classList.add('hidden');
     }
     
-    // Cancelar búsqueda anterior
     clearTimeout(searchTimeout);
     
     if (query.length === 0) {
-        // Si está vacío, mostrar historial
         cargarHistorial();
         return;
     }
     
     if (query.length < 2) {
-        // Mínimo 2 caracteres
         return;
     }
     
-    // Mostrar loading
     mostrarLoading(mobile);
     
-    // Debounce: esperar 300ms antes de buscar
     searchTimeout = setTimeout(() => {
         realizarBusqueda(query);
     }, 300);
 }
 
-// ===================================
-// REALIZAR BÚSQUEDA EN EL SERVIDOR
-// ===================================
 async function realizarBusqueda(query) {
     try {
         const response = await fetch(`/busqueda/usuarios/?q=${encodeURIComponent(query)}`);
@@ -1116,9 +1095,6 @@ async function realizarBusqueda(query) {
     }
 }
 
-// ===================================
-// MOSTRAR RESULTADOS
-// ===================================
 function mostrarResultados(resultados, query, mobile) {
     const resultsContainer = mobile ? mobileSearchResults : searchResults;
     const noResultsDiv = mobile ? mobileNoResults : noResults;
@@ -1129,14 +1105,12 @@ function mostrarResultados(resultados, query, mobile) {
     resultsContainer?.classList.remove('hidden');
     
     const html = resultados.map(usuario => {
-        // Resaltar el texto coincidente
         const nombreResaltado = resaltarTexto(usuario.nombre, query);
         
         return `
             <div class="p-4 border-b border-gray-100 cursor-pointer transition-all duration-150 hover:bg-gray-50 active:bg-gray-100"
                  onclick="seleccionarUsuario('${usuario.id}', '${escapeHtml(usuario.nombre)}', '${usuario.tipo}')">
                 <div class="flex items-center gap-3">
-                    <!-- Foto de perfil -->
                     ${usuario.foto 
                         ? `<img src="${usuario.foto}" alt="${escapeHtml(usuario.nombre)}" class="w-12 h-12 rounded-full object-cover flex-shrink-0 border-2 border-gray-200">`
                         : `<div class="w-12 h-12 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-white text-xl flex-shrink-0 shadow-md">
@@ -1144,7 +1118,6 @@ function mostrarResultados(resultados, query, mobile) {
                            </div>`
                     }
                     
-                    <!-- Información -->
                     <div class="flex-1 min-w-0">
                         <p class="font-semibold text-gray-800 truncate">${nombreResaltado}</p>
                         <div class="flex items-center gap-2 text-sm text-gray-500 mt-0.5">
@@ -1158,7 +1131,6 @@ function mostrarResultados(resultados, query, mobile) {
                         </div>
                     </div>
                     
-                    <!-- Icono de ir -->
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" 
                          class="w-5 h-5 text-gray-400 flex-shrink-0">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
@@ -1173,9 +1145,6 @@ function mostrarResultados(resultados, query, mobile) {
     }
 }
 
-// ===================================
-// CARGAR HISTORIAL
-// ===================================
 async function cargarHistorial() {
     try {
         const response = await fetch('/busqueda/historial/');
@@ -1194,20 +1163,15 @@ async function cargarHistorial() {
     }
 }
 
-// ===================================
-// MOSTRAR HISTORIAL
-// ===================================
 function mostrarHistorialResultados(historial) {
     const html = historial.map(usuario => `
         <div class="p-4 border-b border-gray-100 flex items-center gap-3">
-            <!-- Icono de historial -->
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" 
                  class="w-5 h-5 text-gray-400 flex-shrink-0">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
                       d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
             
-            <!-- Usuario clickeable -->
             <div class="flex-1 flex items-center gap-3 cursor-pointer min-w-0 hover:opacity-75 transition-opacity duration-150"
                  onclick="seleccionarUsuario('${usuario.id}', '${escapeHtml(usuario.nombre)}', '${usuario.tipo}')">
                 ${usuario.foto 
@@ -1223,7 +1187,6 @@ function mostrarHistorialResultados(historial) {
                 </div>
             </div>
             
-            <!-- Botón eliminar -->
             <button onclick="eliminarDelHistorial(event, '${usuario.id}')" 
                     class="p-2 hover:bg-gray-100 rounded-full transition-colors duration-150 flex-shrink-0 active:bg-gray-200">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" 
@@ -1234,7 +1197,6 @@ function mostrarHistorialResultados(historial) {
         </div>
     `).join('');
     
-    // Actualizar ambos paneles
     if (searchResults) {
         noResults?.classList.add('hidden');
         emptyHistory?.classList.add('hidden');
@@ -1250,11 +1212,8 @@ function mostrarHistorialResultados(historial) {
     }
 }
 
-// ===================================
-// SELECCIONAR USUARIO
-// ===================================
+// ✅ CORRECCIÓN: Ahora redirige correctamente al perfil
 async function seleccionarUsuario(id, nombre, tipo) {
-    // Guardar en historial
     try {
         await fetch('/busqueda/guardar/', {
             method: 'POST',
@@ -1272,22 +1231,21 @@ async function seleccionarUsuario(id, nombre, tipo) {
         console.error('Error guardando en historial:', error);
     }
     
-    // Redirigir al perfil del usuario
-    let url;
-    if (tipo === 'bienestar') {
-        // Para bienestar, mostrar sus publicaciones
-        url = `/perfil/ver/${id}/?mostrar_publicaciones=true`;
-    } else {
-        // Para aprendiz e instructor, mostrar perfil normal
-        url = `/perfil/ver/${id}/`;
+    // ✅ OBTENER EL DOCUMENTO DEL USUARIO PARA REDIRIGIR
+    try {
+        const response = await fetch(`/busqueda/obtener-documento/${id}/`);
+        const data = await response.json();
+        
+        if (data.documento) {
+            window.location.href = `/perfil/ver/${data.documento}/`;
+        } else {
+            console.error('No se pudo obtener el documento del usuario');
+        }
+    } catch (error) {
+        console.error('Error obteniendo documento:', error);
     }
-    
-    window.location.href = url;
 }
 
-// ===================================
-// ELIMINAR DEL HISTORIAL
-// ===================================
 async function eliminarDelHistorial(event, usuarioId) {
     event.stopPropagation();
     
@@ -1311,9 +1269,6 @@ async function eliminarDelHistorial(event, usuarioId) {
     }
 }
 
-// ===================================
-// LIMPIAR TODO EL HISTORIAL
-// ===================================
 async function limpiarHistorialCompleto() {
     if (!confirm('¿Estás seguro de que quieres limpiar todo el historial?')) {
         return;
@@ -1335,9 +1290,6 @@ async function limpiarHistorialCompleto() {
     }
 }
 
-// ===================================
-// FUNCIONES DE UI
-// ===================================
 function mostrarPanel(mobile) {
     if (mobile) {
         mobileSearchPanel?.classList.remove('hidden');
@@ -1430,12 +1382,8 @@ function limpiarBusqueda(mobile) {
     cargarHistorial();
 }
 
-// ===================================
-// FUNCIONES AUXILIARES
-// ===================================
 function resaltarTexto(texto, query) {
     if (!query) return escapeHtml(texto);
-    
     const regex = new RegExp(`(${escapeRegex(query)})`, 'gi');
     return escapeHtml(texto).replace(regex, '<span class="bg-yellow-200 font-semibold px-0.5 rounded">$1</span>');
 }
@@ -1462,21 +1410,6 @@ function escapeHtml(text) {
 
 function escapeRegex(text) {
     return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
-
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
 }
 </script>
 </body>

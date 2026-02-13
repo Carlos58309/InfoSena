@@ -117,83 +117,83 @@
                         <p class="text-sm text-gray-500 mt-1">Mínimo 20 caracteres</p>
                     </div>
 
-                    
-<!-- Imágenes (Múltiples) -->
-<div>
-    <label for="imagenes" class="block text-sm font-semibold text-gray-700 mb-2">
-        📷 Imágenes (opcional - máx. 10)
-    </label>
-    <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:border-green-500 transition">
-        <div class="space-y-1 text-center w-full">
-            <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
-                <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-            </svg>
-            <div class="flex text-sm text-gray-600 justify-center">
-                <label for="imagenes" class="relative cursor-pointer bg-white rounded-md font-medium text-green-600 hover:text-green-500 focus-within:outline-none">
-                    <span>Selecciona imágenes</span>
-                    <input id="imagenes" 
-                           name="imagenes" 
-                           type="file" 
-                           accept="image/*" 
-                           multiple 
-                           class="sr-only">
-                </label>
-                <p class="pl-1">o arrastra y suelta</p>
-            </div>
-            <p class="text-xs text-gray-500">PNG, JPG, GIF hasta 10MB cada una</p>
-            <p class="text-xs font-semibold text-green-600">Puedes seleccionar múltiples imágenes</p>
-        </div>
-    </div>
-    
-    <!-- Preview de imágenes -->
-    <div id="imagePreviewContainer" class="mt-4 grid grid-cols-2 md:grid-cols-3 gap-4 hidden">
-        <!-- Las previsualizaciones se agregarán aquí dinámicamente -->
-    </div>
-</div>
+                    <!-- Imágenes (Múltiples) -->
+                    <div>
+                        <label for="imagenes" class="block text-sm font-semibold text-gray-700 mb-2">
+                            📷 Imágenes (opcional - máx. 10)
+                        </label>
+                        <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:border-green-500 transition">
+                            <div class="space-y-1 text-center w-full">
+                                <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                                    <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                                <div class="flex text-sm text-gray-600 justify-center">
+                                    <label for="imagenes" class="relative cursor-pointer bg-white rounded-md font-medium text-green-600 hover:text-green-500 focus-within:outline-none">
+                                        <span>Selecciona imágenes</span>
+                                        <input id="imagenes" 
+                                               name="imagenes" 
+                                               type="file" 
+                                               accept="image/jpeg,image/jpg,image/png,image/gif,image/webp" 
+                                               multiple 
+                                               class="sr-only">
+                                    </label>
+                                    <p class="pl-1">o arrastra y suelta</p>
+                                </div>
+                                <p class="text-xs text-gray-500">PNG, JPG, GIF, WEBP hasta 10MB cada una</p>
+                                <p class="text-xs font-semibold text-green-600">Puedes seleccionar múltiples imágenes</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Preview de imágenes -->
+                        <div id="imagePreviewContainer" class="mt-4 grid grid-cols-2 md:grid-cols-3 gap-4 hidden">
+                            <!-- Las previsualizaciones se agregarán aquí dinámicamente -->
+                        </div>
+                    </div>
 
-<!-- Videos (Múltiples) -->
-<div>
-    <label for="videos" class="block text-sm font-semibold text-gray-700 mb-2">
-        🎥 Videos (opcional - máx. 5)
-    </label>
-    <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-purple-300 border-dashed rounded-lg hover:border-purple-500 transition">
-        <div class="space-y-1 text-center w-full">
-            <svg class="mx-auto h-12 w-12 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
-            </svg>
-            <div class="flex text-sm text-gray-600 justify-center">
-                <label for="videos" class="relative cursor-pointer bg-white rounded-md font-medium text-purple-600 hover:text-purple-500 focus-within:outline-none">
-                    <span>Selecciona videos</span>
-                    <input id="videos" 
-                           name="videos" 
-                           type="file" 
-                           accept="video/*" 
-                           multiple 
-                           class="sr-only">
-                </label>
-                <p class="pl-1">o arrastra y suelta</p>
-            </div>
-            <p class="text-xs text-gray-500">MP4, AVI, MOV hasta 50MB cada uno</p>
-            <p class="text-xs font-semibold text-purple-600">Puedes seleccionar múltiples videos</p>
-        </div>
-    </div>
-    
-    <!-- Preview de videos -->
-    <div id="videoPreviewContainer" class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4 hidden">
-        <!-- Las previsualizaciones se agregarán aquí dinámicamente -->
-    </div>
-</div>
+                    <!-- Videos (Múltiples) -->
+                    <div>
+                        <label for="videos" class="block text-sm font-semibold text-gray-700 mb-2">
+                            🎥 Videos (opcional - máx. 5)
+                        </label>
+                        <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-purple-300 border-dashed rounded-lg hover:border-purple-500 transition">
+                            <div class="space-y-1 text-center w-full">
+                                <svg class="mx-auto h-12 w-12 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                                </svg>
+                                <div class="flex text-sm text-gray-600 justify-center">
+                                    <label for="videos" class="relative cursor-pointer bg-white rounded-md font-medium text-purple-600 hover:text-purple-500 focus-within:outline-none">
+                                        <span>Selecciona videos</span>
+                                        <input id="videos" 
+                                               name="videos" 
+                                               type="file" 
+                                               accept="video/mp4,video/avi,video/mov,video/wmv,video/webm" 
+                                               multiple 
+                                               class="sr-only">
+                                    </label>
+                                    <p class="pl-1">o arrastra y suelta</p>
+                                </div>
+                                <p class="text-xs text-gray-500">MP4, AVI, MOV, WEBM hasta 50MB cada uno</p>
+                                <p class="text-xs font-semibold text-purple-600">Puedes seleccionar múltiples videos</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Preview de videos -->
+                        <div id="videoPreviewContainer" class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4 hidden">
+                            <!-- Las previsualizaciones se agregarán aquí dinámicamente -->
+                        </div>
+                    </div>
 
-<!-- Contador de archivos -->
-<div id="fileCounter" class="hidden bg-blue-50 border-l-4 border-blue-500 p-4 rounded-lg">
-    <p class="text-sm text-blue-700">
-        📊 <span id="imageCount">0</span> imagen(es) y <span id="videoCount">0</span> video(s) seleccionado(s)
-    </p>
-</div>
+                    <!-- Contador de archivos -->
+                    <div id="fileCounter" class="hidden bg-blue-50 border-l-4 border-blue-500 p-4 rounded-lg">
+                        <p class="text-sm text-blue-700">
+                            📊 <span id="imageCount">0</span> imagen(es) y <span id="videoCount">0</span> video(s) seleccionado(s)
+                        </p>
+                    </div>
 
                     <!-- Botones -->
                     <div class="flex gap-4 pt-4">
                         <button type="submit"
+                                id="submitBtn"
                                 class="flex-1 px-6 py-3 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition shadow-md">
                             ✅ Publicar
                         </button>
@@ -218,8 +218,7 @@
             </div>
         </div>
     </div>
-    
-    
+
 <script>
     // Ocultar mensajes después de 5 segundos
     setTimeout(() => {
@@ -232,34 +231,60 @@
     }, 4000);
 
     // ================================================================
-    // SISTEMA DE PREVIEW SIN INTERFERIR CON EL ENVÍO
+    // SISTEMA DE PREVIEW Y VALIDACIÓN
     // ================================================================
     
+    const MAX_IMAGES = 10;
+    const MAX_VIDEOS = 5;
+    const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10MB
+    const MAX_VIDEO_SIZE = 50 * 1024 * 1024; // 50MB
+
     // Preview de múltiples imágenes
     document.getElementById('imagenes').addEventListener('change', function(event) {
         const container = document.getElementById('imagePreviewContainer');
-        const files = event.target.files;
+        const files = Array.from(event.target.files);
+        
+        console.log(`📷 Imágenes seleccionadas: ${files.length}`);
         
         // Validar cantidad
-        if (files.length > 10) {
-            alert('⚠️ Máximo 10 imágenes permitidas');
+        if (files.length > MAX_IMAGES) {
+            alert(`⚠️ Máximo ${MAX_IMAGES} imágenes permitidas`);
             event.target.value = '';
+            container.innerHTML = '';
+            container.classList.add('hidden');
+            updateFileCounter();
             return;
         }
         
+        // Validar tamaño
+        for (let file of files) {
+            if (file.size > MAX_IMAGE_SIZE) {
+                alert(`⚠️ La imagen "${file.name}" excede el tamaño máximo de 10MB`);
+                event.target.value = '';
+                container.innerHTML = '';
+                container.classList.add('hidden');
+                updateFileCounter();
+                return;
+            }
+            console.log(`   - ${file.name}: ${(file.size / 1024 / 1024).toFixed(2)} MB`);
+        }
+        
+        // Mostrar previsualizaciones
         if (files.length > 0) {
             container.innerHTML = '';
             container.classList.remove('hidden');
             
-            Array.from(files).forEach((file, index) => {
+            files.forEach((file, index) => {
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     const div = document.createElement('div');
                     div.className = 'relative group';
                     div.innerHTML = `
                         <img src="${e.target.result}" 
-                             class="w-full h-40 object-cover rounded-lg shadow-md border-2 border-gray-200 group-hover:border-green-500 transition">
+                             class="w-full h-40 object-cover rounded-lg shadow-md border-2 border-gray-200 group-hover:border-green-500 transition"
+                             alt="${file.name}">
                         <p class="text-xs text-gray-600 mt-1 text-center truncate">${file.name}</p>
+                        <p class="text-xs text-gray-500 text-center">${(file.size / 1024 / 1024).toFixed(2)} MB</p>
                     `;
                     container.appendChild(div);
                 };
@@ -273,20 +298,39 @@
     // Preview de múltiples videos
     document.getElementById('videos').addEventListener('change', function(event) {
         const container = document.getElementById('videoPreviewContainer');
-        const files = event.target.files;
+        const files = Array.from(event.target.files);
+        
+        console.log(`🎥 Videos seleccionados: ${files.length}`);
         
         // Validar cantidad
-        if (files.length > 5) {
-            alert('⚠️ Máximo 5 videos permitidos');
+        if (files.length > MAX_VIDEOS) {
+            alert(`⚠️ Máximo ${MAX_VIDEOS} videos permitidos`);
             event.target.value = '';
+            container.innerHTML = '';
+            container.classList.add('hidden');
+            updateFileCounter();
             return;
         }
         
+        // Validar tamaño
+        for (let file of files) {
+            if (file.size > MAX_VIDEO_SIZE) {
+                alert(`⚠️ El video "${file.name}" excede el tamaño máximo de 50MB`);
+                event.target.value = '';
+                container.innerHTML = '';
+                container.classList.add('hidden');
+                updateFileCounter();
+                return;
+            }
+            console.log(`   - ${file.name}: ${(file.size / 1024 / 1024).toFixed(2)} MB`);
+        }
+        
+        // Mostrar previsualizaciones
         if (files.length > 0) {
             container.innerHTML = '';
             container.classList.remove('hidden');
             
-            Array.from(files).forEach((file, index) => {
+            files.forEach((file, index) => {
                 const div = document.createElement('div');
                 div.className = 'relative group';
                 
@@ -298,6 +342,7 @@
                         Tu navegador no soporta el elemento de video.
                     </video>
                     <p class="text-xs text-gray-600 mt-1 text-center truncate">${file.name}</p>
+                    <p class="text-xs text-gray-500 text-center">${(file.size / 1024 / 1024).toFixed(2)} MB</p>
                 `;
                 container.appendChild(div);
             });
@@ -323,6 +368,8 @@
         } else {
             counter.classList.add('hidden');
         }
+        
+        console.log(`📊 Contador actualizado: ${imagenes} imagen(es), ${videos} video(s)`);
     }
 
     // Validación del formulario
@@ -335,15 +382,25 @@
             return false;
         }
         
-        // Validar tamaño de archivos
-        const maxImageSize = 10 * 1024 * 1024; // 10MB
-        const maxVideoSize = 50 * 1024 * 1024; // 50MB
-        
         const imagenes = document.getElementById('imagenes').files;
         const videos = document.getElementById('videos').files;
         
+        // Validar cantidad
+        if (imagenes.length > MAX_IMAGES) {
+            e.preventDefault();
+            alert(`⚠️ Máximo ${MAX_IMAGES} imágenes permitidas`);
+            return false;
+        }
+        
+        if (videos.length > MAX_VIDEOS) {
+            e.preventDefault();
+            alert(`⚠️ Máximo ${MAX_VIDEOS} videos permitidos`);
+            return false;
+        }
+        
+        // Validar tamaño de archivos
         for (let imagen of imagenes) {
-            if (imagen.size > maxImageSize) {
+            if (imagen.size > MAX_IMAGE_SIZE) {
                 e.preventDefault();
                 alert(`⚠️ La imagen "${imagen.name}" excede el tamaño máximo de 10MB`);
                 return false;
@@ -351,20 +408,24 @@
         }
         
         for (let video of videos) {
-            if (video.size > maxVideoSize) {
+            if (video.size > MAX_VIDEO_SIZE) {
                 e.preventDefault();
                 alert(`⚠️ El video "${video.name}" excede el tamaño máximo de 50MB`);
                 return false;
             }
         }
         
+        console.log('✅ Validación exitosa, enviando formulario...');
+        console.log(`   - Imágenes: ${imagenes.length}`);
+        console.log(`   - Videos: ${videos.length}`);
+        
         // Mostrar indicador de carga
-        const submitBtn = this.querySelector('button[type="submit"]');
+        const submitBtn = document.getElementById('submitBtn');
         submitBtn.disabled = true;
         submitBtn.innerHTML = '⏳ Publicando...';
         submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
         
-        // NO PREVENIR EL ENVÍO - Dejar que el formulario se envíe normalmente
+        // Permitir que el formulario se envíe
         return true;
     });
 </script>
