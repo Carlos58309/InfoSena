@@ -111,7 +111,8 @@ class Chat(models.Model):
             grupo.participantes.add(*usuarios)
         
         return grupo
-
+    
+    
 
 class Mensaje(models.Model):
     """

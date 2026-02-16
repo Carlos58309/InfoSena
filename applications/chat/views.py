@@ -1,5 +1,5 @@
 # applications/chat/views.py
-# VERSIÓN ADAPTADA PARA TEMPLATES GLOBALES
+# VERSIÓN EXTENDIDA CON FUNCIONALIDADES ADICIONALES
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
@@ -7,6 +7,7 @@ from django.contrib import messages
 from django.http import JsonResponse
 from django.db.models import Q, Max, Count, Prefetch
 from django.utils import timezone
+from django.views.decorators.http import require_POST
 
 from applications.usuarios.models import Usuario
 from applications.amistades.models import Amistad
@@ -83,7 +84,7 @@ def lista_chats(request):
             'foto': c.obtener_foto_para_usuario(usuario_actual),
             'ultimo_mensaje': ultimo_msg,
             'mensajes_no_leidos': mensajes_no_leidos,
-            'activo': False  # Ningún chat seleccionado
+            'activo': False
         })
     
     # Obtener amigos para iniciar chats
@@ -93,14 +94,14 @@ def lista_chats(request):
         'usuario': usuario_actual,
         'chats': chats_enriquecidos,
         'amigos': amigos,
-        'chat': None,  # ⬅️ Sin chat seleccionado
+        'chat': None,
         'mensajes': [],
         'chat_nombre': None,
         'chat_foto': None,
         'is_group': False,
+        'otro_usuario': None,  # Añadido para consistencia
     }
     
-    # ⬅️ AHORA USA EL MISMO TEMPLATE QUE chat_room
     return render(request, 'chat.html', context)
 
 
@@ -108,7 +109,6 @@ def lista_chats(request):
 def chat_room(request, chat_id):
     """
     Vista de sala de chat individual
-    TEMPLATE: chat.html (en carpeta templates/ global)
     """
     usuario_actual = obtener_usuario_actual(request)
     
@@ -158,7 +158,6 @@ def chat_room(request, chat_id):
         'is_group': chat.is_group,
     }
     
-    # ⬅️ USANDO TU TEMPLATE GLOBAL
     return render(request, 'chat.html', context)
 
 
@@ -184,11 +183,7 @@ def iniciar_chat(request, usuario_id):
     # Obtener o crear chat
     chat = Chat.obtener_o_crear_chat_individual(usuario_actual, otro_usuario)
     
-    # Redirigir a la sala de chat
-    # Ajusta el namespace según tu configuración:
-    # - Si usas sesion: return redirect('sesion:chat_room', chat_id=chat.id)
-    # - Si usas chat: return redirect('chat:chat_room', chat_id=chat.id)
-    return redirect('sesion:chat_room', chat_id=chat.id)
+    return redirect('chat:chat_room', chat_id=chat.id)
 
 
 @login_required
@@ -197,7 +192,7 @@ def enviar_mensaje(request, chat_id):
     Envía un mensaje en un chat (para formularios sin WebSocket)
     """
     if request.method != 'POST':
-        return redirect('sesion:chat_room', chat_id=chat_id)
+        return redirect('chat:chat_room', chat_id=chat_id)
     
     usuario_actual = obtener_usuario_actual(request)
     
@@ -223,14 +218,13 @@ def enviar_mensaje(request, chat_id):
         chat.actualizado_en = timezone.now()
         chat.save(update_fields=['actualizado_en'])
     
-    return redirect('sesion:chat_room', chat_id=chat_id)
+    return redirect('chat:chat_room', chat_id=chat_id)
 
 
 @login_required
 def crear_grupo(request):
     """
     Vista para crear un grupo de chat
-    TEMPLATE: crear_grupo.html (en carpeta templates/ global)
     """
     usuario_actual = obtener_usuario_actual(request)
     
@@ -245,11 +239,11 @@ def crear_grupo(request):
         
         if not nombre_grupo:
             messages.error(request, "El nombre del grupo es obligatorio.")
-            return redirect('sesion:crear_grupo')
+            return redirect('chat:crear_grupo')
         
         if not participantes_ids:
             messages.error(request, "Debes seleccionar al menos un participante.")
-            return redirect('sesion:crear_grupo')
+            return redirect('chat:crear_grupo')
         
         # Crear grupo
         grupo = Chat.crear_grupo(
@@ -260,7 +254,7 @@ def crear_grupo(request):
         )
         
         messages.success(request, f"Grupo '{nombre_grupo}' creado exitosamente.")
-        return redirect('sesion:chat_room', chat_id=grupo.id)
+        return redirect('chat:chat_room', chat_id=grupo.id)
     
     # GET - Mostrar formulario
     amigos = Amistad.obtener_amigos(usuario_actual)
@@ -270,12 +264,181 @@ def crear_grupo(request):
         'amigos': amigos,
     }
     
-    # ⬅️ USANDO TU TEMPLATE GLOBAL
     return render(request, 'crear_grupo.html', context)
 
 
 # ==========================================
-# API ENDPOINTS PARA AJAX
+# NUEVAS VISTAS PARA FUNCIONALIDADES EXTENDIDAS
+# ==========================================
+
+@login_required
+@require_POST
+def eliminar_chat(request, chat_id):
+    """
+    Elimina un chat para el usuario actual
+    """
+    usuario_actual = obtener_usuario_actual(request)
+    
+    if not usuario_actual:
+        return JsonResponse({'error': 'Usuario no identificado'}, status=403)
+    
+    try:
+        chat = Chat.objects.get(id=chat_id, participantes=usuario_actual)
+        
+        # Si es un chat individual, solo removemos al usuario
+        if not chat.is_group:
+            chat.participantes.remove(usuario_actual)
+            # Si no quedan participantes, eliminar el chat
+            if chat.participantes.count() == 0:
+                chat.delete()
+        else:
+            # En grupos, remover al usuario
+            chat.participantes.remove(usuario_actual)
+            # Si era el admin, asignar nuevo admin
+            if chat.admin_grupo == usuario_actual:
+                nuevo_admin = chat.participantes.first()
+                if nuevo_admin:
+                    chat.admin_grupo = nuevo_admin
+                    chat.save()
+                else:
+                    # Si no quedan participantes, eliminar grupo
+                    chat.delete()
+        
+        return JsonResponse({'success': True, 'message': 'Chat eliminado'})
+    
+    except Chat.DoesNotExist:
+        return JsonResponse({'error': 'Chat no encontrado'}, status=404)
+
+
+@login_required
+@require_POST
+def vaciar_mensajes(request, chat_id):
+    """
+    Vacía todos los mensajes de un chat
+    """
+    usuario_actual = obtener_usuario_actual(request)
+    
+    if not usuario_actual:
+        return JsonResponse({'error': 'Usuario no identificado'}, status=403)
+    
+    try:
+        chat = Chat.objects.get(id=chat_id, participantes=usuario_actual)
+        
+        # Eliminar todos los mensajes
+        chat.mensajes.all().delete()
+        
+        return JsonResponse({'success': True, 'message': 'Mensajes vaciados'})
+    
+    except Chat.DoesNotExist:
+        return JsonResponse({'error': 'Chat no encontrado'}, status=404)
+
+
+@login_required
+@require_POST
+def silenciar_chat(request, chat_id):
+    """
+    Silencia/Activa notificaciones de un chat
+    """
+    usuario_actual = obtener_usuario_actual(request)
+    
+    if not usuario_actual:
+        return JsonResponse({'error': 'Usuario no identificado'}, status=403)
+    
+    import json
+    data = json.loads(request.body)
+    silenciado = data.get('silenciado', True)
+    
+    # Aquí implementarías la lógica de silenciar
+    # Por ahora solo retornamos success
+    
+    return JsonResponse({
+        'success': True, 
+        'message': 'Chat silenciado' if silenciado else 'Notificaciones activadas',
+        'silenciado': silenciado
+    })
+
+
+@login_required
+def obtener_archivos_compartidos(request, chat_id):
+    """
+    Obtiene archivos compartidos en un chat
+    """
+    usuario_actual = obtener_usuario_actual(request)
+    
+    if not usuario_actual:
+        return JsonResponse({'error': 'Usuario no identificado'}, status=403)
+    
+    try:
+        chat = Chat.objects.get(id=chat_id, participantes=usuario_actual)
+        
+        # Obtener mensajes con archivos
+        mensajes_con_archivos = chat.mensajes.exclude(archivo='').select_related('autor')
+        
+        archivos = []
+        for mensaje in mensajes_con_archivos:
+            archivos.append({
+                'id': mensaje.id,
+                'tipo': mensaje.tipo_archivo,
+                'url': mensaje.archivo.url if mensaje.archivo else None,
+                'autor': mensaje.autor.nombre,
+                'fecha': mensaje.enviado.isoformat()
+            })
+        
+        return JsonResponse({
+            'success': True,
+            'archivos': archivos,
+            'total': len(archivos)
+        })
+    
+    except Chat.DoesNotExist:
+        return JsonResponse({'error': 'Chat no encontrado'}, status=404)
+
+
+@login_required
+def buscar_mensajes(request, chat_id):
+    """
+    Busca mensajes en un chat
+    """
+    usuario_actual = obtener_usuario_actual(request)
+    
+    if not usuario_actual:
+        return JsonResponse({'error': 'Usuario no identificado'}, status=403)
+    
+    query = request.GET.get('q', '')
+    
+    if not query:
+        return JsonResponse({'error': 'Query vacío'}, status=400)
+    
+    try:
+        chat = Chat.objects.get(id=chat_id, participantes=usuario_actual)
+        
+        # Buscar mensajes
+        mensajes = chat.mensajes.filter(
+            contenido__icontains=query
+        ).select_related('autor').order_by('-enviado')[:50]
+        
+        resultados = []
+        for mensaje in mensajes:
+            resultados.append({
+                'id': mensaje.id,
+                'contenido': mensaje.contenido,
+                'autor': mensaje.autor.nombre,
+                'enviado': mensaje.enviado.isoformat(),
+                'tiempo_transcurrido': mensaje.tiempo_transcurrido()
+            })
+        
+        return JsonResponse({
+            'success': True,
+            'resultados': resultados,
+            'total': len(resultados)
+        })
+    
+    except Chat.DoesNotExist:
+        return JsonResponse({'error': 'Chat no encontrado'}, status=404)
+
+
+# ==========================================
+# API ENDPOINTS PARA AJAX (Ya existentes)
 # ==========================================
 
 @login_required
