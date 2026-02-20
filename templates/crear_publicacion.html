@@ -231,13 +231,160 @@
     }, 4000);
 
     // ================================================================
-    // SISTEMA DE PREVIEW Y VALIDACIÓN
+    // ⭐ SISTEMA DE MODERACIÓN MEJORADO
     // ================================================================
     
+    const PALABRAS_PROHIBIDAS = {
+        // Palabras base con sus variaciones comunes
+        'puta': ['puta', 'put4', 'p.u.t.a', 'pvta', 'pùta', 'pūta'],
+        'puto': ['puto', 'put0', 'p.u.t.o', 'pvto', 'pùto'],
+        'mierda': ['mierda', 'mierd4', 'm13rd4', 'mrda', 'mi3rda', 'miérda', 'm1erda'],
+        'verga': ['verga', 'v3rga', 'verg4', 'vrga', 'v€rga'],
+        'pendejo': ['pendejo', 'pend3jo', 'pendej0', 'pndejo', 'pndjo', 'p3ndejo'],
+        'gonorrea': ['gonorrea', 'gonorr3a', 'gnrr', 'g0n0rr3a'],
+        'hijueputa': ['hijueputa', 'hijuput4', 'hp', 'hdp', 'hijue', 'hijo puta', 'hijo put4'],
+        'malparido': ['malparido', 'malparid0', 'mlprd', 'malprd', 'mal parido'],
+        'marica': ['marica', 'maric4', 'mrc', 'mar1ca'],
+        'maricon': ['maricon', 'maricón', 'maric0n', 'mrcn', 'mar1con'],
+        'cabron': ['cabron', 'cabrón', 'cabr0n', 'cbrn', 'c4bron'],
+        'imbecil': ['imbecil', 'imbécil', 'imbecíl', 'imbcl', '1mbecil'],
+        'estupido': ['estupido', 'estúpido', 'estupid0', 'stpd', '3stupido']
+    };
+
+    const MAX_TEXTO_LENGTH = 5000;
     const MAX_IMAGES = 10;
     const MAX_VIDEOS = 5;
     const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10MB
     const MAX_VIDEO_SIZE = 50 * 1024 * 1024; // 50MB
+
+    // Función mejorada para detectar palabras prohibidas
+    function detectarPalabrasProhibidas(texto) {
+        if (!texto) return [];
+        
+        // Normalizar texto: eliminar tildes, convertir a minúsculas, quitar caracteres especiales
+        const textoNormalizado = texto
+            .toLowerCase()
+            .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // Quitar tildes
+            .replace(/[^a-z0-9\s]/g, ' ') // Reemplazar caracteres especiales con espacios
+            .replace(/\s+/g, ' ') // Normalizar espacios
+            .trim();
+        
+        const palabrasEncontradas = [];
+        
+        // Buscar en cada categoría de palabras prohibidas
+        for (const [palabraBase, variaciones] of Object.entries(PALABRAS_PROHIBIDAS)) {
+            for (const variacion of variaciones) {
+                const variacionNormalizada = variacion
+                    .toLowerCase()
+                    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+                    .replace(/[^a-z0-9\s]/g, ' ')
+                    .replace(/\s+/g, ' ')
+                    .trim();
+                
+                // Buscar como palabra completa o como parte de una palabra
+                const regex = new RegExp(`\\b${variacionNormalizada}\\b|${variacionNormalizada}`, 'gi');
+                
+                if (regex.test(textoNormalizado)) {
+                    if (!palabrasEncontradas.includes(palabraBase)) {
+                        palabrasEncontradas.push(palabraBase);
+                    }
+                }
+            }
+        }
+        
+        return palabrasEncontradas;
+    }
+
+    function mostrarAdvertenciaModeracion(mensaje, tipo = 'warning') {
+        const colores = {
+            'warning': 'bg-yellow-500',
+            'error': 'bg-red-500',
+            'info': 'bg-blue-500'
+        };
+        
+        const advertencia = document.createElement('div');
+        advertencia.className = `fixed top-4 right-4 ${colores[tipo]} text-white px-6 py-3 rounded-lg shadow-lg z-50 max-w-md`;
+        advertencia.innerHTML = `⚠️ ${mensaje}`;
+        document.body.appendChild(advertencia);
+        
+        setTimeout(() => {
+            advertencia.style.transition = 'opacity 0.5s';
+            advertencia.style.opacity = '0';
+            setTimeout(() => advertencia.remove(), 500);
+        }, 5000);
+    }
+
+    // ==========================================
+    // ⭐ VALIDACIÓN EN TIEMPO REAL PARA TÍTULO
+    // ==========================================
+    const tituloInput = document.getElementById('titulo');
+
+    if (tituloInput) {
+        tituloInput.addEventListener('input', function() {
+            const palabrasEncontradas = detectarPalabrasProhibidas(this.value);
+            
+            if (palabrasEncontradas.length > 0) {
+                this.style.borderColor = '#ef4444'; // rojo
+                this.style.boxShadow = '0 0 0 3px rgba(239, 68, 68, 0.1)';
+            } else {
+                this.style.borderColor = '';
+                this.style.boxShadow = '';
+            }
+        });
+    }
+
+    // ==========================================
+    // ⭐ VALIDACIÓN EN TIEMPO REAL PARA CONTENIDO
+    // ==========================================
+    const contenidoTextarea = document.getElementById('contenido');
+
+    if (contenidoTextarea) {
+        // Crear contador y advertencia
+        const contadorDiv = document.createElement('div');
+        contadorDiv.className = 'mt-2 flex justify-between items-center text-sm';
+        contadorDiv.innerHTML = `
+            <span id="advertenciaContenido" class="text-yellow-600 font-medium hidden"></span>
+            <span id="contadorCaracteres" class="text-gray-500">0 / ${MAX_TEXTO_LENGTH}</span>
+        `;
+        contenidoTextarea.parentNode.appendChild(contadorDiv);
+        
+        const advertenciaSpan = document.getElementById('advertenciaContenido');
+        const contadorSpan = document.getElementById('contadorCaracteres');
+        
+        contenidoTextarea.addEventListener('input', function() {
+            const texto = this.value;
+            const longitud = texto.length;
+            
+            // Actualizar contador
+            contadorSpan.textContent = `${longitud} / ${MAX_TEXTO_LENGTH}`;
+            
+            if (longitud > MAX_TEXTO_LENGTH) {
+                contadorSpan.className = 'text-red-600 font-semibold';
+            } else if (longitud > MAX_TEXTO_LENGTH * 0.9) {
+                contadorSpan.className = 'text-yellow-600';
+            } else {
+                contadorSpan.className = 'text-gray-500';
+            }
+            
+            // Detectar palabras prohibidas
+            const palabrasEncontradas = detectarPalabrasProhibidas(texto);
+            
+            if (palabrasEncontradas.length > 0) {
+                advertenciaSpan.textContent = '⚠️ Detectamos lenguaje inapropiado. Por favor, revisa tu texto.';
+                advertenciaSpan.classList.remove('hidden');
+                this.style.borderColor = '#ef4444';
+                this.style.boxShadow = '0 0 0 3px rgba(239, 68, 68, 0.1)';
+            } else {
+                advertenciaSpan.classList.add('hidden');
+                this.style.borderColor = '';
+                this.style.boxShadow = '';
+            }
+        });
+    }
+
+    // ================================================================
+    // SISTEMA DE PREVIEW Y VALIDACIÓN DE ARCHIVOS
+    // ================================================================
 
     // Preview de múltiples imágenes
     document.getElementById('imagenes').addEventListener('change', function(event) {
@@ -372,49 +519,105 @@
         console.log(`📊 Contador actualizado: ${imagenes} imagen(es), ${videos} video(s)`);
     }
 
-    // Validación del formulario
+    // ==========================================
+    // ⭐ VALIDACIÓN COMPLETA DEL FORMULARIO
+    // ==========================================
     document.getElementById('publicacionForm').addEventListener('submit', function(e) {
-        const contenido = document.getElementById('contenido').value;
+        e.preventDefault();
         
-        if (contenido.length < 20) {
-            e.preventDefault();
-            alert('⚠️ El contenido debe tener al menos 20 caracteres');
-            return false;
-        }
-        
+        const titulo = document.getElementById('titulo').value.trim();
+        const contenido = document.getElementById('contenido').value.trim();
         const imagenes = document.getElementById('imagenes').files;
         const videos = document.getElementById('videos').files;
         
-        // Validar cantidad
+        console.log('🔍 Validando formulario...');
+        
+        // ⭐ VALIDACIÓN 1: TÍTULO
+        const palabrasTitulo = detectarPalabrasProhibidas(titulo);
+        if (palabrasTitulo.length > 0) {
+            mostrarAdvertenciaModeracion(
+                'El título contiene lenguaje inapropiado. Por favor, modifícalo.',
+                'error'
+            );
+            document.getElementById('titulo').focus();
+            return false;
+        }
+        
+        // ⭐ VALIDACIÓN 2: CONTENIDO LONGITUD
+        if (contenido.length < 20) {
+            mostrarAdvertenciaModeracion(
+                'El contenido debe tener al menos 20 caracteres',
+                'error'
+            );
+            document.getElementById('contenido').focus();
+            return false;
+        }
+        
+        if (contenido.length > MAX_TEXTO_LENGTH) {
+            mostrarAdvertenciaModeracion(
+                `El contenido no puede exceder ${MAX_TEXTO_LENGTH} caracteres`,
+                'error'
+            );
+            document.getElementById('contenido').focus();
+            return false;
+        }
+        
+        // ⭐ VALIDACIÓN 3: CONTENIDO PALABRAS PROHIBIDAS
+        const palabrasContenido = detectarPalabrasProhibidas(contenido);
+        if (palabrasContenido.length > 0) {
+            console.log('⚠️ Palabras detectadas:', palabrasContenido);
+            
+            const confirmar = confirm(
+                '⚠️ Tu publicación contiene lenguaje que podría ser inapropiado.\n\n' +
+                'El sistema de moderación del servidor podría bloquearla.\n\n' +
+                '¿Deseas continuar de todos modos?'
+            );
+            
+            if (!confirmar) {
+                document.getElementById('contenido').focus();
+                return false;
+            }
+        }
+        
+        // ⭐ VALIDACIÓN 4: CANTIDAD DE ARCHIVOS
         if (imagenes.length > MAX_IMAGES) {
-            e.preventDefault();
-            alert(`⚠️ Máximo ${MAX_IMAGES} imágenes permitidas`);
+            mostrarAdvertenciaModeracion(
+                `Máximo ${MAX_IMAGES} imágenes permitidas`,
+                'error'
+            );
             return false;
         }
         
         if (videos.length > MAX_VIDEOS) {
-            e.preventDefault();
-            alert(`⚠️ Máximo ${MAX_VIDEOS} videos permitidos`);
+            mostrarAdvertenciaModeracion(
+                `Máximo ${MAX_VIDEOS} videos permitidos`,
+                'error'
+            );
             return false;
         }
         
-        // Validar tamaño de archivos
+        // ⭐ VALIDACIÓN 5: TAMAÑO DE ARCHIVOS
         for (let imagen of imagenes) {
             if (imagen.size > MAX_IMAGE_SIZE) {
-                e.preventDefault();
-                alert(`⚠️ La imagen "${imagen.name}" excede el tamaño máximo de 10MB`);
+                mostrarAdvertenciaModeracion(
+                    `La imagen "${imagen.name}" excede el tamaño máximo de 10MB`,
+                    'error'
+                );
                 return false;
             }
         }
         
         for (let video of videos) {
             if (video.size > MAX_VIDEO_SIZE) {
-                e.preventDefault();
-                alert(`⚠️ El video "${video.name}" excede el tamaño máximo de 50MB`);
+                mostrarAdvertenciaModeracion(
+                    `El video "${video.name}" excede el tamaño máximo de 50MB`,
+                    'error'
+                );
                 return false;
             }
         }
         
+        // ✅ TODO VALIDADO - ENVIAR FORMULARIO
         console.log('✅ Validación exitosa, enviando formulario...');
         console.log(`   - Imágenes: ${imagenes.length}`);
         console.log(`   - Videos: ${videos.length}`);
@@ -425,7 +628,8 @@
         submitBtn.innerHTML = '⏳ Publicando...';
         submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
         
-        // Permitir que el formulario se envíe
+        // Enviar formulario
+        this.submit();
         return true;
     });
 </script>

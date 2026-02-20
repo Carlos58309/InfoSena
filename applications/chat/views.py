@@ -1,5 +1,4 @@
-# applications/chat/views.py
-# VERSIÓN EXTENDIDA CON FUNCIONALIDADES ADICIONALES
+# applications/chat/views.py - VERSIÓN CON MODERACIÓN IA
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
@@ -8,16 +7,20 @@ from django.http import JsonResponse
 from django.db.models import Q, Max, Count, Prefetch
 from django.utils import timezone
 from django.views.decorators.http import require_POST
-
+from django.core.exceptions import ValidationError
+from applications.moderacion.decorators import moderar_mensaje_chat
 from applications.usuarios.models import Usuario
 from applications.amistades.models import Amistad
+from applications.moderacion.moderacion_service import moderacion
 from .models import Chat, Mensaje
+import logging
+import json
+
+logger = logging.getLogger(__name__)
 
 
 def obtener_usuario_actual(request):
-    """
-    Función helper para obtener el Usuario actual desde la sesión
-    """
+    """Función helper para obtener el Usuario actual desde la sesión"""
     from applications.registro.models import Aprendiz, Instructor, Bienestar
     
     usuario_id = request.session.get('usuario_id')
@@ -49,16 +52,13 @@ def obtener_usuario_actual(request):
 
 @login_required
 def lista_chats(request):
-    """
-    Vista principal de chats - Muestra panel de conversaciones
-    """
+    """Vista principal de chats - Muestra panel de conversaciones"""
     usuario_actual = obtener_usuario_actual(request)
     
     if not usuario_actual:
         messages.error(request, "No se pudo identificar tu usuario.")
         return redirect('sesion:home')
     
-    # Obtener todos los chats
     todos_los_chats = Chat.objects.filter(
         participantes=usuario_actual
     ).prefetch_related(
@@ -72,7 +72,6 @@ def lista_chats(request):
         ultimo_mensaje_fecha=Max('mensajes__enviado')
     ).order_by('-ultimo_mensaje_fecha')
     
-    # Enriquecer chats
     chats_enriquecidos = []
     for c in todos_los_chats:
         ultimo_msg = c.ultimo_mensaje_obj[0] if c.ultimo_mensaje_obj else None
@@ -87,7 +86,6 @@ def lista_chats(request):
             'activo': False
         })
     
-    # Obtener amigos para iniciar chats
     amigos = Amistad.obtener_amigos(usuario_actual)
     
     context = {
@@ -99,7 +97,7 @@ def lista_chats(request):
         'chat_nombre': None,
         'chat_foto': None,
         'is_group': False,
-        'otro_usuario': None,  # Añadido para consistencia
+        'otro_usuario': None,
     }
     
     return render(request, 'chat.html', context)
@@ -107,19 +105,14 @@ def lista_chats(request):
 
 @login_required
 def chat_room(request, chat_id):
-    """
-    Vista de sala de chat individual
-    """
+    """Vista de sala de chat individual"""
     usuario_actual = obtener_usuario_actual(request)
     
     if not usuario_actual:
         messages.error(request, "No se pudo identificar tu usuario.")
         return redirect('sesion:home')
     
-    # Obtener chat
     chat = get_object_or_404(Chat, id=chat_id, participantes=usuario_actual)
-    
-    # Obtener mensajes
     mensajes = chat.mensajes.select_related('autor').order_by('enviado')
     
     # Marcar mensajes como vistos
@@ -163,33 +156,30 @@ def chat_room(request, chat_id):
 
 @login_required
 def iniciar_chat(request, usuario_id):
-    """
-    Inicia un chat individual con otro usuario
-    """
+    """Inicia un chat individual con otro usuario"""
     usuario_actual = obtener_usuario_actual(request)
     
     if not usuario_actual:
         messages.error(request, "No se pudo identificar tu usuario.")
         return redirect('sesion:home')
     
-    # Verificar que el otro usuario existe
     otro_usuario = get_object_or_404(Usuario, id=usuario_id)
     
-    # Verificar que son amigos
     if not Amistad.son_amigos(usuario_actual, otro_usuario):
         messages.error(request, "Solo puedes chatear con tus amigos.")
         return redirect('sesion:amigos')
     
-    # Obtener o crear chat
     chat = Chat.obtener_o_crear_chat_individual(usuario_actual, otro_usuario)
     
     return redirect('chat:chat_room', chat_id=chat.id)
 
 
 @login_required
+@moderar_mensaje_chat
 def enviar_mensaje(request, chat_id):
     """
     Envía un mensaje en un chat (para formularios sin WebSocket)
+    CON MODERACIÓN IA
     """
     if request.method != 'POST':
         return redirect('chat:chat_room', chat_id=chat_id)
@@ -200,32 +190,67 @@ def enviar_mensaje(request, chat_id):
         messages.error(request, "No se pudo identificar tu usuario.")
         return redirect('sesion:home')
     
-    # Obtener chat
     chat = get_object_or_404(Chat, id=chat_id, participantes=usuario_actual)
-    
-    # Obtener contenido
     contenido = request.POST.get('contenido', '').strip()
     
     if contenido:
-        # Crear mensaje
-        Mensaje.objects.create(
-            chat=chat,
-            autor=usuario_actual,
-            contenido=contenido
-        )
+        # ========================================
+        # MODERACIÓN DE MENSAJE DE CHAT
+        # ========================================
+        logger.info(f"🔍 Moderando mensaje de chat")
+        resultado = moderacion.moderar_texto(contenido)
         
-        # Actualizar timestamp del chat
-        chat.actualizado_en = timezone.now()
-        chat.save(update_fields=['actualizado_en'])
+        # Solo bloquear contenido MUY grave en chats
+        if not resultado['permitido']:
+            # Si es filtro local de palabras, ser más permisivo
+            if resultado.get('metodo') == 'filtro_local':
+                messages.warning(
+                    request,
+                    "⚠️ Por favor, evita usar lenguaje ofensivo"
+                )
+            # Si OpenAI lo detectó, bloquear solo casos graves
+            elif resultado.get('metodo') == 'openai_api':
+                categorias_graves = [
+                    'sexual', 'sexual/minors', 'violence/graphic', 
+                    'hate/threatening', 'self-harm/intent'
+                ]
+                
+                if any(cat in resultado.get('categorias_violadas', []) for cat in categorias_graves):
+                    logger.warning(f"❌ Mensaje bloqueado: {resultado['razon']}")
+                    messages.error(
+                        request,
+                        "❌ Tu mensaje fue bloqueado por contenido inapropiado grave"
+                    )
+                    return redirect('chat:chat_room', chat_id=chat_id)
+                else:
+                    messages.warning(
+                        request,
+                        "⚠️ Por favor, mantén un lenguaje respetuoso"
+                    )
+        
+        # Crear mensaje (el signal también moderará)
+        try:
+            Mensaje.objects.create(
+                chat=chat,
+                autor=usuario_actual,
+                contenido=contenido
+            )
+            
+            chat.actualizado_en = timezone.now()
+            chat.save(update_fields=['actualizado_en'])
+            
+            logger.info(f"✅ Mensaje enviado correctamente")
+            
+        except ValidationError as e:
+            logger.error(f"❌ Mensaje rechazado por signal: {e}")
+            messages.error(request, "❌ Tu mensaje fue bloqueado")
     
     return redirect('chat:chat_room', chat_id=chat_id)
 
 
 @login_required
 def crear_grupo(request):
-    """
-    Vista para crear un grupo de chat
-    """
+    """Vista para crear un grupo de chat"""
     usuario_actual = obtener_usuario_actual(request)
     
     if not usuario_actual:
@@ -233,8 +258,8 @@ def crear_grupo(request):
         return redirect('sesion:home')
     
     if request.method == 'POST':
-        nombre_grupo = request.POST.get('nombre_grupo')
-        descripcion = request.POST.get('descripcion', '')
+        nombre_grupo = request.POST.get('nombre_grupo', '').strip()
+        descripcion = request.POST.get('descripcion', '').strip()
         participantes_ids = request.POST.getlist('participantes')
         
         if not nombre_grupo:
@@ -244,6 +269,26 @@ def crear_grupo(request):
         if not participantes_ids:
             messages.error(request, "Debes seleccionar al menos un participante.")
             return redirect('chat:crear_grupo')
+        
+        # ========================================
+        # MODERACIÓN DE NOMBRE Y DESCRIPCIÓN DEL GRUPO
+        # ========================================
+        resultado_nombre = moderacion.moderar_texto(nombre_grupo)
+        if not resultado_nombre['permitido']:
+            messages.error(
+                request,
+                f"⚠️ Nombre de grupo bloqueado: {resultado_nombre['razon']}"
+            )
+            return redirect('chat:crear_grupo')
+        
+        if descripcion:
+            resultado_desc = moderacion.moderar_texto(descripcion)
+            if not resultado_desc['permitido']:
+                messages.error(
+                    request,
+                    f"⚠️ Descripción bloqueada: {resultado_desc['razon']}"
+                )
+                return redirect('chat:crear_grupo')
         
         # Crear grupo
         grupo = Chat.crear_grupo(
@@ -268,15 +313,126 @@ def crear_grupo(request):
 
 
 # ==========================================
-# NUEVAS VISTAS PARA FUNCIONALIDADES EXTENDIDAS
+# API ENDPOINTS PARA AJAX - CON MODERACIÓN
+# ==========================================
+
+@login_required
+def api_obtener_mensajes(request, chat_id):
+    """API para obtener mensajes de un chat (para polling)"""
+    usuario_actual = obtener_usuario_actual(request)
+    
+    if not usuario_actual:
+        return JsonResponse({'error': 'Usuario no identificado'}, status=403)
+    
+    chat = get_object_or_404(Chat, id=chat_id, participantes=usuario_actual)
+    
+    ultimo_id = request.GET.get('ultimo_id', 0)
+    
+    mensajes_nuevos = chat.mensajes.filter(
+        id__gt=ultimo_id
+    ).select_related('autor').order_by('enviado')
+    
+    for mensaje in mensajes_nuevos:
+        if mensaje.autor != usuario_actual:
+            mensaje.marcar_como_visto()
+    
+    mensajes_data = []
+    for mensaje in mensajes_nuevos:
+        mensajes_data.append({
+            'id': mensaje.id,
+            'autor_id': mensaje.autor.id,
+            'autor_nombre': mensaje.autor.nombre,
+            'contenido': mensaje.contenido,
+            'enviado': mensaje.enviado.isoformat(),
+            'tiempo_transcurrido': mensaje.tiempo_transcurrido(),
+            'es_mio': mensaje.autor.id == usuario_actual.id,
+        })
+    
+    return JsonResponse({
+        'mensajes': mensajes_data,
+        'total': len(mensajes_data)
+    })
+
+
+@login_required
+def api_enviar_mensaje(request, chat_id):
+    """
+    API para enviar un mensaje vía AJAX
+    CON MODERACIÓN IA
+    """
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Método no permitido'}, status=405)
+    
+    usuario_actual = obtener_usuario_actual(request)
+    
+    if not usuario_actual:
+        return JsonResponse({'error': 'Usuario no identificado'}, status=403)
+    
+    chat = get_object_or_404(Chat, id=chat_id, participantes=usuario_actual)
+    
+    data = json.loads(request.body)
+    contenido = data.get('contenido', '').strip()
+    
+    if not contenido:
+        return JsonResponse({'error': 'El mensaje no puede estar vacío'}, status=400)
+    
+    # ========================================
+    # MODERACIÓN DE MENSAJE
+    # ========================================
+    resultado = moderacion.moderar_texto(contenido)
+    
+    # Solo bloquear contenido grave
+    if not resultado['permitido'] and resultado.get('metodo') == 'openai_api':
+        categorias_graves = [
+            'sexual', 'sexual/minors', 'violence/graphic',
+            'hate/threatening', 'self-harm/intent'
+        ]
+        
+        if any(cat in resultado.get('categorias_violadas', []) for cat in categorias_graves):
+            logger.warning(f"❌ Mensaje AJAX bloqueado: {resultado['razon']}")
+            return JsonResponse({
+                'error': 'Mensaje bloqueado por contenido inapropiado',
+                'razon': resultado['razon']
+            }, status=400)
+    
+    # Crear mensaje
+    try:
+        mensaje = Mensaje.objects.create(
+            chat=chat,
+            autor=usuario_actual,
+            contenido=contenido
+        )
+        
+        chat.actualizado_en = timezone.now()
+        chat.save(update_fields=['actualizado_en'])
+        
+        return JsonResponse({
+            'success': True,
+            'mensaje': {
+                'id': mensaje.id,
+                'autor_id': mensaje.autor.id,
+                'autor_nombre': mensaje.autor.nombre,
+                'contenido': mensaje.contenido,
+                'enviado': mensaje.enviado.isoformat(),
+                'tiempo_transcurrido': mensaje.tiempo_transcurrido(),
+            }
+        })
+    
+    except ValidationError as e:
+        return JsonResponse({
+            'error': 'Mensaje bloqueado',
+            'razon': str(e)
+        }, status=400)
+
+
+# ==========================================
+# FUNCIONALIDADES EXTENDIDAS
 # ==========================================
 
 @login_required
 @require_POST
 def eliminar_chat(request, chat_id):
-    """
-    Elimina un chat para el usuario actual
-    """
+    """Elimina un chat para el usuario actual"""
     usuario_actual = obtener_usuario_actual(request)
     
     if not usuario_actual:
@@ -285,23 +441,18 @@ def eliminar_chat(request, chat_id):
     try:
         chat = Chat.objects.get(id=chat_id, participantes=usuario_actual)
         
-        # Si es un chat individual, solo removemos al usuario
         if not chat.is_group:
             chat.participantes.remove(usuario_actual)
-            # Si no quedan participantes, eliminar el chat
             if chat.participantes.count() == 0:
                 chat.delete()
         else:
-            # En grupos, remover al usuario
             chat.participantes.remove(usuario_actual)
-            # Si era el admin, asignar nuevo admin
             if chat.admin_grupo == usuario_actual:
                 nuevo_admin = chat.participantes.first()
                 if nuevo_admin:
                     chat.admin_grupo = nuevo_admin
                     chat.save()
                 else:
-                    # Si no quedan participantes, eliminar grupo
                     chat.delete()
         
         return JsonResponse({'success': True, 'message': 'Chat eliminado'})
@@ -313,9 +464,7 @@ def eliminar_chat(request, chat_id):
 @login_required
 @require_POST
 def vaciar_mensajes(request, chat_id):
-    """
-    Vacía todos los mensajes de un chat
-    """
+    """Vacía todos los mensajes de un chat"""
     usuario_actual = obtener_usuario_actual(request)
     
     if not usuario_actual:
@@ -323,8 +472,6 @@ def vaciar_mensajes(request, chat_id):
     
     try:
         chat = Chat.objects.get(id=chat_id, participantes=usuario_actual)
-        
-        # Eliminar todos los mensajes
         chat.mensajes.all().delete()
         
         return JsonResponse({'success': True, 'message': 'Mensajes vaciados'})
@@ -336,23 +483,17 @@ def vaciar_mensajes(request, chat_id):
 @login_required
 @require_POST
 def silenciar_chat(request, chat_id):
-    """
-    Silencia/Activa notificaciones de un chat
-    """
+    """Silencia/Activa notificaciones de un chat"""
     usuario_actual = obtener_usuario_actual(request)
     
     if not usuario_actual:
         return JsonResponse({'error': 'Usuario no identificado'}, status=403)
     
-    import json
     data = json.loads(request.body)
     silenciado = data.get('silenciado', True)
     
-    # Aquí implementarías la lógica de silenciar
-    # Por ahora solo retornamos success
-    
     return JsonResponse({
-        'success': True, 
+        'success': True,
         'message': 'Chat silenciado' if silenciado else 'Notificaciones activadas',
         'silenciado': silenciado
     })
@@ -360,9 +501,7 @@ def silenciar_chat(request, chat_id):
 
 @login_required
 def obtener_archivos_compartidos(request, chat_id):
-    """
-    Obtiene archivos compartidos en un chat
-    """
+    """Obtiene archivos compartidos en un chat"""
     usuario_actual = obtener_usuario_actual(request)
     
     if not usuario_actual:
@@ -370,8 +509,6 @@ def obtener_archivos_compartidos(request, chat_id):
     
     try:
         chat = Chat.objects.get(id=chat_id, participantes=usuario_actual)
-        
-        # Obtener mensajes con archivos
         mensajes_con_archivos = chat.mensajes.exclude(archivo='').select_related('autor')
         
         archivos = []
@@ -396,9 +533,7 @@ def obtener_archivos_compartidos(request, chat_id):
 
 @login_required
 def buscar_mensajes(request, chat_id):
-    """
-    Busca mensajes en un chat
-    """
+    """Busca mensajes en un chat"""
     usuario_actual = obtener_usuario_actual(request)
     
     if not usuario_actual:
@@ -412,7 +547,6 @@ def buscar_mensajes(request, chat_id):
     try:
         chat = Chat.objects.get(id=chat_id, participantes=usuario_actual)
         
-        # Buscar mensajes
         mensajes = chat.mensajes.filter(
             contenido__icontains=query
         ).select_related('autor').order_by('-enviado')[:50]
@@ -435,97 +569,3 @@ def buscar_mensajes(request, chat_id):
     
     except Chat.DoesNotExist:
         return JsonResponse({'error': 'Chat no encontrado'}, status=404)
-
-
-# ==========================================
-# API ENDPOINTS PARA AJAX (Ya existentes)
-# ==========================================
-
-@login_required
-def api_obtener_mensajes(request, chat_id):
-    """
-    API para obtener mensajes de un chat (para polling)
-    """
-    usuario_actual = obtener_usuario_actual(request)
-    
-    if not usuario_actual:
-        return JsonResponse({'error': 'Usuario no identificado'}, status=403)
-    
-    chat = get_object_or_404(Chat, id=chat_id, participantes=usuario_actual)
-    
-    # Obtener ID del último mensaje conocido por el cliente
-    ultimo_id = request.GET.get('ultimo_id', 0)
-    
-    # Obtener mensajes nuevos
-    mensajes_nuevos = chat.mensajes.filter(
-        id__gt=ultimo_id
-    ).select_related('autor').order_by('enviado')
-    
-    # Marcar como vistos los que no son del usuario actual
-    for mensaje in mensajes_nuevos:
-        if mensaje.autor != usuario_actual:
-            mensaje.marcar_como_visto()
-    
-    # Serializar mensajes
-    mensajes_data = []
-    for mensaje in mensajes_nuevos:
-        mensajes_data.append({
-            'id': mensaje.id,
-            'autor_id': mensaje.autor.id,
-            'autor_nombre': mensaje.autor.nombre,
-            'contenido': mensaje.contenido,
-            'enviado': mensaje.enviado.isoformat(),
-            'tiempo_transcurrido': mensaje.tiempo_transcurrido(),
-            'es_mio': mensaje.autor.id == usuario_actual.id,
-        })
-    
-    return JsonResponse({
-        'mensajes': mensajes_data,
-        'total': len(mensajes_data)
-    })
-
-
-@login_required
-def api_enviar_mensaje(request, chat_id):
-    """
-    API para enviar un mensaje vía AJAX
-    """
-    if request.method != 'POST':
-        return JsonResponse({'error': 'Método no permitido'}, status=405)
-    
-    usuario_actual = obtener_usuario_actual(request)
-    
-    if not usuario_actual:
-        return JsonResponse({'error': 'Usuario no identificado'}, status=403)
-    
-    chat = get_object_or_404(Chat, id=chat_id, participantes=usuario_actual)
-    
-    import json
-    data = json.loads(request.body)
-    contenido = data.get('contenido', '').strip()
-    
-    if not contenido:
-        return JsonResponse({'error': 'El mensaje no puede estar vacío'}, status=400)
-    
-    # Crear mensaje
-    mensaje = Mensaje.objects.create(
-        chat=chat,
-        autor=usuario_actual,
-        contenido=contenido
-    )
-    
-    # Actualizar timestamp del chat
-    chat.actualizado_en = timezone.now()
-    chat.save(update_fields=['actualizado_en'])
-    
-    return JsonResponse({
-        'success': True,
-        'mensaje': {
-            'id': mensaje.id,
-            'autor_id': mensaje.autor.id,
-            'autor_nombre': mensaje.autor.nombre,
-            'contenido': mensaje.contenido,
-            'enviado': mensaje.enviado.isoformat(),
-            'tiempo_transcurrido': mensaje.tiempo_transcurrido(),
-        }
-    })

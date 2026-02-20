@@ -1,3 +1,4 @@
+# info/settings.py
 """
 Django settings for info project.
 
@@ -52,6 +53,7 @@ INSTALLED_APPS = [
     'applications.sesion',
     'applications.index',
     'applications.usuarios',
+    'applications.moderacion',
     'applications.publicaciones',
     'applications.comentarios',
     'applications.reacciones',
@@ -179,3 +181,78 @@ EMAIL_HOST_PASSWORD = "qwoyxgwfdszxnfmb"  # NO la contraseña normal
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 ADMIN_EMAIL = EMAIL_HOST_USER
+
+OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
+
+# Modelo de moderación
+OPENAI_MODERATION_MODEL = 'omni-moderation-latest'
+
+# Configuración de moderación
+MODERACION_CACHE_TIMEOUT = 300
+MODERACION_RATE_LIMIT_DELAY = 2  # 2 segundos entre peticiones (NUEVO)
+MODERACION_MAX_RETRIES = 3  # Reintentos en caso de error (NUEVO)
+MODERACION_RETRY_DELAY = 5  # Espera 5 segundos antes de reintentar (NUEVO)
+
+# 4. Comportamiento cuando falla la API
+MODERACION_FALLBACK_MODE = 'permisivo'
+MODERACION_MAX_TEXTO_LENGTH = 5000
+MODERACION_MAX_IMAGE_SIZE = 10 * 1024 * 1024  # 10MB
+MODERACION_MAX_VIDEO_SIZE = 50 * 1024 * 1024  # 50MB
+
+# Categorías bloqueadas
+MODERACION_CATEGORIAS_BLOQUEADAS = [
+    'sexual', 'sexual/minors', 'violence', 'violence/graphic',
+    'harassment', 'harassment/threatening', 'hate', 'hate/threatening',
+    'self-harm', 'self-harm/intent', 'self-harm/instructions',
+    'illicit', 'illicit/violent'
+]
+
+# Palabras prohibidas (personaliza según tu región)
+MODERACION_PALABRAS_PROHIBIDAS = [
+    'puta', 'puto', 'cabrón', 'cabron', 'mierda', 'verga', 'pendejo',
+    'gonorrea', 'hijueputa', 'malparido', 'marica', 'maricon',
+]
+"""
+# Logging de moderación
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose'
+        },
+        'file_moderacion': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': 'logs/moderacion.log',
+            'formatter': 'verbose'
+        },
+    },
+    'loggers': {
+        'applications.moderacion': {
+            'handlers': ['console', 'file_moderacion'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+    },
+}
+"""
+# Caché (opcional pero recomendado)
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique-snowflake',
+        'OPTIONS': {
+            'MAX_ENTRIES': 1000
+        }
+    }
+}
+  # ← IMPORTANTE
+MODERACION_RATE_LIMIT_DELAY = 3  # 2 segundos entre peticiones

@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -5,235 +6,981 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Editar Perfil - InfoSena</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --verde: #0d7a2f;
+            --verde-claro: #1db954;
+            --verde-dark: #0a5e24;
+        }
+
+        * { box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #f0f2f5; margin: 0; }
+
+        /* ============================================ */
+        /* HEADER                                      */
+        /* ============================================ */
+        .header {
+            background: linear-gradient(135deg, #0d3604 0%, #1a6b0a 55%, #2b9e15 100%);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.25);
+        }
+
+        .header-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 1.25rem;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            text-decoration: none;
+            flex-shrink: 0;
+        }
+
+        .logo-monogram {
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.18);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Sora', sans-serif;
+            color: white;
+            font-weight: 700;
+            font-size: 1rem;
+            letter-spacing: -1px;
+            border: 1.5px solid rgba(255,255,255,0.25);
+        }
+
+        .logo-text {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: white;
+            letter-spacing: -0.5px;
+        }
+
+        .logo-text span { color: #7efa8a; }
+
+        .nav-icon-btn {
+            position: relative;
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            background: rgba(255,255,255,0.12);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .nav-icon-btn:hover {
+            background: rgba(255,255,255,0.22);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 14px rgba(0,0,0,0.2);
+        }
+
+        .notif-badge {
+            position: absolute;
+            top: 5px; right: 5px;
+            background: #ef4444;
+            color: white;
+            font-size: 0.6rem;
+            font-weight: 700;
+            min-width: 16px;
+            height: 16px;
+            border-radius: 999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 3px;
+            border: 2px solid #0d3604;
+            animation: pulseBadge 2s infinite;
+        }
+
+        @keyframes pulseBadge {
+            0%, 100% { transform: scale(1); }
+            50%       { transform: scale(1.2); }
+        }
+
+        .avatar-btn-header {
+            width: 42px;
+            height: 42px;
+            border-radius: 14px;
+            overflow: hidden;
+            cursor: pointer;
+            border: 2.5px solid rgba(255,255,255,0.6);
+            transition: all 0.2s;
+            background: rgba(255,255,255,0.12);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            position: relative;
+            box-shadow: 0 0 0 2px rgba(255,255,255,0.3);
+        }
+
+        .avatar-btn-header:hover {
+            border-color: white;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+        }
+
+        .avatar-btn-header img { width: 100%; height: 100%; object-fit: cover; }
+
+        .hdr-dropdown {
+            position: absolute;
+            top: calc(100% + 12px);
+            right: 0;
+            background: white;
+            border-radius: 18px;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.14);
+            opacity: 0;
+            transform: translateY(-8px) scale(0.97);
+            pointer-events: none;
+            transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            border: 1px solid rgba(0,0,0,0.06);
+            overflow: hidden;
+            z-index: 200;
+        }
+
+        .hdr-dropdown.show {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            pointer-events: all;
+        }
+
+        .hdr-dropdown-header {
+            background: linear-gradient(135deg, #0d3604, #2b9e15);
+            padding: 1rem 1.25rem;
+        }
+
+        .hdr-dropdown-header h4 {
+            font-family: 'Sora', sans-serif;
+            color: white;
+            font-size: 0.95rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .hdr-dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.7rem 1.1rem;
+            color: #374151;
+            text-decoration: none;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.15s;
+            cursor: pointer;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+        }
+
+        .hdr-dropdown-item:hover { background: #f0fdf4; color: #16a34a; }
+        .hdr-dropdown-item.danger:hover { background: #fef2f2; color: #dc2626; }
+
+        .hdr-dropdown-item .d-icon {
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+
+        .hdr-dropdown-divider { height: 1px; background: #f3f4f6; margin: 0.2rem 0; }
+        .nav-divider { width: 1px; height: 28px; background: rgba(255,255,255,0.2); margin: 0 0.25rem; }
+
+        /* ============================================ */
+        /* MOBILE BOTTOM NAV                           */
+        /* ============================================ */
+        .mobile-bottom-nav {
+            display: none;
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            background: white;
+            border-top: 1px solid #e5e7eb;
+            z-index: 100;
+            padding: 0.4rem 0 calc(0.4rem + env(safe-area-inset-bottom));
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
+        }
+
+        .mobile-bottom-nav-inner {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+
+        .mob-nav-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.15rem;
+            color: #9ca3af;
+            text-decoration: none;
+            font-size: 0.6rem;
+            font-weight: 600;
+            padding: 0.3rem 0.5rem;
+            border-radius: 12px;
+            transition: all 0.2s;
+            position: relative;
+            border: none;
+            background: none;
+            cursor: pointer;
+        }
+
+        .mob-nav-btn.active { color: #16a34a; }
+
+        .mob-nav-icon {
+            width: 26px; height: 26px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .mob-nav-btn.active .mob-nav-icon { background: #f0fdf4; }
+
+        /* ============================================ */
+        /* PERFIL BANNER                               */
+        /* ============================================ */
+        .profile-banner {
+            height: 160px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .profile-banner-pattern {
+            position: absolute;
+            inset: 0;
+            opacity: 0.08;
+            background-image: radial-gradient(circle at 20% 50%, white 1px, transparent 1px),
+                              radial-gradient(circle at 80% 20%, white 1px, transparent 1px),
+                              radial-gradient(circle at 50% 80%, white 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
+        /* ============================================ */
+        /* FORMULARIO                                  */
+        /* ============================================ */
+        .section-card {
+            background: white;
+            border-radius: 16px;
+            border: 1px solid #f3f4f6;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid #f3f4f6;
+            background: #fafafa;
+        }
+
+        .section-icon {
+            width: 34px; height: 34px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .section-title {
+            font-family: 'Sora', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #111827;
+        }
+
+        .form-field label {
+            display: block;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.4rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.65rem 1rem;
+            border: 1.5px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            color: #111827;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s;
+            background: white;
+            outline: none;
+        }
+
+        .form-input:focus {
+            border-color: #16a34a;
+            box-shadow: 0 0 0 3px rgba(22,163,74,0.1);
+        }
+
+        .form-input[readonly], .form-input:disabled {
+            background: #f9fafb;
+            color: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        .form-hint {
+            font-size: 0.72rem;
+            color: #9ca3af;
+            margin-top: 0.3rem;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .action-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 14px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.2s;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn-primary {
+            background: #16a34a;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #15803d;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 14px rgba(22,163,74,0.3);
+        }
+
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #374151;
+        }
+        .btn-secondary:hover {
+            background: #e5e7eb;
+            transform: translateY(-1px);
+        }
+
+        .btn-danger {
+            background: #fef2f2;
+            color: #dc2626;
+            border: 1.5px solid #fecaca;
+        }
+        .btn-danger:hover {
+            background: #fee2e2;
+            transform: translateY(-1px);
+        }
+
+        @media (max-width: 768px) {
+            .mobile-bottom-nav { display: block; }
+            body { padding-bottom: 70px; }
+            .profile-banner { height: 120px; }
+        }
+    </style>
 </head>
-<body class="bg-gray-200">
-    <!-- HEADER -->
-    <header class="hero bg-gradient-to-r from-[#0d3604] to-[#2b9e15] shadow-lg sticky top-0 z-50">
-        <nav class="container mx-auto px-2 py-2 relative">
-            <div class="flex justify-between items-center">
-                <div class="flex flex-row-reverse items-center">
-                    {% load static %}
-                    <img src="{% static 'img/logo2.png' %}" width="200px" />
-                </div>
-                <div class="hidden md:flex items-center space-x-6">
-                    <a href="{% url 'perfil:perfiles' %}">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white"
-                            stroke-width="2" class="w-10 h-10">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 9.75L12 3l9 6.75V21H3V9.75z" />
+
+<body>
+
+    <!-- ========================= -->
+    <!--         HEADER            -->
+    <!-- ========================= -->
+    <header class="header">
+        <div class="header-inner">
+
+            <!-- LOGO -->
+            <a href="{% url 'sesion:home' %}" class="logo-area">
+                <div class="logo-monogram">iS</div>
+                <span class="logo-text">Info<span>Sena</span></span>
+            </a>
+
+            <!-- ICONOS DESKTOP -->
+            <div class="hidden md:flex items-center gap-1">
+
+                <a href="{% url 'sesion:home' %}" class="nav-icon-btn">
+                    <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 9.75L12 3l9 6.75V21H3V9.75z"/>
+                    </svg>
+                </a>
+
+                <a href="{% url 'chat:lista_chats' %}" class="nav-icon-btn">
+                    <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6A8.38 8.38 0 0111.5 3h1a8.5 8.5 0 018.5 8.5z"/>
+                    </svg>
+                </a>
+
+                <a href="{% url 'sesion:amigos' %}" class="nav-icon-btn">
+                    <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <circle cx="7" cy="7" r="4"/>
+                        <path d="M1 21v-2a6 6 0 016-6h0a6 6 0 016 6v2"/>
+                        <circle cx="17" cy="9" r="3.5"/>
+                        <path d="M14 21v-2a4 4 0 014-4h0a4 4 0 014 4v2"/>
+                    </svg>
+                </a>
+
+                <!-- Notificaciones -->
+                <div style="position:relative">
+                    <button id="btnNotificaciones" class="nav-icon-btn">
+                        <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 22a2 2 0 002-2H10a2 2 0 002 2zm6-6V11a6 6 0 10-12 0v5l-1.5 2.5h15L18 16z"/>
                         </svg>
-                    </a>
-                    <a href="">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white"
-                            stroke-width="1.5" class="w-12 h-12">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M12 22a2 2 0 002-2H10a2 2 0 002 2zm6-6V11a6 6 0 10-12 0v5l-1.5 2.5h15L18 16z" />
-                        </svg>
-                    </a>
-                    <a href="{% url 'perfil:perfiles' %}">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white"
-                            stroke-width="2" class="w-10 h-10">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M12 12a5 5 0 100-10 5 5 0 000 10zm7 8c0-4-3-7-7-7s-7 3-7 7" />
-                        </svg>
-                    </a>
-                </div>
-            </div>
-        </nav>
-    </header>
+                        <span id="notificationBadge" class="notif-badge hidden">0</span>
+                    </button>
 
-    <!-- CONTENIDO DEL FORMULARIO DE EDICIÓN -->
-    <div class="container mx-auto px-4 py-8">
-        <div class="bg-white rounded-3xl shadow-lg overflow-hidden max-w-4xl mx-auto">
-            <!-- Banner superior -->
-            <div class="h-48 bg-gradient-to-r from-[#0d3604] to-[#2b9e15] relative">
-                <div class="absolute bottom-6 right-8 text-white z-10 text-right">
-                    <h1 class="text-4xl font-bold mb-2 drop-shadow-lg">Editar Perfil</h1>
-                    <p class="text-green-50 text-lg">Actualiza tu información personal</p>
-                </div>
-            </div>
-
-            <!-- Formulario de edición -->
-            <div class="px-8 pb-8">
-                <!-- FORMULARIO CORREGIDO -->
-                <form method="POST" action="{% url 'perfil:editar_perfil' %}" enctype="multipart/form-data" class="space-y-6">
-                    {% csrf_token %}
-
-                    <!-- Foto de perfil -->
-                    <div class="relative -mt-24 mb-10 w-44 h-44">
-                        <div id="fotoPerfilDiv"
-                            class="w-44 h-44 rounded-full border-8 border-white shadow-2xl flex items-center justify-center text-7xl relative overflow-hidden hover:scale-105 transition-transform duration-300 bg-gray-100"
-                            style="{% if usuario.foto %}background-image: url('{{ usuario.foto.url }}'); background-size: cover; background-position: center;{% endif %}">
-
-                            <!-- Emoji por defecto si no hay foto -->
-                            {% if not usuario.foto %}
-                                <span id="emojiDefault" class="filter drop-shadow-lg">
-                                {% if tipo_perfil == 'instructor' %}
-                                    👨‍🏫
-                                {% elif tipo_perfil == 'bienestar' %}
-                                    🏥
-                                {% elif tipo_perfil == 'aprendiz' %}
-                                    🎓
-                                {% endif %}
-                                </span>
-                            {% endif %}
-
-                            <!-- Botón de cámara -->
-                            <button type="button" id="btnCambiarFoto"
-                                class="absolute bottom-2 right-2 bg-gradient-to-r from-green-600 to-green-700 text-white p-3 rounded-full shadow-xl hover:shadow-2xl hover:scale-110 transition-all duration-200 z-10">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                    stroke="currentColor" class="w-5 h-5">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-                                </svg>
+                    <div id="menuNotificaciones" class="hdr-dropdown" style="width:320px; right:0">
+                        <div class="hdr-dropdown-header" style="display:flex;justify-content:space-between;align-items:center">
+                            <h4>🔔 Notificaciones</h4>
+                            <button onclick="marcarTodasLeidasHeader()" style="color:white;font-size:0.75rem;font-weight:600;background:none;border:none;cursor:pointer;opacity:0.85">
+                                ✓ Marcar todas
                             </button>
                         </div>
-                        
-                        <!-- Input de archivo (NOMBRE CORREGIDO: 'foto') -->
-                        <input type="file" id="inputFotoPerfil" name="foto" accept="image/*" class="hidden">
-                    </div>
-
-                    <!-- Información básica -->
-                    <div class="border-b border-gray-200 pb-6">
-                        <h2 class="text-xl font-semibold text-gray-800 mb-4">Información básica</h2>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Nombre completo</label>
-                                <input type="text" name="nombre" value="{{ usuario.nombre }}"
-                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                                    required>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Correo electrónico</label>
-                                <input type="email" name="email" value="{{ usuario.email }}"
-                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                                    readonly>
-                                <p class="text-xs text-gray-500 mt-1">El correo electrónico no se puede modificar</p>
+                        <div class="max-h-96 overflow-y-auto bg-gray-50" id="listaNotificaciones">
+                            <div class="flex flex-col items-center justify-center py-12">
+                                <div class="text-4xl mb-2">🔔</div>
+                                <p class="text-gray-400 text-sm">Cargando notificaciones...</p>
                             </div>
                         </div>
-                    </div>
-
-                    <!-- Información de identificación -->
-                    <div class="border-b border-gray-200 pb-6">
-                        <h2 class="text-xl font-semibold text-gray-800 mb-4">Identificación</h2>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Tipo de documento</label>
-                                <select name="tipo_documento"
-                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                                    required>
-                                    <option value="CC" {% if usuario.tipo_documento == 'CC' %}selected{% endif %}>Cédula de Ciudadanía</option>
-                                    <option value="TI" {% if usuario.tipo_documento == 'TI' %}selected{% endif %}>Tarjeta de Identidad</option>
-                                    <option value="CE" {% if usuario.tipo_documento == 'CE' %}selected{% endif %}>Cédula de Extranjería</option>
-                                    <option value="PAS" {% if usuario.tipo_documento == 'PAS' %}selected{% endif %}>Pasaporte</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Número de documento</label>
-                                <input type="text" name="numero_documento" value="{{ usuario.numero_documento }}"
-                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-gray-50"
-                                    readonly>
-                                <p class="text-xs text-gray-500 mt-1">El número de documento no se puede modificar</p>
-                            </div>
+                        <div class="bg-white border-t border-gray-200 p-3">
+                            <a href="{% url 'notificaciones:lista' %}" class="block text-center text-sm text-green-600 font-semibold hover:text-green-800 transition">
+                                Ver todas las notificaciones →
+                            </a>
                         </div>
                     </div>
+                </div>
 
-                    <!-- Información institucional -->
-                    <div class="border-b border-gray-200 pb-6">
-                        <h2 class="text-xl font-semibold text-gray-800 mb-4">Información institucional</h2>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Centro formativo</label>
-                                <input type="text" name="centro_formativo" value="{{ usuario.centro_formativo }}"
-                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                                    readonly>
-                                <p class="text-xs text-gray-500 mt-1">El ncentro formativo no se puede modificar</p>
+                <div class="nav-divider"></div>
+
+                <!-- Avatar / menú perfil -->
+                <div style="position:relative">
+                    <button id="btnPerfil" class="avatar-btn-header">
+                        {% if usuario.foto %}
+                        <img src="{{ usuario.foto.url }}" alt="{{ usuario.nombre }}">
+                        {% else %}
+                        <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 12a5 5 0 100-10 5 5 0 000 10zm7 8c0-4-3-7-7-7s-7 3-7 7"/>
+                        </svg>
+                        {% endif %}
+                    </button>
+
+                    <div id="menuPerfil" class="hdr-dropdown" style="width:230px; right:0">
+                        <div class="hdr-dropdown-header">
+                            <div style="display:flex;align-items:center;gap:0.65rem">
+                                <div style="width:40px;height:40px;border-radius:12px;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0">
+                                    {% if usuario.foto %}
+                                    <img src="{{ usuario.foto.url }}" style="width:100%;height:100%;object-fit:cover">
+                                    {% else %}
+                                    <span style="font-size:1.3rem">
+                                        {% if tipo_perfil == 'instructor' %}👨‍🏫
+                                        {% elif tipo_perfil == 'bienestar' %}🏥
+                                        {% else %}🎓{% endif %}
+                                    </span>
+                                    {% endif %}
+                                </div>
+                                <div>
+                                    <div style="font-family:'Sora',sans-serif;color:white;font-weight:700;font-size:0.85rem">{{ usuario.nombre }}</div>
+                                    <div style="color:rgba(255,255,255,0.75);font-size:0.72rem">
+                                        {% if tipo_perfil == 'instructor' %}Instructor
+                                        {% elif tipo_perfil == 'bienestar' %}Bienestar
+                                        {% else %}Aprendiz{% endif %}
+                                    </div>
+                                </div>
                             </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Región</label>
-                                <input type="text" name="region" value="{{ usuario.region }}"
-                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                                    readonly>
-                                <p class="text-xs text-gray-500 mt-1">La región no se puede modificar</p>
-                            </div>
-                            {% if tipo_perfil == 'aprendiz' %}
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Ficha</label>
-                                <input type="text" name="ficha" value="{{ usuario.ficha }}"
-                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                                    required>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Jornada</label>
-                                <select name="jornada"
-                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                                    required>
-                                    <option value="Mañana" {% if usuario.jornada == 'Mañana' %}selected{% endif %}>Mañana</option>
-                                    <option value="Tarde" {% if usuario.jornada == 'Tarde' %}selected{% endif %}>Tarde</option>
-                                    <option value="Noche" {% if usuario.jornada == 'Noche' %}selected{% endif %}>Noche</option>
-                                </select>
-                            </div>
-                            {% endif %}
                         </div>
-                    </div>
 
-                    <!-- Botones de acción -->
-                    <div class="flex gap-4 pt-6 items-center">
-                        <button type="submit"
-                            class="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium">
-                            💾 Guardar cambios
-                        </button>
-                        <a href="{% url 'perfil:perfiles' %}"
-                            class="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition font-medium">
-                            ❌ Cancelar
+                        <a href="{% url 'perfil:perfiles' %}" class="hdr-dropdown-item">
+                            <div class="d-icon" style="background:#f0fdf4;color:#16a34a">
+                                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path d="M12 12a5 5 0 100-10 5 5 0 000 10zm7 8c0-4-3-7-7-7s-7 3-7 7"/>
+                                </svg>
+                            </div>
+                            Ver Perfil
                         </a>
-                        <a href="{% url 'perfil:eliminar_perfil' %}"
-                            class="ml-auto px-6 py-3 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition font-medium">
-                            🗑️ Eliminar perfil
+
+                        <a href="{% url 'perfil:editar_perfil' %}" class="hdr-dropdown-item" style="background:#f0fdf4;color:#16a34a">
+                            <div class="d-icon" style="background:#eff6ff;color:#3b82f6">
+                                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+                                    <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                                </svg>
+                            </div>
+                            Editar Perfil
+                        </a>
+
+                        {% if es_admin %}
+                        <a href="{% url 'registro:panel_aprobacion' %}" class="hdr-dropdown-item">
+                            <div class="d-icon" style="background:#fef3c7;color:#d97706">⚙️</div>
+                            Panel de Aprobación
+                        </a>
+                        {% endif %}
+
+                        <div class="hdr-dropdown-divider"></div>
+
+                        <a href="{% url 'sesion:login' %}" class="hdr-dropdown-item danger">
+                            <div class="d-icon" style="background:#fef2f2;color:#dc2626">
+                                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/>
+                                    <polyline points="16,17 21,12 16,7"/>
+                                    <line x1="21" y1="12" x2="9" y2="12"/>
+                                </svg>
+                            </div>
+                            Cerrar Sesión
                         </a>
                     </div>
-                </form>
+                </div>
+            </div>
+
+            <!-- BOTÓN MOBILE -->
+            <div class="flex md:hidden items-center gap-2">
+                <button id="btnSearch" class="nav-icon-btn">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <circle cx="11" cy="11" r="7"/><line x1="16" y1="16" x2="21" y2="21"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- ========================= -->
+    <!--   CONTENIDO EDITAR PERFIL -->
+    <!-- ========================= -->
+    <div class="min-h-screen py-6 px-4">
+        <div class="max-w-3xl mx-auto">
+
+            <!-- TARJETA PRINCIPAL -->
+            <div class="bg-white rounded-2xl shadow-lg mb-6" style="position:relative;">
+
+                <!-- Banner -->
+                <div class="profile-banner rounded-t-2xl overflow-hidden">
+                    <div class="absolute inset-0 bg-gradient-to-r
+                        {% if tipo_perfil == 'aprendiz' %} from-blue-600 via-blue-500 to-cyan-500
+                        {% elif tipo_perfil == 'instructor' %} from-purple-600 via-purple-500 to-indigo-500
+                        {% elif tipo_perfil == 'bienestar' %} from-green-700 via-green-500 to-emerald-400
+                        {% else %} from-green-700 via-green-500 to-emerald-400
+                        {% endif %}">
+                    </div>
+                    <div class="profile-banner-pattern"></div>
+                    <!-- Título en el banner -->
+                    <div class="absolute bottom-4 right-6 text-right" style="z-index:5">
+                        <h1 style="font-family:'Sora',sans-serif" class="text-2xl font-bold text-white drop-shadow-lg">Editar Perfil</h1>
+                        <p class="text-green-100 text-sm">Actualiza tu información personal</p>
+                    </div>
+                </div>
+
+                <!-- FORMULARIO -->
+                <div class="px-6 pb-8 md:px-8" style="position:relative;">
+                    <form method="POST" action="{% url 'perfil:editar_perfil' %}" enctype="multipart/form-data">
+                        {% csrf_token %}
+
+                        <!-- FOTO DE PERFIL sobresaliendo del banner -->
+                        <div style="margin-top:-4rem; margin-bottom:1.5rem; position:relative; z-index:10; display:inline-block;">
+                            <div id="fotoPerfilDiv"
+                                class="w-32 h-32 md:w-36 md:h-36 rounded-full border-8 border-white shadow-xl flex items-center justify-center text-5xl relative overflow-hidden hover:scale-105 transition-transform duration-300 bg-gray-100"
+                                style="{% if usuario.foto %}background-image: url('{{ usuario.foto.url }}'); background-size: cover; background-position: center;{% endif %}">
+
+                                {% if not usuario.foto %}
+                                <span id="emojiDefault" class="filter drop-shadow-lg">
+                                    {% if tipo_perfil == 'instructor' %}👨‍🏫
+                                    {% elif tipo_perfil == 'bienestar' %}🏥
+                                    {% elif tipo_perfil == 'aprendiz' %}🎓
+                                    {% else %}👤{% endif %}
+                                </span>
+                                {% endif %}
+
+                                <!-- Botón cámara -->
+                                <button type="button" id="btnCambiarFoto"
+                                    class="absolute bottom-2 right-2 bg-gradient-to-r from-green-600 to-green-700 text-white p-2.5 rounded-full shadow-xl hover:shadow-2xl hover:scale-110 transition-all duration-200 z-10">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-4 h-4">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                    </svg>
+                                </button>
+                            </div>
+                            <input type="file" id="inputFotoPerfil" name="foto" accept="image/*" class="hidden">
+                        </div>
+
+                        <!-- ===================== -->
+                        <!-- SECCIÓN: Info básica  -->
+                        <!-- ===================== -->
+                        <div class="section-card">
+                            <div class="section-header">
+                                <div class="section-icon" style="background:#f0fdf4">
+                                    <svg width="16" height="16" fill="none" stroke="#16a34a" stroke-width="2" viewBox="0 0 24 24">
+                                        <path d="M12 12a5 5 0 100-10 5 5 0 000 10zm7 8c0-4-3-7-7-7s-7 3-7 7"/>
+                                    </svg>
+                                </div>
+                                <span class="section-title">Información básica</span>
+                            </div>
+                            <div class="p-5 grid grid-cols-1 md:grid-cols-2 gap-5">
+                                <div class="form-field">
+                                    <label>Nombre completo</label>
+                                    <input type="text" name="nombre" value="{{ usuario.nombre }}"
+                                           class="form-input" required placeholder="Tu nombre completo">
+                                </div>
+                                <div class="form-field">
+                                    <label>Correo electrónico</label>
+                                    <input type="email" name="email" value="{{ usuario.email }}"
+                                           class="form-input" readonly>
+                                    <p class="form-hint">
+                                        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                                        No se puede modificar
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ============================ -->
+                        <!-- SECCIÓN: Identificación      -->
+                        <!-- ============================ -->
+                        <div class="section-card">
+                            <div class="section-header">
+                                <div class="section-icon" style="background:#fef3c7">
+                                    <svg width="16" height="16" fill="none" stroke="#d97706" stroke-width="2" viewBox="0 0 24 24">
+                                        <rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/>
+                                    </svg>
+                                </div>
+                                <span class="section-title">Identificación</span>
+                            </div>
+                            <div class="p-5 grid grid-cols-1 md:grid-cols-2 gap-5">
+                                <div class="form-field">
+                                    <label>Tipo de documento</label>
+                                    <select name="tipo_documento" class="form-input" required>
+                                        <option value="CC"  {% if usuario.tipo_documento == 'CC'  %}selected{% endif %}>Cédula de Ciudadanía</option>
+                                        <option value="TI"  {% if usuario.tipo_documento == 'TI'  %}selected{% endif %}>Tarjeta de Identidad</option>
+                                        <option value="CE"  {% if usuario.tipo_documento == 'CE'  %}selected{% endif %}>Cédula de Extranjería</option>
+                                        <option value="PAS" {% if usuario.tipo_documento == 'PAS' %}selected{% endif %}>Pasaporte</option>
+                                    </select>
+                                </div>
+                                <div class="form-field">
+                                    <label>Número de documento</label>
+                                    <input type="text" name="numero_documento" value="{{ usuario.numero_documento }}"
+                                           class="form-input" readonly>
+                                    <p class="form-hint">
+                                        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                                        No se puede modificar
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ============================ -->
+                        <!-- SECCIÓN: Info institucional  -->
+                        <!-- ============================ -->
+                        <div class="section-card">
+                            <div class="section-header">
+                                <div class="section-icon" style="background:#eff6ff">
+                                    <svg width="16" height="16" fill="none" stroke="#3b82f6" stroke-width="2" viewBox="0 0 24 24">
+                                        <path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                                    </svg>
+                                </div>
+                                <span class="section-title">Información institucional</span>
+                            </div>
+                            <div class="p-5 grid grid-cols-1 md:grid-cols-2 gap-5">
+                                <div class="form-field">
+                                    <label>Centro formativo</label>
+                                    <input type="text" name="centro_formativo" value="{{ usuario.centro_formativo }}"
+                                           class="form-input" readonly>
+                                    <p class="form-hint">
+                                        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                                        No se puede modificar
+                                    </p>
+                                </div>
+                                <div class="form-field">
+                                    <label>Región</label>
+                                    <input type="text" name="region" value="{{ usuario.region }}"
+                                           class="form-input" readonly>
+                                    <p class="form-hint">
+                                        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                                        No se puede modificar
+                                    </p>
+                                </div>
+
+                                {% if tipo_perfil == 'aprendiz' %}
+                                <div class="form-field">
+                                    <label>Ficha de formación</label>
+                                    <input type="text" name="ficha" value="{{ usuario.ficha }}"
+                                           class="form-input" required placeholder="Número de ficha">
+                                </div>
+                                <div class="form-field">
+                                    <label>Jornada</label>
+                                    <select name="jornada" class="form-input" required>
+                                        <option value="Mañana" {% if usuario.jornada == 'Mañana' %}selected{% endif %}>Mañana</option>
+                                        <option value="Tarde"  {% if usuario.jornada == 'Tarde'  %}selected{% endif %}>Tarde</option>
+                                        <option value="Noche"  {% if usuario.jornada == 'Noche'  %}selected{% endif %}>Noche</option>
+                                    </select>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- ============================ -->
+                        <!-- BOTONES DE ACCIÓN            -->
+                        <!-- ============================ -->
+                        <div class="flex flex-wrap items-center gap-3 pt-2">
+                            <button type="submit" class="action-btn btn-primary">
+                                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/>
+                                    <polyline points="17 21 17 13 7 13 7 21"/>
+                                    <polyline points="7 3 7 8 15 8"/>
+                                </svg>
+                                Guardar cambios
+                            </button>
+
+                            <a href="{% url 'perfil:perfiles' %}" class="action-btn btn-secondary">
+                                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                                </svg>
+                                Cancelar
+                            </a>
+
+                            <a href="{% url 'perfil:eliminar_perfil' %}" class="action-btn btn-danger" style="margin-left:auto;">
+                                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <polyline points="3 6 5 6 21 6"/>
+                                    <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/>
+                                    <path d="M10 11v6m4-6v6"/>
+                                    <path d="M9 6V4h6v2"/>
+                                </svg>
+                                Eliminar perfil
+                            </a>
+                        </div>
+
+                    </form>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Script para previsualización - CORREGIDO -->
+    <!-- MOBILE BOTTOM NAV -->
+    <nav class="mobile-bottom-nav">
+        <div class="mobile-bottom-nav-inner">
+            <a href="{% url 'sesion:home' %}" class="mob-nav-btn">
+                <div class="mob-nav-icon">
+                    <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path d="M3 9.75L12 3l9 6.75V21H3V9.75z" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                Inicio
+            </a>
+            <a href="{% url 'chat:lista_chats' %}" class="mob-nav-btn">
+                <div class="mob-nav-icon">
+                    <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6A8.38 8.38 0 0111.5 3h1a8.5 8.5 0 018.5 8.5z"/>
+                    </svg>
+                </div>
+                Chat
+            </a>
+            <a href="{% url 'sesion:amigos' %}" class="mob-nav-btn">
+                <div class="mob-nav-icon">
+                    <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <circle cx="7" cy="7" r="4"/>
+                        <path d="M1 21v-2a6 6 0 016-6h0a6 6 0 016 6v2"/>
+                        <circle cx="17" cy="9" r="3.5"/>
+                        <path d="M14 21v-2a4 4 0 014-4h0a4 4 0 014 4v2"/>
+                    </svg>
+                </div>
+                Amigos
+            </a>
+            <a href="{% url 'notificaciones:lista' %}" class="mob-nav-btn">
+                <div class="mob-nav-icon">
+                    <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/>
+                    </svg>
+                </div>
+                Alertas
+            </a>
+            <a href="{% url 'perfil:perfiles' %}" class="mob-nav-btn active">
+                <div class="mob-nav-icon">
+                    <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 12a5 5 0 100-10 5 5 0 000 10zm7 8c0-4-3-7-7-7s-7 3-7 7"/>
+                    </svg>
+                </div>
+                Perfil
+            </a>
+        </div>
+    </nav>
+
+    <!-- ========================= -->
+    <!--         SCRIPTS           -->
+    <!-- ========================= -->
+
+    <!-- Header dropdowns -->
+    <script>
+        document.getElementById("btnPerfil")?.addEventListener("click", (e) => {
+            e.stopPropagation();
+            document.getElementById("menuPerfil").classList.toggle("show");
+            document.getElementById("menuNotificaciones").classList.remove("show");
+        });
+
+        document.getElementById("btnNotificaciones")?.addEventListener("click", (e) => {
+            e.stopPropagation();
+            document.getElementById("menuNotificaciones").classList.toggle("show");
+            document.getElementById("menuPerfil")?.classList.remove("show");
+        });
+
+        document.addEventListener("click", (e) => {
+            if (!e.target.closest('#menuPerfil') && !e.target.closest('#btnPerfil'))
+                document.getElementById("menuPerfil")?.classList.remove("show");
+            if (!e.target.closest('#menuNotificaciones') && !e.target.closest('#btnNotificaciones'))
+                document.getElementById("menuNotificaciones")?.classList.remove("show");
+        });
+    </script>
+
+    <!-- Previsualización foto de perfil -->
     <script>
         const inputFoto = document.getElementById('inputFotoPerfil');
         const fotoPerfilDiv = document.getElementById('fotoPerfilDiv');
         const btnCambiarFoto = document.getElementById('btnCambiarFoto');
 
-        // Al hacer clic en el botón, abrir selector de archivos
         btnCambiarFoto.addEventListener('click', function(e) {
             e.preventDefault();
             e.stopPropagation();
             inputFoto.click();
         });
 
-        // Cuando se selecciona un archivo
         inputFoto.addEventListener('change', function() {
             if (this.files && this.files[0]) {
                 const reader = new FileReader();
-                
                 reader.onload = function(e) {
-                    // Actualizar la imagen de fondo
                     fotoPerfilDiv.style.backgroundImage = `url('${e.target.result}')`;
                     fotoPerfilDiv.style.backgroundSize = 'cover';
                     fotoPerfilDiv.style.backgroundPosition = 'center';
-                    
-                    // Ocultar el emoji si existe
                     const emoji = document.getElementById('emojiDefault');
-                    if (emoji) {
-                        emoji.style.display = 'none';
-                    }
-                    
-                    console.log('✓ Imagen cargada para previsualización');
-                }
-                
+                    if (emoji) emoji.style.display = 'none';
+                };
                 reader.readAsDataURL(this.files[0]);
             }
         });
     </script>
+
+    <!-- Notificaciones en tiempo real -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        cargarNotificaciones();
+        setInterval(cargarNotificaciones, 30000);
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden) cargarNotificaciones();
+        });
+    });
+
+    async function cargarNotificaciones() {
+        try {
+            const response = await fetch("{% url 'notificaciones:obtener_notificaciones' %}");
+            const data = await response.json();
+            actualizarBadge(data.count);
+            if (data.notificaciones && data.notificaciones.length > 0) {
+                renderizarNotificaciones(data.notificaciones);
+            } else { mostrarNotificacionesVacias(); }
+        } catch(e) { console.error(e); }
+    }
+
+    function actualizarBadge(count) {
+        const badge = document.getElementById('notificationBadge');
+        if (badge) {
+            if (count > 0) { badge.textContent = count > 99 ? '99+' : count; badge.classList.remove('hidden'); }
+            else badge.classList.add('hidden');
+        }
+    }
+
+    function renderizarNotificaciones(notificaciones) {
+        const lista = document.getElementById('listaNotificaciones');
+        const iconos = { 'solicitud_amistad':'👋','amistad_aceptada':'✅','nueva_publicacion':'📝','comentario':'💬','like':'❤️' };
+        const colores = { 'solicitud_amistad':'bg-green-50 border-l-4 border-green-500','amistad_aceptada':'bg-blue-50 border-l-4 border-blue-500','nueva_publicacion':'bg-purple-50 border-l-4 border-purple-500','comentario':'bg-yellow-50 border-l-4 border-yellow-500','like':'bg-red-50 border-l-4 border-red-500' };
+        lista.innerHTML = notificaciones.map(n => `
+            <div class="${colores[n.tipo]||'bg-white'} p-4 hover:bg-gray-100 transition cursor-pointer border-b border-gray-200"
+                 onclick="irANotificacion(${n.id},${n.publicacion_id||null})">
+                <div class="flex items-start gap-3">
+                    <img src="${n.emisor_foto||'{% static "img/default-avatar.png" %}'}" class="w-10 h-10 rounded-full object-cover flex-shrink-0">
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="text-lg">${iconos[n.tipo]||'📢'}</span>
+                            <span class="text-xs font-semibold text-gray-500 uppercase">${getTipoNombre(n.tipo)}</span>
+                        </div>
+                        <p class="text-sm text-gray-800 mb-1">${n.mensaje}</p>
+                        <p class="text-xs text-gray-500">${calcularTiempo(n.fecha)}</p>
+                    </div>
+                </div>
+            </div>`).join('');
+    }
+
+    function mostrarNotificacionesVacias() {
+        document.getElementById('listaNotificaciones').innerHTML = `
+            <div class="flex flex-col items-center justify-center py-12">
+                <div class="text-5xl mb-3">🔔</div>
+                <p class="text-gray-600 font-semibold">Todo al día</p>
+                <p class="text-gray-400 text-sm">No tienes notificaciones nuevas</p>
+            </div>`;
+    }
+
+    function getTipoNombre(tipo) {
+        return {'solicitud_amistad':'Solicitud','amistad_aceptada':'Aceptada','nueva_publicacion':'Publicación','comentario':'Comentario','like':'Me gusta'}[tipo]||tipo;
+    }
+
+    function calcularTiempo(fecha) {
+        const diff = Math.floor((new Date()-new Date(fecha))/1000);
+        if (diff<60) return 'Justo ahora';
+        if (diff<3600) return `Hace ${Math.floor(diff/60)} min`;
+        if (diff<86400) return `Hace ${Math.floor(diff/3600)} h`;
+        return `Hace ${Math.floor(diff/86400)} días`;
+    }
+
+    async function irANotificacion(notifId, publicacionId) {
+        try {
+            await fetch(`{% url 'notificaciones:marcar_leida' 0 %}`.replace('0',notifId),{
+                method:'POST', headers:{'X-CSRFToken':getCookie('csrftoken')}
+            });
+        } catch(e){}
+        window.location.href = publicacionId ? `/publicaciones/${publicacionId}/` : "{% url 'notificaciones:lista' %}";
+    }
+
+    async function marcarTodasLeidasHeader() {
+        try {
+            const r = await fetch("{% url 'notificaciones:marcar_todas_leidas' %}",{
+                method:'POST', headers:{'X-CSRFToken':getCookie('csrftoken')}
+            });
+            if(r.ok){ actualizarBadge(0); cargarNotificaciones(); }
+        } catch(e){}
+    }
+
+    function getCookie(name) {
+        let v=null;
+        if(document.cookie){ for(let c of document.cookie.split(';')){c=c.trim();if(c.startsWith(name+'=')){v=decodeURIComponent(c.substring(name.length+1));break;}}}
+        return v;
+    }
+    </script>
+
 </body>
 </html>

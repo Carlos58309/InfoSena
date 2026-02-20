@@ -1,16 +1,735 @@
 {% load static %}
-
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>InfoSena - Amistades</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --verde: #0d7a2f;
+            --verde-claro: #1db954;
+            --verde-dark: #0a5e24;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f0f2f5;
+            margin: 0;
+        }
+
+        /* SCROLLBAR */
+        .scrollbar-thin::-webkit-scrollbar { width: 6px; }
+        .scrollbar-thin::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+        .scrollbar-thin::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 10px; }
+        .scrollbar-thin::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+
+        /* ============================================ */
+        /* HEADER                                      */
+        /* ============================================ */
+        .header {
+            background: linear-gradient(135deg, #0d3604 0%, #1a6b0a 55%, #2b9e15 100%);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.25);
+        }
+
+        .header-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 1.25rem;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+
+        /* Logo */
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            text-decoration: none;
+            flex-shrink: 0;
+        }
+
+        .logo-monogram {
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.18);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Sora', sans-serif;
+            color: white;
+            font-weight: 700;
+            font-size: 1rem;
+            letter-spacing: -1px;
+            border: 1.5px solid rgba(255,255,255,0.25);
+        }
+
+        .logo-text {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: white;
+            letter-spacing: -0.5px;
+        }
+
+        .logo-text span { color: #7efa8a; }
+
+        /* Search bar */
+        .header-search {
+            flex: 1;
+            max-width: 400px;
+            position: relative;
+        }
+
+        .header-search input {
+            width: 100%;
+            background: rgba(255,255,255,0.15);
+            border: 1.5px solid rgba(255,255,255,0.2);
+            border-radius: 999px;
+            padding: 0.5rem 1rem 0.5rem 2.75rem;
+            color: white;
+            font-size: 0.875rem;
+            outline: none;
+            transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+            backdrop-filter: blur(10px);
+        }
+
+        .header-search input::placeholder { color: rgba(255,255,255,0.65); }
+
+        .header-search input:focus {
+            background: rgba(255,255,255,0.22);
+            border-color: rgba(255,255,255,0.5);
+            box-shadow: 0 0 0 3px rgba(255,255,255,0.1);
+        }
+
+        .search-icon-abs {
+            position: absolute;
+            left: 0.85rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255,255,255,0.7);
+            pointer-events: none;
+        }
+
+        .clear-btn-abs {
+            position: absolute;
+            right: 0.85rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255,255,255,0.7);
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            display: flex;
+            align-items: center;
+        }
+
+        /* Search panel dropdown */
+        .search-panel {
+            position: absolute;
+            top: calc(100% + 10px);
+            left: 0;
+            width: 100%;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.15);
+            z-index: 200;
+            overflow: hidden;
+            border: 1px solid rgba(0,0,0,0.06);
+            animation: fadeInDown 0.2s ease;
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-6px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .search-panel-header {
+            padding: 0.65rem 1rem;
+            border-bottom: 1px solid #f3f4f6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #fafafa;
+        }
+
+        .search-panel-header h3 {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #374151;
+            margin: 0;
+        }
+
+        .search-panel-header button {
+            font-size: 0.78rem;
+            color: #16a34a;
+            font-weight: 600;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+
+        /* Nav icon buttons */
+        .nav-icon-btn {
+            position: relative;
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            background: rgba(255,255,255,0.12);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .nav-icon-btn:hover {
+            background: rgba(255,255,255,0.22);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 14px rgba(0,0,0,0.2);
+        }
+
+        .nav-icon-btn:active { transform: scale(0.95); }
+
+        .nav-icon-btn.is-active {
+            background: rgba(255,255,255,0.25);
+            box-shadow: 0 0 0 2px rgba(255,255,255,0.4);
+        }
+
+        /* Tooltip */
+        .tooltip-wrap { position: relative; }
+
+        .tooltip-tip {
+            position: absolute;
+            bottom: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%);
+            background: #111827;
+            color: white;
+            font-size: 0.72rem;
+            font-weight: 600;
+            padding: 0.3rem 0.65rem;
+            border-radius: 8px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.15s;
+            z-index: 300;
+        }
+
+        .tooltip-tip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 4px solid transparent;
+            border-top-color: #111827;
+        }
+
+        .tooltip-wrap:hover .tooltip-tip { opacity: 1; }
+
+        /* Badge */
+        .notif-badge {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: #ef4444;
+            color: white;
+            font-size: 0.6rem;
+            font-weight: 700;
+            min-width: 16px;
+            height: 16px;
+            border-radius: 999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 3px;
+            border: 2px solid #0d3604;
+            animation: pulseBadge 2s infinite;
+        }
+
+        @keyframes pulseBadge {
+            0%, 100% { transform: scale(1); }
+            50%       { transform: scale(1.2); }
+        }
+
+        /* Avatar button */
+        .avatar-btn-header {
+            width: 42px;
+            height: 42px;
+            border-radius: 14px;
+            overflow: hidden;
+            cursor: pointer;
+            border: 2.5px solid rgba(255,255,255,0.4);
+            transition: all 0.2s;
+            background: rgba(255,255,255,0.12);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            position: relative;
+        }
+
+        .avatar-btn-header:hover {
+            border-color: white;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+        }
+
+        .avatar-btn-header img { width: 100%; height: 100%; object-fit: cover; }
+
+        /* Dropdown */
+        .hdr-dropdown {
+            position: absolute;
+            top: calc(100% + 12px);
+            right: 0;
+            background: white;
+            border-radius: 18px;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.14);
+            opacity: 0;
+            transform: translateY(-8px) scale(0.97);
+            pointer-events: none;
+            transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            border: 1px solid rgba(0,0,0,0.06);
+            overflow: hidden;
+            z-index: 200;
+        }
+
+        .hdr-dropdown.show {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            pointer-events: all;
+        }
+
+        .hdr-dropdown-header {
+            background: linear-gradient(135deg, #0d3604, #2b9e15);
+            padding: 1rem 1.25rem;
+        }
+
+        .hdr-dropdown-header h4 {
+            font-family: 'Sora', sans-serif;
+            color: white;
+            font-size: 0.95rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .hdr-dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.7rem 1.1rem;
+            color: #374151;
+            text-decoration: none;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.15s;
+            cursor: pointer;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+        }
+
+        .hdr-dropdown-item:hover { background: #f0fdf4; color: #16a34a; }
+        .hdr-dropdown-item.danger:hover { background: #fef2f2; color: #dc2626; }
+
+        .hdr-dropdown-item .d-icon {
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+
+        .hdr-dropdown-divider { height: 1px; background: #f3f4f6; margin: 0.2rem 0; }
+        .nav-divider { width: 1px; height: 28px; background: rgba(255,255,255,0.2); margin: 0 0.25rem; }
+
+        /* ============================================ */
+        /* SIDEBAR IZQUIERDO                           */
+        /* ============================================ */
+        .sidebar-left {
+            position: sticky;
+            top: calc(64px + 1.25rem);
+            height: fit-content;
+            max-height: calc(100vh - 84px);
+            overflow-y: auto;
+        }
+
+        .sidebar-left::-webkit-scrollbar { width: 0; }
+
+        .sidebar-card {
+            background: white;
+            border-radius: 18px;
+            padding: 0.6rem;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+            margin-bottom: 0.75rem;
+        }
+
+        .sidebar-user {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.65rem 0.75rem;
+            border-radius: 14px;
+            text-decoration: none;
+            transition: all 0.2s;
+            margin-bottom: 0.15rem;
+        }
+
+        .sidebar-user:hover { background: #f0fdf4; }
+
+        .sidebar-user-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 13px;
+            background: linear-gradient(135deg, #0d3604, #2b9e15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            flex-shrink: 0;
+            box-shadow: 0 2px 8px rgba(13,122,47,0.3);
+            overflow: hidden;
+        }
+
+        .sidebar-user-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+        .sidebar-user-info { flex: 1; min-width: 0; }
+
+        .sidebar-user-name {
+            font-family: 'Sora', sans-serif;
+            font-weight: 700;
+            font-size: 0.875rem;
+            color: #111827;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .sidebar-user-role {
+            font-size: 0.72rem;
+            color: #16a34a;
+            font-weight: 600;
+            margin-top: 1px;
+        }
+
+        .sidebar-divider { height: 1px; background: #f3f4f6; margin: 0.4rem 0; }
+
+        .sidebar-nav-item {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            padding: 0.65rem 0.75rem;
+            border-radius: 14px;
+            text-decoration: none;
+            color: #374151;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.18s;
+            position: relative;
+            cursor: pointer;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+        }
+
+        .sidebar-nav-item:hover { background: #f0fdf4; color: #16a34a; }
+        .sidebar-nav-item:hover .sni-icon { background: #dcfce7; color: #16a34a; transform: scale(1.05); }
+
+        .sidebar-nav-item.active {
+            background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+            color: #16a34a;
+            font-weight: 600;
+        }
+
+        .sidebar-nav-item.active .sni-icon { background: #16a34a; color: white; }
+
+        .sidebar-nav-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 20%;
+            height: 60%;
+            width: 3px;
+            background: #16a34a;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .sni-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 11px;
+            background: #f3f4f6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            color: #6b7280;
+            transition: all 0.18s;
+        }
+
+        /* ============================================ */
+        /* MOBILE BOTTOM NAV                           */
+        /* ============================================ */
+        .mobile-bottom-nav {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid #e5e7eb;
+            z-index: 100;
+            padding: 0.4rem 0 calc(0.4rem + env(safe-area-inset-bottom));
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
+        }
+
+        .mobile-bottom-nav-inner {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+
+        .mob-nav-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.15rem;
+            color: #9ca3af;
+            text-decoration: none;
+            font-size: 0.6rem;
+            font-weight: 600;
+            padding: 0.3rem 0.5rem;
+            border-radius: 12px;
+            transition: all 0.2s;
+            position: relative;
+            border: none;
+            background: none;
+            cursor: pointer;
+        }
+
+        .mob-nav-btn.active { color: #16a34a; }
+
+        .mob-nav-icon {
+            width: 26px;
+            height: 26px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .mob-nav-btn.active .mob-nav-icon { background: #f0fdf4; }
+
+        /* ============================================ */
+        /* TARJETAS DE AMIGOS / SUGERENCIAS            */
+        /* ============================================ */
+        .friend-card {
+            background: white;
+            border-radius: 18px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+            padding: 1.25rem;
+            text-align: center;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .friend-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 28px rgba(0,0,0,0.12);
+        }
+
+        .friend-card.has-common {
+            border: 2px solid #86efac;
+        }
+
+        .friend-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin: 0 auto 0.75rem;
+            object-fit: cover;
+            border: 3px solid #e5e7eb;
+        }
+
+        .friend-avatar-placeholder {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin: 0 auto 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            border: 3px solid #e5e7eb;
+            background: linear-gradient(135deg, #d1d5db, #9ca3af);
+        }
+
+        .friend-avatar-placeholder.green-grad {
+            background: linear-gradient(135deg, #86efac, #16a34a);
+            border-color: #86efac;
+        }
+
+        .friend-name {
+            font-family: 'Sora', sans-serif;
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: #111827;
+            margin-bottom: 0.2rem;
+        }
+
+        .friend-email {
+            font-size: 0.78rem;
+            color: #9ca3af;
+            margin-bottom: 0.2rem;
+        }
+
+        .friend-role {
+            font-size: 0.72rem;
+            color: #6b7280;
+            font-style: italic;
+            margin-bottom: 0.75rem;
+        }
+
+        .friend-divider { height: 1px; background: #f3f4f6; margin: 0.75rem 0; }
+
+        .friend-btn {
+            display: block;
+            width: 100%;
+            padding: 0.55rem 1rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-align: center;
+            text-decoration: none;
+            transition: all 0.2s;
+            margin-bottom: 0.4rem;
+            border: none;
+            cursor: pointer;
+        }
+
+        .friend-btn:last-child { margin-bottom: 0; }
+
+        .btn-green { background: #16a34a; color: white; }
+        .btn-green:hover { background: #15803d; transform: translateY(-1px); box-shadow: 0 3px 10px rgba(22,163,74,0.3); }
+
+        .btn-gray { background: #6b7280; color: white; }
+        .btn-gray:hover { background: #4b5563; }
+
+        .btn-blue { background: #3b82f6; color: white; }
+        .btn-blue:hover { background: #2563eb; transform: translateY(-1px); box-shadow: 0 3px 10px rgba(59,130,246,0.3); }
+
+        .btn-red { background: #ef4444; color: white; }
+        .btn-red:hover { background: #dc2626; }
+
+        /* Badge amigos en común */
+        .common-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #16a34a;
+            color: white;
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 999px;
+        }
+
+        /* Common friends avatars */
+        .common-friends-box {
+            background: #f0fdf4;
+            border-radius: 10px;
+            padding: 0.5rem 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .common-friends-label {
+            font-size: 0.7rem;
+            color: #16a34a;
+            font-weight: 700;
+            margin-bottom: 0.35rem;
+        }
+
+        /* Tabs */
+        .tab-btn {
+            padding: 0.55rem 1.25rem;
+            border-radius: 12px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            transition: all 0.2s;
+            border: none;
+            cursor: pointer;
+        }
+
+        .tab-btn.active-tab {
+            background: #16a34a;
+            color: white;
+            box-shadow: 0 3px 10px rgba(22,163,74,0.25);
+        }
+
+        .tab-btn.inactive-tab {
+            background: #e5e7eb;
+            color: #374151;
+        }
+
+        .tab-btn.inactive-tab:hover { background: #d1d5db; }
+
+        /* Section title */
+        .section-title {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Animations */
+        @keyframes slide-in {
+            from { opacity: 0; transform: translateX(400px); }
+            to   { opacity: 1; transform: translateX(0); }
+        }
+        .animate-slide-in { animation: slide-in 0.3s ease-out; }
+
+        @media (max-width: 768px) {
+            .mobile-bottom-nav { display: block; }
+            body { padding-bottom: 70px; }
+        }
+
+        @media (max-width: 900px) {
+            .header-search { max-width: 200px; }
+        }
+    </style>
 </head>
 
-<body class="bg-gray-200">
+<body>
 
 {% if messages %}
 <div class="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 w-11/12 md:w-1/3">
@@ -26,413 +745,370 @@
 </div>
 {% endif %}
 
-<header class="hero bg-gradient-to-r from-[#0d3604] to-[#2b9e15] shadow-lg sticky top-0 z-50">
-        <nav class="container mx-auto px-2 py-2 relative">
-            <div class="flex justify-between items-center">
+<!-- ========================= -->
+<!--      HEADER MEJORADO      -->
+<!-- ========================= -->
+<header class="header">
+    <div class="header-inner">
 
-                <!-- LOGO -->
-                <div class="flex flex-row-reverse items-center">
-                    {% load static %}
-                    <img src="{% static 'img/logo2.png' %}" width="200px" />
+        <!-- LOGO -->
+        <a href="{% url 'sesion:home' %}" class="logo-area">
+            <div class="logo-monogram">iS</div>
+            <span class="logo-text">Info<span>Sena</span></span>
+        </a>
+
+        <!-- BÚSQUEDA DESKTOP -->
+        <div class="header-search hidden md:block">
+            <svg class="search-icon-abs" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <circle cx="11" cy="11" r="7"/><line x1="16" y1="16" x2="21" y2="21"/>
+            </svg>
+            <input type="text" id="searchInput" placeholder="Buscar personas..." autocomplete="off"/>
+            <button id="clearSearchBtn" class="clear-btn-abs hidden">
+                <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M18.3 5.71a1 1 0 0 0-1.42 0L12 10.59 7.11 5.7A1 1 0 1 0 5.7 7.11L10.59 12 5.7 16.89a1 1 0 1 0 1.41 1.41L12 13.41l4.88 4.89a1 1 0 0 0 1.42-1.42L13.41 12l4.89-4.88a1 1 0 0 0 0-1.41z"/>
+                </svg>
+            </button>
+
+            <!-- Panel resultados -->
+            <div id="searchPanel" class="search-panel hidden">
+                <div class="search-panel-header">
+                    <h3 id="panelTitle">Búsquedas recientes</h3>
+                    <button id="clearHistoryBtn">Limpiar todo</button>
                 </div>
-
-                <!-- INPUT (solo desktop) -->
-                
-<div class="hidden md:flex items-center w-full max-w-md relative">
-    <!-- Input de búsqueda -->
-    <div class="w-full bg-white rounded-full px-4 py-2 shadow-lg flex items-center">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#777"
-            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 mr-3 flex-shrink-0">
-            <circle cx="11" cy="11" r="7"></circle>
-            <line x1="16" y1="16" x2="21" y2="21"></line>
-        </svg>
-        <input 
-            type="text" 
-            id="searchInput"
-            placeholder="Buscar personas..." 
-            class="flex-1 outline-none text-gray-700 placeholder-gray-400 bg-transparent"
-            autocomplete="off"
-        />
-        <!-- Botón limpiar búsqueda -->
-        <button id="clearSearchBtn" class="hidden text-gray-400 hover:text-gray-600 transition-colors duration-200 ml-2 flex-shrink-0">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
-                <path d="M18.3 5.71a1 1 0 0 0-1.42 0L12 10.59 7.11 5.7A1 1 0 1 0 5.7 7.11L10.59 12 5.7 16.89a1 1 0 1 0 1.41 1.41L12 13.41l4.88 4.89a1 1 0 0 0 1.42-1.42L13.41 12l4.89-4.88a1 1 0 0 0 0-1.41z"/>
-            </svg>
-        </button>
-    </div>
-
-    <!-- Panel de resultados y historial -->
-    <div id="searchPanel" class="hidden absolute top-14 left-0 w-full bg-white rounded-xl shadow-2xl z-50 overflow-hidden max-h-96 border border-gray-100 animate-fade-in">
-        
-        <!-- Header del panel -->
-        <div class="p-3 border-b border-gray-200 flex justify-between items-center bg-gray-50">
-            <h3 id="panelTitle" class="font-bold text-gray-700 text-sm">Búsquedas recientes</h3>
-            <button id="clearHistoryBtn" class="text-sm text-blue-600 hover:text-blue-800 transition-colors duration-200 font-medium">
-                Limpiar todo
-            </button>
+                <div id="searchLoading" class="hidden p-8 text-center">
+                    <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-200 border-t-green-600"></div>
+                    <p class="text-gray-500 mt-2 text-sm">Buscando...</p>
+                </div>
+                <div id="searchResults" class="max-h-80 overflow-y-auto scrollbar-thin"></div>
+                <div id="noResults" class="hidden p-8 text-center">
+                    <div class="text-5xl mb-3">🔍</div>
+                    <p class="text-gray-600 font-semibold">No se encontraron resultados</p>
+                    <p class="text-gray-400 text-sm mt-1">Intenta con otro nombre o documento</p>
+                </div>
+                <div id="emptyHistory" class="hidden p-8 text-center">
+                    <div class="text-5xl mb-3">🕐</div>
+                    <p class="text-gray-600 font-semibold">Sin búsquedas recientes</p>
+                    <p class="text-gray-400 text-sm mt-1">Tus búsquedas aparecerán aquí</p>
+                </div>
+            </div>
         </div>
 
-        <!-- Loading spinner -->
-        <div id="searchLoading" class="hidden p-8 text-center">
-            <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-200 border-t-green-600"></div>
-            <p class="text-gray-500 mt-2 text-sm">Buscando...</p>
-        </div>
+        <!-- ICONOS DESKTOP -->
+        <div class="hidden md:flex items-center gap-1">
 
-        <!-- Resultados de búsqueda -->
-        <div id="searchResults" class="max-h-80 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-            <!-- Los resultados se cargarán aquí dinámicamente -->
-        </div>
+            <!-- Home -->
+            <div class="tooltip-wrap">
+                <a href="{% url 'sesion:home' %}" class="nav-icon-btn">
+                    <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 9.75L12 3l9 6.75V21H3V9.75z"/>
+                    </svg>
+                </a>
+            </div>
 
-        <!-- Mensaje cuando no hay resultados -->
-        <div id="noResults" class="hidden p-8 text-center">
-            <div class="text-5xl mb-3">🔍</div>
-            <p class="text-gray-600 font-semibold text-base">No se encontraron resultados</p>
-            <p class="text-gray-400 text-sm mt-1">Intenta con otro nombre o documento</p>
-        </div>
+            <!-- Chat -->
+            <div class="tooltip-wrap">
+                <a href="{% url 'chat:lista_chats' %}" class="nav-icon-btn">
+                    <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6A8.38 8.38 0 0111.5 3h1a8.5 8.5 0 018.5 8.5z"/>
+                    </svg>
+                </a>
+            </div>
 
-        <!-- Historial vacío -->
-        <div id="emptyHistory" class="hidden p-8 text-center">
-            <div class="text-5xl mb-3">🕐</div>
-            <p class="text-gray-600 font-semibold text-base">Sin búsquedas recientes</p>
-            <p class="text-gray-400 text-sm mt-1">Tus búsquedas aparecerán aquí</p>
-        </div>
-    </div>
-</div>
+            <!-- Amigos (activo en esta página) -->
+            <div class="tooltip-wrap">
+                <a href="{% url 'sesion:amigos' %}" class="nav-icon-btn is-active">
+                    <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <circle cx="7" cy="7" r="4"/>
+                        <path d="M1 21v-2a6 6 0 016-6h0a6 6 0 016 6v2"/>
+                        <circle cx="17" cy="9" r="3.5"/>
+                        <path d="M14 21v-2a4 4 0 014-4h0a4 4 0 014 4v2"/>
+                    </svg>
+                </a>
+            </div>
 
-<!-- BÚSQUEDA MOBILE -->
-<div id="mobileSearchBox" class="hidden mt-3 bg-white rounded-full px-4 py-2 shadow-lg md:hidden relative">
-    <div class="flex items-center">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#777"
-            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 mr-3 flex-shrink-0">
-            <circle cx="11" cy="11" r="7"></circle>
-            <line x1="16" y1="16" x2="21" y2="21"></line>
-        </svg>
-        <input 
-            type="text" 
-            id="mobileSearchInput"
-            placeholder="Buscar personas..." 
-            class="flex-1 outline-none text-gray-700 placeholder-gray-400 bg-transparent"
-            autocomplete="off"
-        />
-        <button id="clearMobileSearchBtn" class="hidden text-gray-400 hover:text-gray-600 transition-colors duration-200 ml-2 flex-shrink-0">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
-                <path d="M18.3 5.71a1 1 0 0 0-1.42 0L12 10.59 7.11 5.7A1 1 0 1 0 5.7 7.11L10.59 12 5.7 16.89a1 1 0 1 0 1.41 1.41L12 13.41l4.88 4.89a1 1 0 0 0 1.42-1.42L13.41 12l4.89-4.88a1 1 0 0 0 0-1.41z"/>
-            </svg>
-        </button>
-    </div>
-    
-    <!-- Panel móvil -->
-    <div id="mobileSearchPanel" class="hidden absolute top-14 left-0 right-0 bg-white rounded-xl shadow-2xl z-50 overflow-hidden max-h-96 border border-gray-100">
-        
-        <!-- Header del panel móvil -->
-        <div class="p-3 border-b border-gray-200 flex justify-between items-center bg-gray-50">
-            <h3 id="mobilePanelTitle" class="font-bold text-gray-700 text-sm">Búsquedas recientes</h3>
-            <button id="clearMobileHistoryBtn" class="text-sm text-blue-600 hover:text-blue-800 transition-colors duration-200 font-medium">
-                Limpiar todo
-            </button>
-        </div>
-
-        <!-- Loading móvil -->
-        <div id="mobileSearchLoading" class="hidden p-8 text-center">
-            <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-200 border-t-green-600"></div>
-            <p class="text-gray-500 mt-2 text-sm">Buscando...</p>
-        </div>
-
-        <!-- Resultados móvil -->
-        <div id="mobileSearchResults" class="max-h-80 overflow-y-auto">
-            <!-- Los resultados se cargarán aquí -->
-        </div>
-
-        <!-- Sin resultados móvil -->
-        <div id="mobileNoResults" class="hidden p-8 text-center">
-            <div class="text-5xl mb-3">🔍</div>
-            <p class="text-gray-600 font-semibold text-base">No se encontraron resultados</p>
-            <p class="text-gray-400 text-sm mt-1">Intenta con otro nombre o documento</p>
-        </div>
-
-        <!-- Historial vacío móvil -->
-        <div id="mobileEmptyHistory" class="hidden p-8 text-center">
-            <div class="text-5xl mb-3">🕐</div>
-            <p class="text-gray-600 font-semibold text-base">Sin búsquedas recientes</p>
-            <p class="text-gray-400 text-sm mt-1">Tus búsquedas aparecerán aquí</p>
-        </div>
-    </div>
-</div>
-
-                <!-- ICONOS DESKTOP -->
-                <div class="hidden md:flex items-center space-x-6">
-                    <div class="relative">
-                        <!-- Home -->
-    <a href="{% url 'sesion:home' %}" class="block cursor-pointer">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white"
-            stroke-width="2" class="w-10 h-10 hover:scale-110 transition-transform duration-200">
-            <path stroke-linecap="round" stroke-linejoin="round"
-                d="M3 9.75L12 3l9 6.75V21H3V9.75z" />
-        </svg>
-    </a>
-                    </div>
-                                        <div class="relative">
-    <!-- Bell -->
-    <button id="btnNotificaciones" class="relative">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white"
-            stroke-width="1.5" class="w-12 h-12">
-            <path stroke-linecap="round" stroke-linejoin="round"
-                d="M12 22a2 2 0 002-2H10a2 2 0 002 2zm6-6V11a6 6 0 10-12 0v5l-1.5 2.5h15L18 16z" />
-        </svg>
-        <!-- Badge de contador -->
-        <span id="notificationBadge" 
-              class="hidden absolute top-0 right-0 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center animate-pulse">
-            0
-        </span>
-    </button>
-    
-    <!-- MENÚ NOTIFICACIONES -->
-    <div id="menuNotificaciones"
-        class="hidden absolute right-0 mt-3 w-80 bg-white rounded-xl shadow-2xl z-50 overflow-hidden">
-        <div class="w-6 h-6 bg-white rotate-45 absolute -top-3 right-6"></div>
-        
-        <!-- Header -->
-        <div class="bg-gradient-to-r from-green-600 to-green-500 p-4">
-            <div class="flex justify-between items-center">
-                <h3 class="text-lg font-bold text-white">Notificaciones</h3>
-                <button onclick="marcarTodasLeidasHeader()" 
-                        class="text-white text-xs hover:text-green-100 transition">
-                    ✓ Marcar todas
+            <!-- Notificaciones -->
+            <div class="tooltip-wrap" style="position:relative">
+                <button id="btnNotificaciones" class="nav-icon-btn">
+                    <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 22a2 2 0 002-2H10a2 2 0 002 2zm6-6V11a6 6 0 10-12 0v5l-1.5 2.5h15L18 16z"/>
+                    </svg>
+                    <span id="notificationBadge" class="notif-badge hidden">0</span>
                 </button>
-            </div>
-        </div>
-        
-        <!-- Body - Lista de notificaciones -->
-        <div class="max-h-96 overflow-y-auto bg-gray-50" id="listaNotificaciones">
-            <!-- Las notificaciones se cargarán aquí dinámicamente -->
-            <div class="flex flex-col items-center justify-center py-12">
-                <div class="text-4xl mb-2">🔔</div>
-                <p class="text-gray-400 text-sm">Cargando notificaciones...</p>
-            </div>
-        </div>
-        
-        <!-- Footer -->
-        <div class="bg-white border-t border-gray-200 p-3">
-            <a href="{% url 'notificaciones:lista' %}"
-                class="block text-center text-sm text-green-600 font-semibold hover:text-green-800 transition">
-                Ver todas las notificaciones →
-            </a>
-        </div>
-    </div>
-</div>
-                    <!-- User -->
-                    <div class="relative">
-    <!-- ICONO PERFIL CON FOTO -->
-    <button id="btnPerfil" class="flex items-center justify-center">
-        {% if usuario.foto %}
-        <img src="{{ usuario.foto.url }}" alt="{{ usuario.nombre }}"
-            class="w-10 h-10 rounded-full object-cover border-2 border-white">
-        {% else %}
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white"
-            stroke-width="2" class="w-10 h-10">
-            <path stroke-linecap="round" stroke-linejoin="round"
-                d="M12 12a5 5 0 100-10 5 5 0 000 10zm7 8c0-4-3-7-7-7s-7 3-7 7" />
-        </svg>
-        {% endif %}
-    </button>
-
-    <!-- MENÚ DESPLEGABLE -->
-    <div id="menuPerfil"
-        class="hidden absolute right-0 mt-3 w-64 bg-gray-200 rounded-xl shadow-xl p-4 z-50">
-        <div class="flex justify-center mb-3">
-            <div class="w-6 h-6 bg-gray-200 rotate-45 absolute -top-3 right-6"></div>
-        </div>
-        
-        <!-- Ver Perfil -->
-        <a href="{% url 'perfil:perfiles' %}"
-            class="block bg-green-600 text-white text-center py-3 rounded-lg hover:bg-green-700 transition mb-3">
-            👤 Ver Perfil
-        </a>
-        
-        <!-- ✅ NUEVO: Panel de Aprobación (solo para admin) -->
-        {% if es_admin %}
-        <a href="{% url 'registro:panel_aprobacion' %}"
-            class="block bg-yellow-500 text-white text-center py-3 rounded-lg hover:bg-yellow-600 transition mb-3 font-semibold shadow-md">
-            ⚙️ Panel de Aprobación
-        </a>
-        {% endif %}
-        
-        <!-- Separador -->
-        <div class="my-3 border-t border-gray-400"></div>
-        
-        <!-- Cerrar Sesión -->
-        <a href="{% url 'sesion:login' %}"
-            class="block bg-gray-400 text-white text-center py-3 rounded-lg hover:bg-gray-500 transition">
-            🚪 Cerrar Sesión
-        </a>
-    </div>
-</div>
-                </div>
-
-                <!-- BOTONES MOBILE -->
-                <div class="flex md:hidden items-center space-x-4">
-                    <button id="btnSearch">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="white" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" class="w-8 h-8">
-                            <circle cx="11" cy="11" r="7"></circle>
-                            <line x1="16" y1="16" x2="21" y2="21"></line>
-                        </svg>
-                    </button>
-                    <button id="btnMenu">
-                        <svg fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round"
-                            stroke-linejoin="round" class="w-10 h-10">
-                            <path d="M4 6h16M4 12h16M4 18h16" />
-                        </svg>
-                    </button>
-                </div>
-            </div>
-
-            <!-- INPUT MOBILE DESPLEGABLE -->
-            <div id="searchBox" class="hidden mt-3 bg-white rounded-full px-4 py-2 shadow-lg md:hidden">
-                <input type="text" placeholder="Search..."
-                    class="w-full outline-none text-gray-700 placeholder-gray-400" />
-            </div>
-
-            <!-- MENU MOBILE DESPLEGABLE -->
-            <div id="mobileMenu" class="hidden mt-3 flex flex-col space-y-3 md:hidden">
-                <a href="{% url 'sesion:home' %}" class="flex items-center space-x-3 bg-white/20 p-3 rounded-xl text-white">
-                    <span>Home</span>
-                </a>
-                <a class="flex items-center space-x-3 bg-white/20 p-3 rounded-xl text-white">
-                    <span>Notifications</span>
-                </a>
-                <a href="{% url 'perfil:perfiles' %}"
-                    class="flex items-center space-x-3 bg-white/20 p-3 rounded-xl text-white">
-                    <span>Profile</span>
-                </a>
-                <a class="flex items-center space-x-3 bg-white/20 p-3 rounded-xl text-white">
-                    <span>Chat</span>
-                </a>
-                <a href="{% url 'sesion:amigos' %}" class="home-reload-btn flex items-center space-x-3 bg-white/20 p-3 rounded-xl text-white">
-                    <span>Amigos</span>
-                </a>
-            </div>
-        </nav>
-    </header>
-
-<div class="pt-20 grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 h-screen">
-
-        <!-- ========================= -->
-        <!--     COLUMNA IZQUIERDA    -->
-        <!-- ========================= -->
-        <aside
-            class="hidden md:block md:col-span-1 bg-transparent overflow-y-auto h-[calc(100vh-5rem)] sticky top-20 p-4">
-            <div class="space-y-4">
-                <!-- MI PERFIL CON FOTO -->
-                <a href="{% url 'perfil:perfiles' %}"
-                    class="flex items-center space-x-3 bg-white p-3 rounded-xl shadow hover:bg-green-200 hover:text-green-700 transition cursor-pointer">
-                    {% if usuario.foto %}
-                        <img src="{{ usuario.foto.url }}" 
-                             alt="{{ usuario.nombre }}"
-                             class="w-10 h-10 rounded-full object-cover">
-                    {% else %}
-                        <div class="w-10 h-10 bg-gradient-to-br from-gray-300 to-gray-400 rounded-full flex items-center justify-center text-xl">
-                            {% if tipo_perfil == 'instructor' %}
-                                👨‍🏫
-                            {% elif tipo_perfil == 'bienestar' %}
-                                🏥
-                            {% elif tipo_perfil == 'aprendiz' %}
-                                🎓
-                            {% endif %}
+               
+                <!-- Menú notificaciones (original) -->
+                <div id="menuNotificaciones" class="hdr-dropdown" style="width:320px; right:0">
+                    <div class="hdr-dropdown-header" style="display:flex;justify-content:space-between;align-items:center">
+                        <h4>🔔 Notificaciones</h4>
+                        <button onclick="marcarTodasLeidasHeader()" style="color:white;font-size:0.75rem;font-weight:600;background:none;border:none;cursor:pointer;opacity:0.85">
+                            ✓ Marcar todas
+                        </button>
+                    </div>
+                    <div class="max-h-96 overflow-y-auto bg-gray-50" id="listaNotificaciones">
+                        <div class="flex flex-col items-center justify-center py-12">
+                            <div class="text-4xl mb-2">🔔</div>
+                            <p class="text-gray-400 text-sm">Cargando notificaciones...</p>
                         </div>
-                    {% endif %}
-                    <span>{{ usuario.nombre }}</span>
-                </a>
-
-                <a href="{% url 'sesion:home' %}"
-                    class="flex items-center space-x-3 bg-white p-3 rounded-xl shadow hover:bg-green-200 hover:text-green-700">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path d="M3 9.75L12 3l9 6.75V21H3V9.75z"></path>
-                    </svg>
-                    <span>Inicio</span>
-                </a>
-
-                <a
-                    class="flex items-center space-x-3 bg-white p-3 rounded-xl shadow hover:bg-green-200 hover:text-green-700 transition">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="1"
-                        stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6">
-                        <path
-                            d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6A8.38 8.38 0 0111.5 3h1a8.5 8.5 0 018.5 8.5z" />
-                    </svg>
-                    <span>Chat</span>
-                </a>
-
-                <a href="{% url 'sesion:amigos' %}"
-                    class="home-reload-btn flex items-center space-x-3 bg-white p-3 rounded-xl shadow hover:bg-green-200 hover:text-green-700 transition">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="1"
-                        stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" class="w-6 h-6">
-                        <circle cx="7" cy="7" r="4"></circle>
-                        <path d="M1 21v-2a6 6 0 016-6h0a6 6 0 016 6v2"></path>
-                        <circle cx="17" cy="9" r="3.5"></circle>
-                        <path d="M14 21v-2a4 4 0 014-4h0a4 4 0 014 4v2"></path>
-                    </svg>
-                    <span>Amigos</span>
-                </a>
+                    </div>
+                    <div class="bg-white border-t border-gray-200 p-3">
+                        <a href="{% url 'notificaciones:lista' %}" class="block text-center text-sm text-green-600 font-semibold hover:text-green-800 transition">
+                            Ver todas las notificaciones →
+                        </a>
+                    </div>
+                </div>
             </div>
-        </aside>
 
-    <main class="col-span-4 lg:col-span-4 p-4">
+            <div class="nav-divider"></div>
 
-        <div class="flex justify-between items-center mb-6">
-            <h2 class="text-3xl font-bold text-gray-800">Amigos</h2>
+            <!-- Perfil -->
+            <div style="position:relative">
+                <button id="btnPerfil" class="avatar-btn-header">
+                    {% if usuario.foto %}
+                    <img src="{{ usuario.foto.url }}" alt="{{ usuario.nombre }}">
+                    {% else %}
+                    <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 12a5 5 0 100-10 5 5 0 000 10zm7 8c0-4-3-7-7-7s-7 3-7 7"/>
+                    </svg>
+                    {% endif %}
+                </button>
+
+                <div id="menuPerfil" class="hdr-dropdown" style="width:230px; right:0">
+                    <div class="hdr-dropdown-header">
+                        <div style="display:flex;align-items:center;gap:0.65rem">
+                            <div style="width:40px;height:40px;border-radius:12px;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0">
+                                {% if usuario.foto %}
+                                <img src="{{ usuario.foto.url }}" style="width:100%;height:100%;object-fit:cover">
+                                {% else %}
+                                <span style="font-size:1.3rem">
+                                    {% if tipo_perfil == 'instructor' %}👨‍🏫
+                                    {% elif tipo_perfil == 'bienestar' %}🏥
+                                    {% else %}🎓{% endif %}
+                                </span>
+                                {% endif %}
+                            </div>
+                            <div>
+                                <div style="font-family:'Sora',sans-serif;color:white;font-weight:700;font-size:0.85rem">{{ usuario.nombre }}</div>
+                                <div style="color:rgba(255,255,255,0.75);font-size:0.72rem">
+                                    {% if tipo_perfil == 'instructor' %}Instructor
+                                    {% elif tipo_perfil == 'bienestar' %}Bienestar
+                                    {% else %}Aprendiz{% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <a href="{% url 'perfil:perfiles' %}" class="hdr-dropdown-item">
+                        <div class="d-icon" style="background:#f0fdf4;color:#16a34a">
+                            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path d="M12 12a5 5 0 100-10 5 5 0 000 10zm7 8c0-4-3-7-7-7s-7 3-7 7"/>
+                            </svg>
+                        </div>
+                        Ver Perfil
+                    </a>
+
+                    {% if es_admin %}
+                    <a href="{% url 'registro:panel_aprobacion' %}" class="hdr-dropdown-item">
+                        <div class="d-icon" style="background:#fef3c7;color:#d97706">⚙️</div>
+                        Panel de Aprobación
+                    </a>
+                    {% endif %}
+
+                    <div class="hdr-dropdown-divider"></div>
+
+                    <a href="{% url 'sesion:login' %}" class="hdr-dropdown-item danger">
+                        <div class="d-icon" style="background:#fef2f2;color:#dc2626">
+                            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/>
+                                <polyline points="16,17 21,12 16,7"/>
+                                <line x1="21" y1="12" x2="9" y2="12"/>
+                            </svg>
+                        </div>
+                        Cerrar Sesión
+                    </a>
+                </div>
+            </div>
         </div>
 
-        <!-- PESTAÑAS -->
-        <div class="flex space-x-4 mb-6 border-b pb-2">
-            <button id="btnSolicitudes"
-                class="px-6 py-2 rounded-xl bg-green-600 text-white font-semibold hover:bg-green-700 transition">
-                Solicitudes 
+        <!-- BOTONES MOBILE -->
+        <div class="flex md:hidden items-center gap-2">
+            <button id="btnSearch" class="nav-icon-btn">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <circle cx="11" cy="11" r="7"/><line x1="16" y1="16" x2="21" y2="21"/>
+                </svg>
+            </button>
+         </div>
+    </div>
+
+    <!-- BÚSQUEDA MOBILE EXPANDIBLE -->
+    <div id="mobileSearchBox" class="hidden px-4 pb-3 md:hidden">
+        <div class="bg-white/15 border border-white/25 rounded-2xl px-4 py-2 flex items-center gap-3 relative">
+            <svg width="16" height="16" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2" viewBox="0 0 24 24" class="flex-shrink-0">
+                <circle cx="11" cy="11" r="7"/><line x1="16" y1="16" x2="21" y2="21"/>
+            </svg>
+            <input type="text" id="mobileSearchInput" placeholder="Buscar personas..."
+                   class="flex-1 outline-none bg-transparent text-white placeholder-white/60 text-sm" autocomplete="off"/>
+            <button id="clearMobileSearchBtn" class="hidden text-white/70">
+                <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M18.3 5.71a1 1 0 0 0-1.42 0L12 10.59 7.11 5.7A1 1 0 1 0 5.7 7.11L10.59 12 5.7 16.89a1 1 0 1 0 1.41 1.41L12 13.41l4.88 4.89a1 1 0 0 0 1.42-1.42L13.41 12l4.89-4.88a1 1 0 0 0 0-1.41z"/>
+                </svg>
+            </button>
+
+            <div id="mobileSearchPanel" class="search-panel hidden" style="top:calc(100% + 8px)">
+                <div class="search-panel-header">
+                    <h3 id="mobilePanelTitle">Búsquedas recientes</h3>
+                    <button id="clearMobileHistoryBtn">Limpiar todo</button>
+                </div>
+                <div id="mobileSearchLoading" class="hidden p-8 text-center">
+                    <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-200 border-t-green-600"></div>
+                    <p class="text-gray-500 mt-2 text-sm">Buscando...</p>
+                </div>
+                <div id="mobileSearchResults" class="max-h-80 overflow-y-auto"></div>
+                <div id="mobileNoResults" class="hidden p-8 text-center">
+                    <div class="text-5xl mb-3">🔍</div>
+                    <p class="text-gray-600 font-semibold">No se encontraron resultados</p>
+                </div>
+                <div id="mobileEmptyHistory" class="hidden p-8 text-center">
+                    <div class="text-5xl mb-3">🕐</div>
+                    <p class="text-gray-600 font-semibold">Sin búsquedas recientes</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MENU MOBILE -->
+</header>
+
+<!-- ========================= -->
+<!--    CONTENEDOR PRINCIPAL   -->
+<!-- ========================= -->
+<div class="pt-5 grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6" style="max-width:1400px;margin:0 auto;padding-left:1.25rem;padding-right:1.25rem;gap:1.25rem;min-height:calc(100vh - 64px)">
+
+    <!-- SIDEBAR IZQUIERDO -->
+    <aside class="hidden md:block md:col-span-1 sidebar-left">
+        <div class="sidebar-card">
+            <a href="{% url 'perfil:perfiles' %}" class="sidebar-user">
+                <div class="sidebar-user-avatar">
+                    {% if usuario.foto %}
+                    <img src="{{ usuario.foto.url }}" alt="{{ usuario.nombre }}">
+                    {% else %}
+                    {% if tipo_perfil == 'instructor' %}👨‍🏫
+                    {% elif tipo_perfil == 'bienestar' %}🏥
+                    {% else %}🎓{% endif %}
+                    {% endif %}
+                </div>
+                <div class="sidebar-user-info">
+                    <div class="sidebar-user-name">{{ usuario.nombre }}</div>
+                    <div class="sidebar-user-role">
+                        {% if tipo_perfil == 'instructor' %}Instructor
+                        {% elif tipo_perfil == 'bienestar' %}Bienestar
+                        {% else %}Aprendiz{% endif %}
+                    </div>
+                </div>
+                <svg width="14" height="14" fill="none" stroke="#9ca3af" stroke-width="2" viewBox="0 0 24 24">
+                    <path d="M9 18l6-6-6-6"/>
+                </svg>
+            </a>
+
+            <div class="sidebar-divider"></div>
+
+            <nav>
+                <a href="{% url 'sesion:home' %}" class="sidebar-nav-item">
+                    <div class="sni-icon">
+                        <svg width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M3 9.75L12 3l9 6.75V21H3V9.75z" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    Inicio
+                </a>
+
+                <a href="{% url 'chat:lista_chats' %}" class="sidebar-nav-item">
+                    <div class="sni-icon" style="background:#eff6ff;color:#3b82f6">
+                        <svg width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6A8.38 8.38 0 0111.5 3h1a8.5 8.5 0 018.5 8.5z"/>
+                        </svg>
+                    </div>
+                    Chat
+                </a>
+
+                <!-- Amigos activo -->
+                <a href="{% url 'sesion:amigos' %}" class="sidebar-nav-item active home-reload-btn">
+                    <div class="sni-icon">
+                        <svg width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <circle cx="7" cy="7" r="4"/>
+                            <path d="M1 21v-2a6 6 0 016-6h0a6 6 0 016 6v2"/>
+                            <circle cx="17" cy="9" r="3.5"/>
+                            <path d="M14 21v-2a4 4 0 014-4h0a4 4 0 014 4v2"/>
+                        </svg>
+                    </div>
+                    Amigos
+                </a>
+
+                <a href="{% url 'notificaciones:lista' %}" class="sidebar-nav-item">
+                    <div class="sni-icon" style="background:#fef2f2;color:#ef4444">
+                        <svg width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/>
+                        </svg>
+                    </div>
+                    Notificaciones
+                </a>
+            </nav>
+        </div>
+    </aside>
+
+    <!-- ========================= -->
+    <!--    CONTENIDO PRINCIPAL    -->
+    <!-- ========================= -->
+    <main class="col-span-4 lg:col-span-5 py-4" style="padding-right:0">
+
+        <!-- Título de página -->
+        <div class="flex justify-between items-center mb-5">
+            <div>
+                <h2 style="font-family:'Sora',sans-serif;font-size:1.6rem;font-weight:800;color:#111827;margin:0">Amigos</h2>
+                <p style="color:#9ca3af;font-size:0.875rem;margin-top:2px">Conecta con personas del SENA</p>
+            </div>
+        </div>
+
+        <!-- PESTAÑAS (funciones originales intactas) -->
+        <div class="flex gap-3 mb-6" style="border-bottom:2px solid #f3f4f6;padding-bottom:0.75rem">
+            <button id="btnSolicitudes" class="tab-btn active-tab">
+                Solicitudes
                 {% if solicitudes_recibidas.count > 0 %}
-                <span class="bg-red-500 text-white text-xs px-2 py-1 rounded-full ml-2">{{ solicitudes_recibidas.count }}</span>
+                <span style="background:#ef4444;color:white;font-size:0.65rem;padding:2px 7px;border-radius:999px;margin-left:6px;font-weight:700">{{ solicitudes_recibidas.count }}</span>
                 {% endif %}
             </button>
 
-            <button id="btnAgregados"
-                class="px-6 py-2 rounded-xl bg-gray-300 text-gray-800 font-semibold hover:bg-gray-400 transition">
+            <button id="btnAgregados" class="tab-btn inactive-tab">
                 Mis amigos ({{ amigos|length }})
             </button>
         </div>
 
         <!-- ========================================= -->
-        <!--  SECCIÓN: SOLICITUDES Y SUGERENCIAS       -->
+        <!-- SOLICITUDES Y SUGERENCIAS (original)      -->
         <!-- ========================================= -->
         <div id="solicitudesSection">
-            
+
             <!-- SOLICITUDES RECIBIDAS -->
             {% if solicitudes_recibidas %}
             <div class="mb-8">
-                <h3 class="text-xl font-bold text-gray-800 mb-4">📬 Solicitudes recibidas</h3>
-                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                <div class="section-title">📬 Solicitudes recibidas</div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
                     {% for solicitud in solicitudes_recibidas %}
-                    <div class="bg-white rounded-xl shadow p-4 text-center">
+                    <div class="friend-card">
                         {% if solicitud.emisor.foto %}
-                            <img src="{{ solicitud.emisor.foto.url }}" 
-                                 alt="{{ solicitud.emisor.nombre }}"
-                                 class="w-24 h-24 mx-auto rounded-full object-cover mb-3 border-4 border-green-200">
+                        <img src="{{ solicitud.emisor.foto.url }}" alt="{{ solicitud.emisor.nombre }}" class="friend-avatar" style="border-color:#86efac">
                         {% else %}
-                            <div class="w-24 h-24 mx-auto bg-gradient-to-br from-gray-300 to-gray-400 rounded-full mb-3 flex items-center justify-center text-4xl">
-                                👤
-                            </div>
+                        <div class="friend-avatar-placeholder">👤</div>
                         {% endif %}
 
-                        <p class="font-semibold text-lg">{{ solicitud.emisor.nombre }}</p>
-                        <p class="text-gray-400 text-sm mb-2">{{ solicitud.emisor.email }}</p>
-                        <p class="text-xs text-gray-400 italic mb-3">{{ solicitud.fecha_solicitud|timesince }} atrás</p>
+                        <div class="friend-name">{{ solicitud.emisor.nombre }}</div>
+                        <div class="friend-email">{{ solicitud.emisor.email }}</div>
+                        <div class="friend-role">{{ solicitud.fecha_solicitud|timesince }} atrás</div>
 
-                        <div class="border-t border-gray-300 mb-3"></div>
+                        <div class="friend-divider"></div>
 
-                        <a href="{% url 'amistades:aceptar_solicitud' solicitud.id %}" 
-                           class="block w-full bg-green-600 text-white py-2 rounded-lg mb-2 hover:bg-green-700 transition">
+                        <a href="{% url 'amistades:aceptar_solicitud' solicitud.id %}" class="friend-btn btn-green">
                             ✓ Aceptar
                         </a>
-
-                        <a href="{% url 'amistades:rechazar_solicitud' solicitud.id %}" 
-                           class="block w-full bg-gray-500 text-white py-2 rounded-lg hover:bg-gray-600 transition">
+                        <a href="{% url 'amistades:rechazar_solicitud' solicitud.id %}" class="friend-btn btn-gray">
                             ✕ Rechazar
                         </a>
                     </div>
@@ -441,148 +1117,109 @@
             </div>
             {% endif %}
 
-            <!-- SUGERENCIAS DE AMISTAD -->
-<div class="mb-8">
-    <h3 class="text-xl font-bold text-gray-800 mb-4">💡 Sugerencias de amistad</h3>
-    
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-        {% for sugerencia in sugerencias %}
-        <div class="bg-white rounded-xl shadow p-4 text-center hover:shadow-lg transition
-                    {% if sugerencia.amigos_en_comun > 0 %}border-2 border-green-300{% endif %}">
-            
-            <!-- Badge de amigos en común (si tiene) -->
-            {% if sugerencia.amigos_en_comun > 0 %}
-            <div class="absolute top-2 right-2">
-                <span class="bg-green-600 text-white text-xs px-2 py-1 rounded-full font-bold">
-                    {{ sugerencia.amigos_en_comun }} amigo{% if sugerencia.amigos_en_comun > 1 %}s{% endif %} en común
-                </span>
-            </div>
-            {% endif %}
-            
-            <!-- Foto de perfil -->
-            {% if sugerencia.usuario.foto %}
-                <img src="{{ sugerencia.usuario.foto.url }}" 
-                     alt="{{ sugerencia.usuario.nombre }}" 
-                     class="w-24 h-24 mx-auto rounded-full object-cover mb-3 border-4 
-                            {% if sugerencia.amigos_en_comun > 0 %}border-green-300{% else %}border-gray-200{% endif %}">
-            {% else %}
-                <div class="w-24 h-24 mx-auto rounded-full mb-3 flex items-center justify-center text-4xl border-4
-                            {% if sugerencia.amigos_en_comun > 0 %}border-green-300 bg-gradient-to-br from-green-300 to-green-500{% else %}border-gray-200 bg-gradient-to-br from-gray-300 to-gray-400{% endif %}">
-                    {% if sugerencia.usuario.tipo == 'instructor' %}
-                        👨‍🏫
-                    {% elif sugerencia.usuario.tipo == 'bienestar' %}
-                        🏥
-                    {% elif sugerencia.usuario.tipo == 'aprendiz' %}
-                        🎓
-                    {% else %}
-                        👤
-                    {% endif %}
-                </div>
-            {% endif %}
-            
-            <!-- Información del usuario -->
-            <p class="font-semibold text-lg">{{ sugerencia.usuario.nombre }}</p>
-            <p class="text-gray-400 text-sm mb-2">{{ sugerencia.usuario.email }}</p>
-            <p class="text-xs text-gray-500 italic mb-2">
-                {{ sugerencia.usuario.get_tipo_display|default:"Usuario" }}
-            </p>
-            
-            <!-- Mostrar amigos en común -->
-            {% if sugerencia.amigos_en_comun > 0 %}
-            <div class="bg-green-50 rounded-lg p-2 mb-3">
-                <p class="text-xs text-green-700 font-semibold mb-1">Amigos en común:</p>
-                <div class="flex justify-center items-center space-x-1">
-                    {% for amigo_comun in sugerencia.amigos_en_comun_lista %}
-                    <div class="relative group">
-                        {% if amigo_comun.foto %}
-                        <img src="{{ amigo_comun.foto.url }}" 
-                             alt="{{ amigo_comun.nombre }}"
-                             class="w-6 h-6 rounded-full border-2 border-white">
+            <!-- SUGERENCIAS DE AMISTAD (original completo) -->
+            <div class="mb-8">
+                <div class="section-title">💡 Sugerencias de amistad</div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+                    {% for sugerencia in sugerencias %}
+                    <div class="friend-card {% if sugerencia.amigos_en_comun > 0 %}has-common{% endif %}">
+
+                        {% if sugerencia.amigos_en_comun > 0 %}
+                        <div class="common-badge">{{ sugerencia.amigos_en_comun }} en común</div>
+                        {% endif %}
+
+                        {% if sugerencia.usuario.foto %}
+                        <img src="{{ sugerencia.usuario.foto.url }}" alt="{{ sugerencia.usuario.nombre }}"
+                             class="friend-avatar" style="{% if sugerencia.amigos_en_comun > 0 %}border-color:#86efac{% endif %}">
                         {% else %}
-                        <div class="w-6 h-6 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full border-2 border-white flex items-center justify-center text-xs">
-                            👤
+                        <div class="friend-avatar-placeholder {% if sugerencia.amigos_en_comun > 0 %}green-grad{% endif %}">
+                            {% if sugerencia.usuario.tipo == 'instructor' %}👨‍🏫
+                            {% elif sugerencia.usuario.tipo == 'bienestar' %}🏥
+                            {% elif sugerencia.usuario.tipo == 'aprendiz' %}🎓
+                            {% else %}👤{% endif %}
                         </div>
                         {% endif %}
-                        <!-- Tooltip -->
-                        <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block bg-gray-800 text-white text-xs rounded py-1 px-2 whitespace-nowrap">
-                            {{ amigo_comun.nombre }}
+
+                        <div class="friend-name">{{ sugerencia.usuario.nombre }}</div>
+                        <div class="friend-email">{{ sugerencia.usuario.email }}</div>
+                        <div class="friend-role">{{ sugerencia.usuario.get_tipo_display|default:"Usuario" }}</div>
+
+                        {% if sugerencia.amigos_en_comun > 0 %}
+                        <div class="common-friends-box">
+                            <div class="common-friends-label">Amigos en común:</div>
+                            <div style="display:flex;justify-content:center;align-items:center;gap:4px">
+                                {% for amigo_comun in sugerencia.amigos_en_comun_lista %}
+                                <div class="relative group" style="position:relative">
+                                    {% if amigo_comun.foto %}
+                                    <img src="{{ amigo_comun.foto.url }}" alt="{{ amigo_comun.nombre }}"
+                                         style="width:24px;height:24px;border-radius:50%;border:2px solid white;object-fit:cover">
+                                    {% else %}
+                                    <div style="width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#60a5fa,#3b82f6);border:2px solid white;display:flex;align-items:center;justify-content:center;font-size:0.7rem;color:white">👤</div>
+                                    {% endif %}
+                                </div>
+                                {% endfor %}
+                                {% if sugerencia.amigos_en_comun > 3 %}
+                                <span style="font-size:0.72rem;color:#16a34a;font-weight:700">+{{ sugerencia.amigos_en_comun|add:"-3" }}</span>
+                                {% endif %}
+                            </div>
                         </div>
+                        {% endif %}
+
+                        <div class="friend-divider"></div>
+
+                        {% if sugerencia.usuario.id in solicitudes_enviadas_ids %}
+                        <a href="{% url 'amistades:cancelar_solicitud' sugerencia.usuario.id %}" class="friend-btn btn-gray">
+                            ⏳ Cancelar solicitud
+                        </a>
+                        {% else %}
+                        <a href="{% url 'amistades:enviar_solicitud' sugerencia.usuario.id %}" class="friend-btn btn-green">
+                            ➕ Agregar amigo
+                        </a>
+                        {% endif %}
+
+                        <a href="{% url 'perfil:ver_perfil' sugerencia.usuario.documento %}" class="friend-btn btn-blue">
+                            👁️ Ver perfil
+                        </a>
                     </div>
+                    {% empty %}
+                    <p class="text-gray-500 col-span-4 text-center py-8">No hay sugerencias disponibles en este momento.</p>
                     {% endfor %}
-                    {% if sugerencia.amigos_en_comun > 3 %}
-                    <span class="text-xs text-green-600 font-semibold">+{{ sugerencia.amigos_en_comun|add:"-3" }}</span>
-                    {% endif %}
                 </div>
             </div>
-            {% endif %}
-            
-            <div class="border-t border-gray-300 mb-3"></div>
-            
-            <!-- Botones de acción -->
-            {% if sugerencia.usuario.id in solicitudes_enviadas_ids %}
-                <a href="{% url 'amistades:cancelar_solicitud' sugerencia.usuario.id %}" 
-   class="block w-full bg-gray-500 text-white py-2 rounded-lg mb-2 hover:bg-gray-600 transition">
-    ⏳ Cancelar solicitud
-</a>
-            {% else %}
-                <a href="{% url 'amistades:enviar_solicitud' sugerencia.usuario.id %}" 
-   class="block w-full bg-green-600 text-white py-2 rounded-lg mb-2 hover:bg-green-700 transition">
-    ➕ Agregar amigo
-</a>
-            {% endif %}
-            
-            <a href="{% url 'perfil:ver_perfil' sugerencia.usuario.documento %}" 
-   class="block w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition">
-    👁️ Ver perfil
-</a>
-        </div>
-        {% empty %}
-        <p class="text-gray-500 col-span-3 text-center py-8">
-            No hay sugerencias disponibles en este momento.
-        </p>
-        {% endfor %}
-    </div>
-</div>
 
         </div>
 
         <!-- ========================================= -->
-        <!--  SECCIÓN: AMIGOS AGREGADOS                -->
+        <!-- MIS AMIGOS (original completo)            -->
         <!-- ========================================= -->
         <div id="agregadosSection" class="hidden">
-            <h3 class="text-xl font-bold text-gray-800 mb-4">👥 Mis amigos</h3>
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+            <div class="section-title">👥 Mis amigos</div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
                 {% for amigo in amigos %}
-                <div class="bg-white rounded-xl shadow p-4 text-center">
+                <div class="friend-card">
                     {% if amigo.foto %}
-                        <img src="{{ amigo.foto.url }}" 
-                             alt="{{ amigo.nombre }}"
-                             class="w-24 h-24 mx-auto rounded-full object-cover mb-3 border-4 border-green-200">
+                    <img src="{{ amigo.foto.url }}" alt="{{ amigo.nombre }}" class="friend-avatar" style="border-color:#86efac">
                     {% else %}
-                        <div class="w-24 h-24 mx-auto bg-gradient-to-br from-gray-300 to-gray-400 rounded-full mb-3 flex items-center justify-center text-4xl">
-                            👤
-                        </div>
+                    <div class="friend-avatar-placeholder">👤</div>
                     {% endif %}
 
-                    <p class="font-semibold text-lg">{{ amigo.nombre }}</p>
-                    <p class="text-gray-400 text-sm mb-2">{{ amigo.email }}</p>
-                    <p class="text-xs text-gray-500 italic mb-2">{{ amigo.get_tipo_perfil_display }}</p>
+                    <div class="friend-name">{{ amigo.nombre }}</div>
+                    <div class="friend-email">{{ amigo.email }}</div>
+                    <div class="friend-role">{{ amigo.get_tipo_perfil_display }}</div>
 
-                    <div class="border-t border-gray-300 mb-3"></div>
+                    <div class="friend-divider"></div>
 
-                    <a href="{% url 'perfil:ver_perfil' amigo.documento %}" 
-   class="block w-full bg-blue-500 text-white py-2 rounded-lg mb-2 hover:bg-blue-600 transition">
-    👁️ Ver perfil
-</a>
-
-                    <a href="{% url 'amistades:eliminar_amigo' amigo.documento %}" 
-   onclick="return confirm('¿Estás seguro de eliminar a {{ amigo.nombre }} de tus amigos?')"
-   class="block w-full bg-red-500 text-white py-2 rounded-lg hover:bg-red-600 transition">
-    🗑️ Eliminar amigo
-</a>
+                    <a href="{% url 'perfil:ver_perfil' amigo.documento %}" class="friend-btn btn-blue">
+                        👁️ Ver perfil
+                    </a>
+                    <a href="{% url 'amistades:eliminar_amigo' amigo.documento %}"
+                       onclick="return confirm('¿Estás seguro de eliminar a {{ amigo.nombre }} de tus amigos?')"
+                       class="friend-btn btn-red">
+                        🗑️ Eliminar amigo
+                    </a>
                 </div>
                 {% empty %}
-                <p class="text-gray-500 col-span-3">Aún no tienes amigos agregados.</p>
+                <p class="text-gray-500 col-span-4 text-center py-10">Aún no tienes amigos agregados.</p>
                 {% endfor %}
             </div>
         </div>
@@ -590,6 +1227,60 @@
     </main>
 </div>
 
+<!-- MOBILE BOTTOM NAV -->
+<nav class="mobile-bottom-nav">
+    <div class="mobile-bottom-nav-inner">
+        <a href="{% url 'sesion:home' %}" class="mob-nav-btn">
+            <div class="mob-nav-icon">
+                <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path d="M3 9.75L12 3l9 6.75V21H3V9.75z" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            Inicio
+        </a>
+        <a href="{% url 'chat:lista_chats' %}" class="mob-nav-btn">
+            <div class="mob-nav-icon">
+                <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6A8.38 8.38 0 0111.5 3h1a8.5 8.5 0 018.5 8.5z"/>
+                </svg>
+            </div>
+            Chat
+        </a>
+        <a href="{% url 'sesion:amigos' %}" class="mob-nav-btn active">
+            <div class="mob-nav-icon">
+                <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <circle cx="7" cy="7" r="4"/>
+                    <path d="M1 21v-2a6 6 0 016-6h0a6 6 0 016 6v2"/>
+                    <circle cx="17" cy="9" r="3.5"/>
+                    <path d="M14 21v-2a4 4 0 014-4h0a4 4 0 014 4v2"/>
+                </svg>
+            </div>
+            Amigos
+        </a>
+        <a href="{% url 'notificaciones:lista' %}" class="mob-nav-btn">
+            <div class="mob-nav-icon">
+                <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/>
+                </svg>
+            </div>
+            Alertas
+        </a>
+        <a href="{% url 'perfil:perfiles' %}" class="mob-nav-btn">
+            <div class="mob-nav-icon">
+                <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 12a5 5 0 100-10 5 5 0 000 10zm7 8c0-4-3-7-7-7s-7 3-7 7"/>
+                </svg>
+            </div>
+            Perfil
+        </a>
+    </div>
+</nav>
+
+<!-- ========================= -->
+<!--         SCRIPTS           -->
+<!-- ========================= -->
+
+<!-- Tabs (original) -->
 <script>
     const btnSolicitudes = document.getElementById("btnSolicitudes");
     const btnAgregados = document.getElementById("btnAgregados");
@@ -599,92 +1290,110 @@
     btnSolicitudes.addEventListener("click", () => {
         solicitudesSection.classList.remove("hidden");
         agregadosSection.classList.add("hidden");
-        btnSolicitudes.classList.remove("bg-gray-300", "text-gray-800");
-        btnSolicitudes.classList.add("bg-green-600", "text-white");
-        btnAgregados.classList.remove("bg-green-600", "text-white");
-        btnAgregados.classList.add("bg-gray-300", "text-gray-800");
+        btnSolicitudes.classList.remove("inactive-tab");
+        btnSolicitudes.classList.add("active-tab");
+        btnAgregados.classList.remove("active-tab");
+        btnAgregados.classList.add("inactive-tab");
     });
 
     btnAgregados.addEventListener("click", () => {
         agregadosSection.classList.remove("hidden");
         solicitudesSection.classList.add("hidden");
-        btnAgregados.classList.remove("bg-gray-300", "text-gray-800");
-        btnAgregados.classList.add("bg-green-600", "text-white");
-        btnSolicitudes.classList.remove("bg-green-600", "text-white");
-        btnSolicitudes.classList.add("bg-gray-300", "text-gray-800");
+        btnAgregados.classList.remove("inactive-tab");
+        btnAgregados.classList.add("active-tab");
+        btnSolicitudes.classList.remove("active-tab");
+        btnSolicitudes.classList.add("inactive-tab");
     });
 
-    // Ocultar mensajes después de 4 segundos
     setTimeout(() => {
-        const messages = document.querySelectorAll('.fixed > div');
-        messages.forEach(msg => {
+        document.querySelectorAll('.fixed > div').forEach(msg => {
             msg.style.transition = 'opacity 0.6s ease';
             msg.style.opacity = '0';
             setTimeout(() => msg.remove(), 600);
         });
     }, 4000);
 </script>
+
+<!-- Menús header (original) -->
 <script>
-        function cerrarMenus(e) {
-            const menuP = document.getElementById("menuPerfil");
-            const btnP = document.getElementById("btnPerfil");
-            const menuN = document.getElementById("menuNotificaciones");
-            const btnN = document.getElementById("btnNotificaciones");
+    document.getElementById("btnPerfil")?.addEventListener("click", (e) => {
+        e.stopPropagation();
+        document.getElementById("menuPerfil").classList.toggle("show");
+        document.getElementById("menuNotificaciones").classList.remove("show");
+    });
 
-            if (menuP && !menuP.contains(e.target) && !btnP.contains(e.target)) {
-                menuP.classList.add("hidden");
-            }
-            if (menuN && !menuN.contains(e.target) && !btnN.contains(e.target)) {
-                menuN.classList.add("hidden");
-            }
-        }
+    document.getElementById("btnNotificaciones")?.addEventListener("click", (e) => {
+        e.stopPropagation();
+        document.getElementById("menuNotificaciones").classList.toggle("show");
+        document.getElementById("menuPerfil")?.classList.remove("show");
+    });
 
-        document.getElementById("btnPerfil")?.addEventListener("click", () => {
-            document.getElementById("menuPerfil").classList.toggle("hidden");
-            document.getElementById("menuNotificaciones").classList.add("hidden");
-        });
+    document.addEventListener("click", (e) => {
+        if (!e.target.closest('#menuPerfil') && !e.target.closest('#btnPerfil'))
+            document.getElementById("menuPerfil")?.classList.remove("show");
+        if (!e.target.closest('#menuNotificaciones') && !e.target.closest('#btnNotificaciones'))
+            document.getElementById("menuNotificaciones")?.classList.remove("show");
+    });
+</script>
 
-        document.getElementById("btnNotificaciones").addEventListener("click", () => {
-            document.getElementById("menuNotificaciones").classList.toggle("hidden");
-            document.getElementById("menuPerfil")?.classList.add("hidden");
-        });
-
-        document.addEventListener("click", cerrarMenus);
-    </script>
-    
+<!-- Mobile menu toggle -->
 <script>
-// ========================================
-// SISTEMA DE NOTIFICACIONES EN TIEMPO REAL
-// ========================================
+    document.getElementById("btnSearch")?.addEventListener("click", () => {
+        document.getElementById("mobileSearchBox").classList.toggle("hidden");
+        document.getElementById("mobileMenu").classList.add("hidden");
+    });
 
+    document.getElementById("btnMenu")?.addEventListener("click", () => {
+        document.getElementById("mobileMenu").classList.toggle("hidden");
+        document.getElementById("mobileSearchBox").classList.add("hidden");
+    });
+</script>
+
+<!-- Home reload (original) -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.home-reload-btn').forEach(button => {
+        button.addEventListener('click', function(e) {
+            const currentPath = window.location.pathname;
+            const isHomePage = currentPath.includes('amigos') || currentPath.includes('inicio') ||
+                               currentPath === '/' || currentPath === '/feed/' || currentPath === '/feed/inicio/';
+            if (isHomePage) {
+                e.preventDefault();
+                button.style.transition = 'transform 0.1s ease';
+                button.style.transform = 'scale(0.95)';
+                mostrarToastRecarga();
+                setTimeout(() => { button.style.transform = 'scale(1)'; location.reload(); }, 200);
+            }
+        });
+    });
+
+    function mostrarToastRecarga() {
+        const toast = document.createElement('div');
+        toast.className = 'fixed top-24 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-6 py-3 rounded-xl shadow-2xl z-50 font-semibold flex items-center gap-2';
+        toast.innerHTML = `<svg class="animate-spin w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><span>Actualizando...</span>`;
+        document.body.appendChild(toast);
+        setTimeout(() => { toast.style.opacity='0'; toast.style.transform='translate(-50%,-20px)'; setTimeout(()=>toast.remove(),300); }, 3000);
+    }
+});
+</script>
+
+<!-- NOTIFICACIONES EN TIEMPO REAL (original completo) -->
+<script>
 let notificationInterval;
 
-// Inicializar cuando el DOM esté listo
 document.addEventListener('DOMContentLoaded', function() {
-    // Cargar notificaciones inicialmente
     cargarNotificaciones();
-    
-    // Auto-actualizar cada 30 segundos
     notificationInterval = setInterval(cargarNotificaciones, 30000);
-    
-    // Recargar cuando vuelves a la pestaña
     document.addEventListener('visibilitychange', function() {
-        if (!document.hidden) {
-            cargarNotificaciones();
-        }
+        if (!document.hidden) cargarNotificaciones();
     });
 });
 
-// Función principal para cargar notificaciones
 async function cargarNotificaciones() {
     try {
         const response = await fetch("{% url 'notificaciones:obtener_notificaciones' %}");
         const data = await response.json();
-        
-        // Actualizar badge
         actualizarBadge(data.count);
-        
-        // Renderizar notificaciones
         if (data.notificaciones && data.notificaciones.length > 0) {
             renderizarNotificaciones(data.notificaciones);
         } else {
@@ -696,287 +1405,99 @@ async function cargarNotificaciones() {
     }
 }
 
-// Actualizar badge con contador
 function actualizarBadge(count) {
     const badge = document.getElementById('notificationBadge');
     if (badge) {
-        if (count > 0) {
-            badge.textContent = count > 99 ? '99+' : count;
-            badge.classList.remove('hidden');
-        } else {
-            badge.classList.add('hidden');
-        }
+        if (count > 0) { badge.textContent = count > 99 ? '99+' : count; badge.classList.remove('hidden'); }
+        else { badge.classList.add('hidden'); }
     }
 }
 
-// Renderizar lista de notificaciones
 function renderizarNotificaciones(notificaciones) {
     const lista = document.getElementById('listaNotificaciones');
-    
-    const html = notificaciones.map(notif => {
-        const iconos = {
-            'solicitud_amistad': '👋',
-            'amistad_aceptada': '✅',
-            'nueva_publicacion': '📝',
-            'comentario': '💬',
-            'like': '❤️'
-        };
-        
-        const colores = {
-            'solicitud_amistad': 'bg-green-50 border-l-4 border-green-500',
-            'amistad_aceptada': 'bg-blue-50 border-l-4 border-blue-500',
-            'nueva_publicacion': 'bg-purple-50 border-l-4 border-purple-500',
-            'comentario': 'bg-yellow-50 border-l-4 border-yellow-500',
-            'like': 'bg-red-50 border-l-4 border-red-500'
-        };
-        
-        return `
-            <div class="${colores[notif.tipo] || 'bg-white'} p-4 hover:bg-gray-100 transition cursor-pointer border-b border-gray-200"
-                 onclick="irANotificacion(${notif.id}, ${notif.publicacion_id || null})">
-                <div class="flex items-start gap-3">
-                    <!-- Avatar -->
-                    <img src="${notif.emisor_foto || '{% static "img/default-avatar.png" %}'}" 
-                         alt="${notif.emisor_nombre}"
-                         class="w-10 h-10 rounded-full object-cover flex-shrink-0">
-                    
-                    <!-- Contenido -->
-                    <div class="flex-1 min-w-0">
-                        <div class="flex items-center gap-2 mb-1">
-                            <span class="text-lg">${iconos[notif.tipo] || '📢'}</span>
-                            <span class="text-xs font-semibold text-gray-500 uppercase">${getTipoNombre(notif.tipo)}</span>
-                        </div>
-                        <p class="text-sm text-gray-800 mb-1">${notif.mensaje}</p>
-                        <p class="text-xs text-gray-500">${calcularTiempo(notif.fecha)}</p>
+    const iconos = { 'solicitud_amistad':'👋','amistad_aceptada':'✅','nueva_publicacion':'📝','comentario':'💬','like':'❤️' };
+    const colores = { 'solicitud_amistad':'bg-green-50 border-l-4 border-green-500','amistad_aceptada':'bg-blue-50 border-l-4 border-blue-500','nueva_publicacion':'bg-purple-50 border-l-4 border-purple-500','comentario':'bg-yellow-50 border-l-4 border-yellow-500','like':'bg-red-50 border-l-4 border-red-500' };
+    lista.innerHTML = notificaciones.map(notif => `
+        <div class="${colores[notif.tipo] || 'bg-white'} p-4 hover:bg-gray-100 transition cursor-pointer border-b border-gray-200"
+             onclick="irANotificacion(${notif.id}, ${notif.publicacion_id || null})">
+            <div class="flex items-start gap-3">
+                <img src="${notif.emisor_foto || '{% static "img/default-avatar.png" %}'}" alt="${notif.emisor_nombre}"
+                     class="w-10 h-10 rounded-full object-cover flex-shrink-0">
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="text-lg">${iconos[notif.tipo] || '📢'}</span>
+                        <span class="text-xs font-semibold text-gray-500 uppercase">${getTipoNombre(notif.tipo)}</span>
                     </div>
+                    <p class="text-sm text-gray-800 mb-1">${notif.mensaje}</p>
+                    <p class="text-xs text-gray-500">${calcularTiempo(notif.fecha)}</p>
                 </div>
             </div>
-        `;
-    }).join('');
-    
-    lista.innerHTML = html;
+        </div>
+    `).join('');
 }
 
-// Mostrar estado vacío
 function mostrarNotificacionesVacias() {
-    const lista = document.getElementById('listaNotificaciones');
-    lista.innerHTML = `
-        <div class="flex flex-col items-center justify-center py-12">
-            <div class="text-5xl mb-3">🔔</div>
-            <p class="text-gray-600 font-semibold mb-1">Todo al día</p>
-            <p class="text-gray-400 text-sm">No tienes notificaciones nuevas</p>
-        </div>
-    `;
+    document.getElementById('listaNotificaciones').innerHTML = `<div class="flex flex-col items-center justify-center py-12"><div class="text-5xl mb-3">🔔</div><p class="text-gray-600 font-semibold mb-1">Todo al día</p><p class="text-gray-400 text-sm">No tienes notificaciones nuevas</p></div>`;
 }
 
-// Mostrar error
 function mostrarErrorNotificaciones() {
-    const lista = document.getElementById('listaNotificaciones');
-    lista.innerHTML = `
-        <div class="flex flex-col items-center justify-center py-12">
-            <div class="text-5xl mb-3">⚠️</div>
-            <p class="text-gray-600 font-semibold mb-1">Error al cargar</p>
-            <button onclick="cargarNotificaciones()" 
-                    class="mt-2 px-4 py-2 bg-green-500 text-white rounded-lg text-sm hover:bg-green-600">
-                Reintentar
-            </button>
-        </div>
-    `;
+    document.getElementById('listaNotificaciones').innerHTML = `<div class="flex flex-col items-center justify-center py-12"><div class="text-5xl mb-3">⚠️</div><p class="text-gray-600 font-semibold mb-1">Error al cargar</p><button onclick="cargarNotificaciones()" class="mt-2 px-4 py-2 bg-green-500 text-white rounded-lg text-sm hover:bg-green-600">Reintentar</button></div>`;
 }
 
-// Obtener nombre del tipo de notificación
 function getTipoNombre(tipo) {
-    const nombres = {
-        'solicitud_amistad': 'Solicitud',
-        'amistad_aceptada': 'Aceptada',
-        'nueva_publicacion': 'Publicación',
-        'comentario': 'Comentario',
-        'like': 'Me gusta'
-    };
-    return nombres[tipo] || tipo;
+    return { 'solicitud_amistad':'Solicitud','amistad_aceptada':'Aceptada','nueva_publicacion':'Publicación','comentario':'Comentario','like':'Me gusta' }[tipo] || tipo;
 }
 
-// Calcular tiempo transcurrido
 function calcularTiempo(fecha) {
-    const ahora = new Date();
-    const fechaNotif = new Date(fecha);
-    const diff = Math.floor((ahora - fechaNotif) / 1000);
-    
+    const diff = Math.floor((new Date() - new Date(fecha)) / 1000);
     if (diff < 60) return 'Justo ahora';
-    if (diff < 3600) return `Hace ${Math.floor(diff / 60)} min`;
-    if (diff < 86400) return `Hace ${Math.floor(diff / 3600)} h`;
-    if (diff < 604800) return `Hace ${Math.floor(diff / 86400)} días`;
-    
-    return fechaNotif.toLocaleDateString('es-ES', { 
-        day: 'numeric', 
-        month: 'short' 
-    });
+    if (diff < 3600) return `Hace ${Math.floor(diff/60)} min`;
+    if (diff < 86400) return `Hace ${Math.floor(diff/3600)} h`;
+    if (diff < 604800) return `Hace ${Math.floor(diff/86400)} días`;
+    return new Date(fecha).toLocaleDateString('es-ES', { day:'numeric', month:'short' });
 }
 
-// Ir a notificación específica
 async function irANotificacion(notifId, publicacionId) {
-    // Marcar como leída
     try {
         await fetch(`{% url 'notificaciones:marcar_leida' 0 %}`.replace('0', notifId), {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': getCookie('csrftoken'),
-            }
+            method: 'POST', headers: { 'X-CSRFToken': getCookie('csrftoken') }
         });
-    } catch (error) {
-        console.error('Error al marcar notificación:', error);
-    }
-    
-    // Redirigir
-    if (publicacionId) {
-        window.location.href = `/publicaciones/${publicacionId}/`;
-    } else {
-        window.location.href = "{% url 'notificaciones:lista' %}";
-    }
+    } catch(e) {}
+    window.location.href = publicacionId ? `/publicaciones/${publicacionId}/` : "{% url 'notificaciones:lista' %}";
 }
 
-// Marcar todas como leídas
 async function marcarTodasLeidasHeader() {
     try {
         const response = await fetch("{% url 'notificaciones:marcar_todas_leidas' %}", {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': getCookie('csrftoken'),
-            }
+            method: 'POST', headers: { 'X-CSRFToken': getCookie('csrftoken') }
         });
-        
-        if (response.ok) {
-            actualizarBadge(0);
-            cargarNotificaciones();
-            mostrarToast('✓ Notificaciones marcadas como leídas', 'success');
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        mostrarToast('❌ Error al marcar notificaciones', 'error');
-    }
+        if (response.ok) { actualizarBadge(0); cargarNotificaciones(); mostrarToast('✓ Notificaciones marcadas como leídas','success'); }
+    } catch(e) { mostrarToast('❌ Error al marcar notificaciones','error'); }
 }
 
-// Sistema de toast notifications
 function mostrarToast(mensaje, tipo = 'success') {
-    const colores = {
-        success: 'bg-green-500',
-        error: 'bg-red-500',
-        warning: 'bg-yellow-500',
-        info: 'bg-blue-500'
-    };
-    
+    const colores = { success:'bg-green-500', error:'bg-red-500', warning:'bg-yellow-500', info:'bg-blue-500' };
     const toast = document.createElement('div');
     toast.className = `fixed bottom-6 right-6 ${colores[tipo]} text-white px-6 py-3 rounded-xl shadow-2xl z-50 animate-slide-in`;
     toast.textContent = mensaje;
-    
     document.body.appendChild(toast);
-    
-    setTimeout(() => {
-        toast.style.opacity = '0';
-        toast.style.transform = 'translateX(400px)';
-        setTimeout(() => toast.remove(), 300);
-    }, 3000);
+    setTimeout(() => { toast.style.opacity='0'; toast.style.transform='translateX(400px)'; setTimeout(()=>toast.remove(),300); }, 3000);
 }
 
-// Obtener cookie CSRF
 function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
+        for (let cookie of document.cookie.split(';')) {
+            cookie = cookie.trim();
+            if (cookie.startsWith(name + '=')) { cookieValue = decodeURIComponent(cookie.substring(name.length+1)); break; }
         }
     }
     return cookieValue;
 }
-
-// Animación de entrada
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes slide-in {
-        from {
-            opacity: 0;
-            transform: translateX(400px);
-        }
-        to {
-            opacity: 1;
-            transform: translateX(0);
-        }
-    }
-    
-    .animate-slide-in {
-        animation: slide-in 0.3s ease-out;
-    }
-`;
-document.head.appendChild(style);
 </script>
- <!-- ✨ NUEVO: Script para recargar página al hacer clic en Home -->
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Seleccionar todos los botones/enlaces de Home
-        const homeButtons = document.querySelectorAll('.home-reload-btn');
-        
-        homeButtons.forEach(button => {
-            button.addEventListener('click', function(e) {
-                // Verificar si ya estamos en la página de inicio
-                const currentPath = window.location.pathname;
-                const isHomePage = currentPath.includes('amigos') || 
-                                  currentPath.includes('inicio') || 
-                                  currentPath === '/' ||
-                                  currentPath === '/feed/' ||
-                                  currentPath === '/feed/inicio/';
-                
-                if (isHomePage) {
-                    e.preventDefault(); // Evitar navegación normal
-                    
-                    // Animación visual de feedback
-                    button.style.transition = 'transform 0.1s ease';
-                    button.style.transform = 'scale(0.95)';
-                    
-                    // Toast de notificación
-                    mostrarToastRecarga();
-                    
-                    // Recargar después de breve animación
-                    setTimeout(() => {
-                        button.style.transform = 'scale(1)';
-                        location.reload();
-                    }, 200);
-                }
-                // Si no estamos en home, dejar que navegue normalmente
-            });
-        });
-        
-        // Función para mostrar toast de recarga (opcional pero bonito)
-        function mostrarToastRecarga() {
-            const toast = document.createElement('div');
-            toast.className = 'fixed top-24 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-6 py-3 rounded-xl shadow-2xl z-50 font-semibold flex items-center gap-2';
-            toast.innerHTML = `
-                <svg class="animate-spin w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                <span>Actualizando...</span>
-            `;
-            document.body.appendChild(toast);
-            
-            // Ocultar el toast después de 3 segundos
-            setTimeout(() => {
-                toast.style.opacity = '0';
-                toast.style.transform = 'translate(-50%, -20px)';
-                setTimeout(() => toast.remove(), 300);
-            }, 3000);
-        }
-    });
-    </script>
 
-
+<!-- BÚSQUEDA (original completa) -->
 <script>
-// ===================================
-// BÚSQUEDA DE USUARIOS MEJORADA
-// ===================================
 const searchInput = document.getElementById('searchInput');
 const mobileSearchInput = document.getElementById('mobileSearchInput');
 const searchPanel = document.getElementById('searchPanel');
@@ -996,152 +1517,72 @@ const clearMobileSearchBtn = document.getElementById('clearMobileSearchBtn');
 const clearHistoryBtn = document.getElementById('clearHistoryBtn');
 const clearMobileHistoryBtn = document.getElementById('clearMobileHistoryBtn');
 
-let searchTimeout;
-let currentQuery = '';
-let isMobile = false;
+let searchTimeout, currentQuery = '', isMobile = false;
 
 document.addEventListener('DOMContentLoaded', function() {
     cargarHistorial();
-    
-    if (searchInput) {
-        searchInput.addEventListener('input', (e) => manejarBusqueda(e, false));
-        searchInput.addEventListener('focus', () => mostrarPanel(false));
-    }
-    
-    if (clearSearchBtn) {
-        clearSearchBtn.addEventListener('click', () => limpiarBusqueda(false));
-    }
-    
-    if (clearHistoryBtn) {
-        clearHistoryBtn.addEventListener('click', limpiarHistorialCompleto);
-    }
-    
-    if (mobileSearchInput) {
-        mobileSearchInput.addEventListener('input', (e) => manejarBusqueda(e, true));
-        mobileSearchInput.addEventListener('focus', () => mostrarPanel(true));
-    }
-    
-    if (clearMobileSearchBtn) {
-        clearMobileSearchBtn.addEventListener('click', () => limpiarBusqueda(true));
-    }
-    
-    if (clearMobileHistoryBtn) {
-        clearMobileHistoryBtn.addEventListener('click', limpiarHistorialCompleto);
-    }
-    
+    searchInput?.addEventListener('input', (e) => manejarBusqueda(e, false));
+    searchInput?.addEventListener('focus', () => mostrarPanel(false));
+    clearSearchBtn?.addEventListener('click', () => limpiarBusqueda(false));
+    clearHistoryBtn?.addEventListener('click', limpiarHistorialCompleto);
+    mobileSearchInput?.addEventListener('input', (e) => manejarBusqueda(e, true));
+    mobileSearchInput?.addEventListener('focus', () => mostrarPanel(true));
+    clearMobileSearchBtn?.addEventListener('click', () => limpiarBusqueda(true));
+    clearMobileHistoryBtn?.addEventListener('click', limpiarHistorialCompleto);
+
     document.addEventListener('click', function(e) {
-        if (searchPanel && !searchPanel.contains(e.target) && !searchInput.contains(e.target)) {
-            ocultarPanel(false);
-        }
-        if (mobileSearchPanel && !mobileSearchPanel.contains(e.target) && 
-            !mobileSearchInput.contains(e.target) && !document.getElementById('mobileSearchBox').contains(e.target)) {
-            ocultarPanel(true);
-        }
+        if (searchPanel && !searchPanel.contains(e.target) && !searchInput?.contains(e.target)) ocultarPanel(false);
+        if (mobileSearchPanel && !mobileSearchPanel.contains(e.target) && !mobileSearchInput?.contains(e.target) && !document.getElementById('mobileSearchBox')?.contains(e.target)) ocultarPanel(true);
     });
 });
 
 function manejarBusqueda(e, mobile) {
     const query = e.target.value.trim();
-    currentQuery = query;
-    isMobile = mobile;
-    
+    currentQuery = query; isMobile = mobile;
     const clearBtn = mobile ? clearMobileSearchBtn : clearSearchBtn;
-    if (query.length > 0) {
-        clearBtn?.classList.remove('hidden');
-    } else {
-        clearBtn?.classList.add('hidden');
-    }
-    
+    clearBtn?.classList.toggle('hidden', query.length === 0);
     clearTimeout(searchTimeout);
-    
-    if (query.length === 0) {
-        cargarHistorial();
-        return;
-    }
-    
-    if (query.length < 2) {
-        return;
-    }
-    
+    if (query.length === 0) { cargarHistorial(); return; }
+    if (query.length < 2) return;
     mostrarLoading(mobile);
-    
-    searchTimeout = setTimeout(() => {
-        realizarBusqueda(query);
-    }, 300);
+    searchTimeout = setTimeout(() => realizarBusqueda(query), 300);
 }
 
 async function realizarBusqueda(query) {
     try {
         const response = await fetch(`/busqueda/usuarios/?q=${encodeURIComponent(query)}`);
         const data = await response.json();
-        
         ocultarLoading(isMobile);
-        
         if (data.resultados && data.resultados.length > 0) {
-            const title = `Resultados para "${query}"`;
-            if (isMobile) {
-                mobilePanelTitle.textContent = title;
-            } else {
-                panelTitle.textContent = title;
-            }
+            (isMobile ? mobilePanelTitle : panelTitle).textContent = `Resultados para "${query}"`;
             mostrarResultados(data.resultados, query, isMobile);
-        } else {
-            mostrarSinResultados(isMobile);
-        }
-    } catch (error) {
-        console.error('Error en búsqueda:', error);
-        ocultarLoading(isMobile);
-        mostrarError(isMobile);
-    }
+        } else { mostrarSinResultados(isMobile); }
+    } catch(e) { console.error(e); ocultarLoading(isMobile); mostrarError(isMobile); }
 }
 
 function mostrarResultados(resultados, query, mobile) {
     const resultsContainer = mobile ? mobileSearchResults : searchResults;
-    const noResultsDiv = mobile ? mobileNoResults : noResults;
-    const emptyHistoryDiv = mobile ? mobileEmptyHistory : emptyHistory;
-    
-    noResultsDiv?.classList.add('hidden');
-    emptyHistoryDiv?.classList.add('hidden');
+    (mobile ? mobileNoResults : noResults)?.classList.add('hidden');
+    (mobile ? mobileEmptyHistory : emptyHistory)?.classList.add('hidden');
     resultsContainer?.classList.remove('hidden');
-    
-    const html = resultados.map(usuario => {
-        const nombreResaltado = resaltarTexto(usuario.nombre, query);
-        
-        return `
-            <div class="p-4 border-b border-gray-100 cursor-pointer transition-all duration-150 hover:bg-gray-50 active:bg-gray-100"
-                 onclick="seleccionarUsuario('${usuario.id}', '${escapeHtml(usuario.nombre)}', '${usuario.tipo}')">
+    if (resultsContainer) {
+        resultsContainer.innerHTML = resultados.map(usuario => `
+            <div class="p-4 border-b border-gray-100 cursor-pointer hover:bg-gray-50"
+                 onclick="seleccionarUsuario('${usuario.id}','${escapeHtml(usuario.nombre)}','${usuario.tipo}')">
                 <div class="flex items-center gap-3">
-                    ${usuario.foto 
-                        ? `<img src="${usuario.foto}" alt="${escapeHtml(usuario.nombre)}" class="w-12 h-12 rounded-full object-cover flex-shrink-0 border-2 border-gray-200">`
-                        : `<div class="w-12 h-12 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-white text-xl flex-shrink-0 shadow-md">
-                            ${getEmojiPorTipo(usuario.tipo)}
-                           </div>`
-                    }
-                    
+                    ${usuario.foto ? `<img src="${usuario.foto}" alt="${escapeHtml(usuario.nombre)}" class="w-12 h-12 rounded-full object-cover flex-shrink-0 border-2 border-gray-200">` :
+                    `<div class="w-12 h-12 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-white text-xl flex-shrink-0">${getEmojiPorTipo(usuario.tipo)}</div>`}
                     <div class="flex-1 min-w-0">
-                        <p class="font-semibold text-gray-800 truncate">${nombreResaltado}</p>
+                        <p class="font-semibold text-gray-800 truncate">${resaltarTexto(usuario.nombre, query)}</p>
                         <div class="flex items-center gap-2 text-sm text-gray-500 mt-0.5">
-                            <span class="px-2 py-0.5 rounded-full text-xs font-medium
-                                ${usuario.tipo === 'aprendiz' ? 'bg-blue-100 text-blue-700' : ''}
-                                ${usuario.tipo === 'instructor' ? 'bg-purple-100 text-purple-700' : ''}
-                                ${usuario.tipo === 'bienestar' ? 'bg-green-100 text-green-700' : ''}">
-                                ${usuario.tipo_display}
-                            </span>
+                            <span class="px-2 py-0.5 rounded-full text-xs font-medium ${usuario.tipo==='aprendiz'?'bg-blue-100 text-blue-700':usuario.tipo==='instructor'?'bg-purple-100 text-purple-700':'bg-green-100 text-green-700'}">${usuario.tipo_display}</span>
                             ${usuario.ficha ? `<span class="text-xs">• Ficha ${usuario.ficha}</span>` : ''}
                         </div>
                     </div>
-                    
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" 
-                         class="w-5 h-5 text-gray-400 flex-shrink-0">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                    </svg>
+                    <svg width="16" height="16" fill="none" stroke="#9ca3af" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
                 </div>
             </div>
-        `;
-    }).join('');
-    
-    if (resultsContainer) {
-        resultsContainer.innerHTML = html;
+        `).join('');
     }
 }
 
@@ -1149,268 +1590,105 @@ async function cargarHistorial() {
     try {
         const response = await fetch('/busqueda/historial/');
         const data = await response.json();
-        
         if (data.historial && data.historial.length > 0) {
-            if (mobilePanelTitle) mobilePanelTitle.textContent = 'Búsquedas recientes';
-            if (panelTitle) panelTitle.textContent = 'Búsquedas recientes';
+            [mobilePanelTitle, panelTitle].forEach(el => { if(el) el.textContent = 'Búsquedas recientes'; });
             mostrarHistorialResultados(data.historial);
-        } else {
-            mostrarHistorialVacio();
-        }
-    } catch (error) {
-        console.error('Error cargando historial:', error);
-        mostrarHistorialVacio();
-    }
+        } else { mostrarHistorialVacio(); }
+    } catch(e) { mostrarHistorialVacio(); }
 }
 
 function mostrarHistorialResultados(historial) {
     const html = historial.map(usuario => `
         <div class="p-4 border-b border-gray-100 flex items-center gap-3">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" 
-                 class="w-5 h-5 text-gray-400 flex-shrink-0">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                      d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
-            
-            <div class="flex-1 flex items-center gap-3 cursor-pointer min-w-0 hover:opacity-75 transition-opacity duration-150"
-                 onclick="seleccionarUsuario('${usuario.id}', '${escapeHtml(usuario.nombre)}', '${usuario.tipo}')">
-                ${usuario.foto 
-                    ? `<img src="${usuario.foto}" alt="${escapeHtml(usuario.nombre)}" class="w-10 h-10 rounded-full object-cover flex-shrink-0 border-2 border-gray-200">`
-                    : `<div class="w-10 h-10 rounded-full bg-gradient-to-br from-gray-300 to-gray-400 flex items-center justify-center text-white flex-shrink-0 shadow-sm">
-                        ${getEmojiPorTipo(usuario.tipo)}
-                       </div>`
-                }
-                
+            <svg width="16" height="16" fill="none" stroke="#9ca3af" stroke-width="2" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <div class="flex-1 flex items-center gap-3 cursor-pointer min-w-0 hover:opacity-75" onclick="seleccionarUsuario('${usuario.id}','${escapeHtml(usuario.nombre)}','${usuario.tipo}')">
+                ${usuario.foto ? `<img src="${usuario.foto}" alt="${escapeHtml(usuario.nombre)}" class="w-10 h-10 rounded-full object-cover flex-shrink-0">` :
+                `<div class="w-10 h-10 rounded-full bg-gradient-to-br from-gray-300 to-gray-400 flex items-center justify-center text-white flex-shrink-0">${getEmojiPorTipo(usuario.tipo)}</div>`}
                 <div class="min-w-0 flex-1">
                     <p class="font-semibold text-gray-800 text-sm truncate">${escapeHtml(usuario.nombre)}</p>
                     <p class="text-xs text-gray-500">${usuario.tipo_display}</p>
                 </div>
             </div>
-            
-            <button onclick="eliminarDelHistorial(event, '${usuario.id}')" 
-                    class="p-2 hover:bg-gray-100 rounded-full transition-colors duration-150 flex-shrink-0 active:bg-gray-200">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" 
-                     class="w-4 h-4 text-gray-400 hover:text-red-500 transition-colors duration-150">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                </svg>
+            <button onclick="eliminarDelHistorial(event,'${usuario.id}')" class="p-2 hover:bg-gray-100 rounded-full transition">
+                <svg width="14" height="14" fill="none" stroke="#9ca3af" stroke-width="2" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"/></svg>
             </button>
         </div>
     `).join('');
-    
-    if (searchResults) {
-        noResults?.classList.add('hidden');
-        emptyHistory?.classList.add('hidden');
-        searchResults.classList.remove('hidden');
-        searchResults.innerHTML = html;
-    }
-    
-    if (mobileSearchResults) {
-        mobileNoResults?.classList.add('hidden');
-        mobileEmptyHistory?.classList.add('hidden');
-        mobileSearchResults.classList.remove('hidden');
-        mobileSearchResults.innerHTML = html;
-    }
+    [searchResults, mobileSearchResults].forEach(el => { if(el) { el.classList.remove('hidden'); el.innerHTML = html; } });
+    [noResults, mobileNoResults, emptyHistory, mobileEmptyHistory].forEach(el => el?.classList.add('hidden'));
 }
 
-// ✅ CORRECCIÓN: Ahora redirige correctamente al perfil
 async function seleccionarUsuario(id, nombre, tipo) {
     try {
-        await fetch('/busqueda/guardar/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken'),
-            },
-            body: JSON.stringify({
-                usuario_id: id,
-                nombre: nombre,
-                tipo: tipo
-            })
-        });
-    } catch (error) {
-        console.error('Error guardando en historial:', error);
-    }
-    
-    // ✅ OBTENER EL DOCUMENTO DEL USUARIO PARA REDIRIGIR
+        await fetch('/busqueda/guardar/', { method:'POST', headers:{'Content-Type':'application/json','X-CSRFToken':getCookie('csrftoken')}, body: JSON.stringify({usuario_id:id,nombre,tipo}) });
+    } catch(e) {}
     try {
         const response = await fetch(`/busqueda/obtener-documento/${id}/`);
         const data = await response.json();
-        
-        if (data.documento) {
-            window.location.href = `/perfil/ver/${data.documento}/`;
-        } else {
-            console.error('No se pudo obtener el documento del usuario');
-        }
-    } catch (error) {
-        console.error('Error obteniendo documento:', error);
-    }
+        if (data.documento) window.location.href = `/perfil/ver/${data.documento}/`;
+    } catch(e) { console.error(e); }
 }
 
 async function eliminarDelHistorial(event, usuarioId) {
     event.stopPropagation();
-    
     try {
-        const response = await fetch('/busqueda/eliminar/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken'),
-            },
-            body: JSON.stringify({ usuario_id: usuarioId })
-        });
-        
-        if (response.ok) {
-            if (currentQuery.length === 0) {
-                cargarHistorial();
-            }
-        }
-    } catch (error) {
-        console.error('Error eliminando del historial:', error);
-    }
+        const response = await fetch('/busqueda/eliminar/', { method:'POST', headers:{'Content-Type':'application/json','X-CSRFToken':getCookie('csrftoken')}, body: JSON.stringify({usuario_id:usuarioId}) });
+        if (response.ok && currentQuery.length === 0) cargarHistorial();
+    } catch(e) {}
 }
 
 async function limpiarHistorialCompleto() {
-    if (!confirm('¿Estás seguro de que quieres limpiar todo el historial?')) {
-        return;
-    }
-    
+    if (!confirm('¿Estás seguro de que quieres limpiar todo el historial?')) return;
     try {
-        const response = await fetch('/busqueda/limpiar/', {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': getCookie('csrftoken'),
-            }
-        });
-        
-        if (response.ok) {
-            mostrarHistorialVacio();
-        }
-    } catch (error) {
-        console.error('Error limpiando historial:', error);
-    }
+        const response = await fetch('/busqueda/limpiar/', { method:'POST', headers:{'X-CSRFToken':getCookie('csrftoken')} });
+        if (response.ok) mostrarHistorialVacio();
+    } catch(e) {}
 }
 
-function mostrarPanel(mobile) {
-    if (mobile) {
-        mobileSearchPanel?.classList.remove('hidden');
-    } else {
-        searchPanel?.classList.remove('hidden');
-    }
-}
-
-function ocultarPanel(mobile) {
-    if (mobile) {
-        mobileSearchPanel?.classList.add('hidden');
-    } else {
-        searchPanel?.classList.add('hidden');
-    }
-}
+function mostrarPanel(mobile) { (mobile ? mobileSearchPanel : searchPanel)?.classList.remove('hidden'); }
+function ocultarPanel(mobile) { (mobile ? mobileSearchPanel : searchPanel)?.classList.add('hidden'); }
 
 function mostrarLoading(mobile) {
-    if (mobile) {
-        mobileSearchLoading?.classList.remove('hidden');
-        mobileSearchResults?.classList.add('hidden');
-        mobileNoResults?.classList.add('hidden');
-        mobileEmptyHistory?.classList.add('hidden');
-    } else {
-        searchLoading?.classList.remove('hidden');
-        searchResults?.classList.add('hidden');
-        noResults?.classList.add('hidden');
-        emptyHistory?.classList.add('hidden');
-    }
+    (mobile ? mobileSearchLoading : searchLoading)?.classList.remove('hidden');
+    (mobile ? mobileSearchResults : searchResults)?.classList.add('hidden');
+    (mobile ? mobileNoResults : noResults)?.classList.add('hidden');
+    (mobile ? mobileEmptyHistory : emptyHistory)?.classList.add('hidden');
 }
 
-function ocultarLoading(mobile) {
-    if (mobile) {
-        mobileSearchLoading?.classList.add('hidden');
-    } else {
-        searchLoading?.classList.add('hidden');
-    }
-}
+function ocultarLoading(mobile) { (mobile ? mobileSearchLoading : searchLoading)?.classList.add('hidden'); }
 
 function mostrarSinResultados(mobile) {
-    if (mobile) {
-        mobileNoResults?.classList.remove('hidden');
-        mobileSearchResults?.classList.add('hidden');
-        mobileEmptyHistory?.classList.add('hidden');
-    } else {
-        noResults?.classList.remove('hidden');
-        searchResults?.classList.add('hidden');
-        emptyHistory?.classList.add('hidden');
-    }
+    (mobile ? mobileNoResults : noResults)?.classList.remove('hidden');
+    (mobile ? mobileSearchResults : searchResults)?.classList.add('hidden');
+    (mobile ? mobileEmptyHistory : emptyHistory)?.classList.add('hidden');
 }
 
 function mostrarHistorialVacio() {
-    if (emptyHistory) {
-        emptyHistory.classList.remove('hidden');
-        searchResults?.classList.add('hidden');
-        noResults?.classList.add('hidden');
-        panelTitle.textContent = 'Búsquedas recientes';
-    }
-    
-    if (mobileEmptyHistory) {
-        mobileEmptyHistory.classList.remove('hidden');
-        mobileSearchResults?.classList.add('hidden');
-        mobileNoResults?.classList.add('hidden');
-        mobilePanelTitle.textContent = 'Búsquedas recientes';
-    }
+    [emptyHistory, mobileEmptyHistory].forEach(el => el?.classList.remove('hidden'));
+    [searchResults, mobileSearchResults, noResults, mobileNoResults].forEach(el => el?.classList.add('hidden'));
+    [panelTitle, mobilePanelTitle].forEach(el => { if(el) el.textContent = 'Búsquedas recientes'; });
 }
 
 function mostrarError(mobile) {
     const container = mobile ? mobileSearchResults : searchResults;
-    if (container) {
-        container.innerHTML = `
-            <div class="p-8 text-center">
-                <div class="text-5xl mb-3">⚠️</div>
-                <p class="text-gray-600 font-semibold">Error al buscar</p>
-                <p class="text-gray-400 text-sm mt-1">Intenta nuevamente</p>
-            </div>
-        `;
-        container.classList.remove('hidden');
-    }
+    if (container) { container.innerHTML = `<div class="p-8 text-center"><div class="text-5xl mb-3">⚠️</div><p class="text-gray-600 font-semibold">Error al buscar</p></div>`; container.classList.remove('hidden'); }
 }
 
 function limpiarBusqueda(mobile) {
-    if (mobile) {
-        mobileSearchInput.value = '';
-        clearMobileSearchBtn?.classList.add('hidden');
-    } else {
-        searchInput.value = '';
-        clearSearchBtn?.classList.add('hidden');
-    }
-    currentQuery = '';
-    cargarHistorial();
+    if (mobile) { mobileSearchInput.value=''; clearMobileSearchBtn?.classList.add('hidden'); }
+    else { searchInput.value=''; clearSearchBtn?.classList.add('hidden'); }
+    currentQuery=''; cargarHistorial();
 }
 
 function resaltarTexto(texto, query) {
     if (!query) return escapeHtml(texto);
-    const regex = new RegExp(`(${escapeRegex(query)})`, 'gi');
-    return escapeHtml(texto).replace(regex, '<span class="bg-yellow-200 font-semibold px-0.5 rounded">$1</span>');
+    return escapeHtml(texto).replace(new RegExp(`(${escapeRegex(query)})`,'gi'), '<span class="bg-yellow-200 font-semibold px-0.5 rounded">$1</span>');
 }
 
-function getEmojiPorTipo(tipo) {
-    const emojis = {
-        'aprendiz': '🎓',
-        'instructor': '👨‍🏫',
-        'bienestar': '🏥'
-    };
-    return emojis[tipo] || '👤';
-}
-
-function escapeHtml(text) {
-    const map = {
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#039;'
-    };
-    return text.replace(/[&<>"']/g, m => map[m]);
-}
-
-function escapeRegex(text) {
-    return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
+function getEmojiPorTipo(tipo) { return {'aprendiz':'🎓','instructor':'👨‍🏫','bienestar':'🏥'}[tipo]||'👤'; }
+function escapeHtml(t) { return t.replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m])); }
+function escapeRegex(t) { return t.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'); }
 </script>
+
 </body>
 </html>
