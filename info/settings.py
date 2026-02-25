@@ -55,13 +55,8 @@ INSTALLED_APPS = [
     'applications.usuarios',
     'applications.moderacion',
     'applications.publicaciones',
-    'applications.comentarios',
-    'applications.reacciones',
-    'applications.grupos',
-    'applications.miembros_grupo',
     'applications.amistades',
     'applications.chat',
-    'applications.ficha',
     'applications.perfil',
     'applications.notificaciones',
     'applications.busqueda',
@@ -209,41 +204,12 @@ MODERACION_CATEGORIAS_BLOQUEADAS = [
 
 # Palabras prohibidas (personaliza según tu región)
 MODERACION_PALABRAS_PROHIBIDAS = [
-    'puta', 'puto', 'cabrón', 'cabron', 'mierda', 'verga', 'pendejo',
-    'gonorrea', 'hijueputa', 'malparido', 'marica', 'maricon',
+    'puta', 'puto', 'mierda', 'verga', 'pendejo',
+    'gonorrea', 'hijueputa', 'malparido', 'marica',
+    'maricon', 'cabron', 'imbecil', 'estupido', 'idiota',
+    'culero', 'pendeja', 'perra', 'zorra'
 ]
-"""
-# Logging de moderación
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'verbose': {
-            'format': '{levelname} {asctime} {module} {message}',
-            'style': '{',
-        },
-    },
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
-            'formatter': 'verbose'
-        },
-        'file_moderacion': {
-            'level': 'INFO',
-            'class': 'logging.FileHandler',
-            'filename': 'logs/moderacion.log',
-            'formatter': 'verbose'
-        },
-    },
-    'loggers': {
-        'applications.moderacion': {
-            'handlers': ['console', 'file_moderacion'],
-            'level': 'INFO',
-            'propagate': False,
-        },
-    },
-}
-"""
+
 # Caché (opcional pero recomendado)
 CACHES = {
     'default': {
