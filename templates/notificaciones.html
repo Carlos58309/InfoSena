@@ -72,7 +72,6 @@
 
         .logo-text span { color: #7efa8a; }
 
-        /* Nav icon buttons */
         .nav-icon-btn {
             position: relative;
             width: 44px;
@@ -102,7 +101,6 @@
             box-shadow: 0 0 0 2px rgba(255,255,255,0.4);
         }
 
-        /* Tooltip */
         .tooltip-wrap { position: relative; }
 
         .tooltip-tip {
@@ -135,7 +133,6 @@
 
         .tooltip-wrap:hover .tooltip-tip { opacity: 1; }
 
-        /* Avatar button */
         .avatar-btn-header {
             width: 42px;
             height: 42px;
@@ -163,7 +160,7 @@
         .nav-divider { width: 1px; height: 28px; background: rgba(255,255,255,0.2); margin: 0 0.25rem; }
 
         /* ============================================ */
-        /* SIDEBAR IZQUIERDO                           */
+        /* SIDEBAR                                     */
         /* ============================================ */
         .sidebar-card {
             background: white;
@@ -308,7 +305,6 @@
             background: linear-gradient(to right, #f0fdf4, white);
         }
 
-        /* Badge de tipo */
         .tipo-badge {
             padding: 3px 10px;
             border-radius: 999px;
@@ -318,7 +314,6 @@
             letter-spacing: 0.04em;
         }
 
-        /* Botones de acción en notif */
         .notif-action-btn {
             padding: 0.45rem 1.1rem;
             border-radius: 10px;
@@ -344,7 +339,9 @@
         .btn-ver { background: #3b82f6; color: white; }
         .btn-ver:hover { background: #2563eb; box-shadow: 0 3px 10px rgba(59,130,246,0.3); }
 
-        /* Estado vacío */
+        .btn-chat { background: #8b5cf6; color: white; }
+        .btn-chat:hover { background: #7c3aed; box-shadow: 0 3px 10px rgba(139,92,246,0.3); }
+
         .empty-state {
             background: white;
             border-radius: 18px;
@@ -384,7 +381,6 @@
 
         .mob-nav-btn.active .mob-nav-icon { background: #f0fdf4; }
 
-        /* Animations */
         @keyframes slideIn {
             from { opacity: 0; transform: translateX(400px); }
             to   { opacity: 1; transform: translateX(0); }
@@ -405,22 +401,15 @@
 </head>
 <body>
 
-<!-- ========================= -->
-<!--      HEADER MEJORADO      -->
-<!-- ========================= -->
+<!-- HEADER -->
 <header class="header">
     <div class="header-inner">
-
-        <!-- LOGO -->
         <a href="{% url 'sesion:home' %}" class="logo-area">
             <div class="logo-monogram">iS</div>
             <span class="logo-text">Info<span>Sena</span></span>
         </a>
 
-        <!-- ICONOS DESKTOP -->
         <div class="hidden md:flex items-center gap-1">
-
-            <!-- Home -->
             <div class="tooltip-wrap">
                 <a href="{% url 'sesion:home' %}" class="nav-icon-btn">
                     <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -430,7 +419,6 @@
                 <div class="tooltip-tip">Inicio</div>
             </div>
 
-            <!-- Chat -->
             <div class="tooltip-wrap">
                 <a href="{% url 'chat:lista_chats' %}" class="nav-icon-btn">
                     <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -440,7 +428,6 @@
                 <div class="tooltip-tip">Chat</div>
             </div>
 
-            <!-- Amigos -->
             <div class="tooltip-wrap">
                 <a href="{% url 'sesion:amigos' %}" class="nav-icon-btn">
                     <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -453,7 +440,6 @@
                 <div class="tooltip-tip">Amigos</div>
             </div>
 
-            <!-- Notificaciones (activo) -->
             <div class="tooltip-wrap">
                 <a href="{% url 'notificaciones:lista' %}" class="nav-icon-btn is-active">
                     <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
@@ -465,7 +451,6 @@
 
             <div class="nav-divider"></div>
 
-            <!-- Perfil -->
             <a href="{% url 'perfil:perfiles' %}" class="avatar-btn-header">
                 {% if usuario.foto %}
                 <img src="{{ usuario.foto.url }}" alt="{{ usuario.nombre }}">
@@ -477,7 +462,6 @@
             </a>
         </div>
 
-        <!-- BOTONES MOBILE -->
         <div class="flex md:hidden items-center gap-2">
             <a href="{% url 'sesion:home' %}" class="nav-icon-btn">
                 <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -497,12 +481,10 @@
     </div>
 </header>
 
-<!-- ========================= -->
-<!--    LAYOUT PRINCIPAL       -->
-<!-- ========================= -->
+<!-- LAYOUT PRINCIPAL -->
 <div style="max-width:1400px;margin:0 auto;padding:1.25rem;display:grid;grid-template-columns:240px 1fr;gap:1.25rem;min-height:calc(100vh - 64px)">
 
-    <!-- SIDEBAR IZQUIERDO -->
+    <!-- SIDEBAR -->
     <aside class="hidden md:block">
         <div class="sidebar-card">
             <a href="{% url 'perfil:perfiles' %}" class="sidebar-user">
@@ -561,7 +543,6 @@
                     Amigos
                 </a>
 
-                <!-- Notificaciones activo -->
                 <a href="{% url 'notificaciones:lista' %}" class="sidebar-nav-item active">
                     <div class="sni-icon">
                         <svg width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -574,12 +555,8 @@
         </div>
     </aside>
 
-    <!-- ========================= -->
-    <!--    CONTENIDO PRINCIPAL    -->
-    <!-- ========================= -->
+    <!-- CONTENIDO PRINCIPAL -->
     <main>
-
-        <!-- Título -->
         <div class="mb-5">
             <h1 style="font-family:'Sora',sans-serif;font-size:1.6rem;font-weight:800;color:#111827;margin:0">
                 🔔 Notificaciones
@@ -587,11 +564,11 @@
             <p style="color:#9ca3af;font-size:0.875rem;margin-top:4px">Mantente al día con tus interacciones</p>
         </div>
 
-        <!-- BARRA DE ACCIONES (original) -->
+        <!-- BARRA DE ACCIONES -->
         <div style="background:white;border-radius:18px;box-shadow:0 2px 12px rgba(0,0,0,0.07);padding:1rem;margin-bottom:1.25rem">
             <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:0.75rem">
 
-                <!-- FILTROS (funciones originales intactas) -->
+                <!-- FILTROS -->
                 <div style="display:flex;flex-wrap:wrap;gap:0.4rem">
                     <button onclick="filtrarNotificaciones('todas')" class="filter-btn active">
                         Todas
@@ -611,9 +588,12 @@
                     <button onclick="filtrarNotificaciones('like')" class="filter-btn">
                         ❤️ Likes
                     </button>
+                    <button onclick="filtrarNotificaciones('mensaje')" class="filter-btn">
+                        ✉️ Mensajes
+                    </button>
                 </div>
 
-                <!-- MARCAR TODAS (función original) -->
+                <!-- MARCAR TODAS -->
                 <button onclick="marcarTodasLeidas()"
                         style="padding:0.5rem 1.25rem;background:#16a34a;color:white;border-radius:12px;font-size:0.85rem;font-weight:700;border:none;cursor:pointer;transition:all 0.2s;box-shadow:0 3px 10px rgba(22,163,74,0.25)"
                         onmouseover="this.style.background='#15803d';this.style.transform='translateY(-1px)'"
@@ -623,7 +603,7 @@
             </div>
         </div>
 
-        <!-- LISTA DE NOTIFICACIONES (original completo) -->
+        <!-- LISTA DE NOTIFICACIONES -->
         <div id="notificacionesContainer" style="display:flex;flex-direction:column;gap:0.75rem">
             {% if notificaciones %}
                 {% for notif in notificaciones %}
@@ -642,7 +622,7 @@
                         <!-- CONTENIDO -->
                         <div style="flex:1;min-width:0">
 
-                            <!-- HEADER: emoji + badge tipo -->
+                            <!-- HEADER -->
                             <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem;flex-wrap:wrap">
                                 <span style="font-size:1.4rem">
                                     {% if notif.tipo == 'solicitud_amistad' %}👋
@@ -650,6 +630,7 @@
                                     {% elif notif.tipo == 'nueva_publicacion' %}📝
                                     {% elif notif.tipo == 'comentario' %}💬
                                     {% elif notif.tipo == 'like' %}❤️
+                                    {% elif notif.tipo == 'mensaje' %}✉️
                                     {% endif %}
                                 </span>
 
@@ -659,6 +640,7 @@
                                     {% elif notif.tipo == 'nueva_publicacion' %}bg-purple-100 text-purple-700
                                     {% elif notif.tipo == 'comentario' %}bg-yellow-100 text-yellow-700
                                     {% elif notif.tipo == 'like' %}bg-red-100 text-red-700
+                                    {% elif notif.tipo == 'mensaje' %}bg-indigo-100 text-indigo-700
                                     {% endif %}">
                                     {{ notif.get_tipo_display }}
                                 </span>
@@ -679,7 +661,7 @@
                                 {{ notif.fecha_creacion|timesince }} atrás
                             </p>
 
-                            <!-- ACCIONES (originales intactas) -->
+                            <!-- ACCIONES -->
                             <div class="mt-4" style="display:flex;flex-wrap:wrap;gap:0.5rem;margin-top:0.75rem">
                                 {% if notif.tipo == 'solicitud_amistad' %}
                                 <button onclick="aceptarSolicitud({{ notif.emisor.id }}, {{ notif.id }})"
@@ -698,13 +680,19 @@
                                     Ver publicación →
                                 </a>
                                 {% endif %}
+
+                                {% if notif.tipo == 'mensaje' %}
+                                <a href="{% url 'chat:lista_chats' %}"
+                                   class="notif-action-btn btn-chat">
+                                    Ir al chat →
+                                </a>
+                                {% endif %}
                             </div>
                         </div>
                     </div>
                 </div>
                 {% endfor %}
             {% else %}
-                <!-- ESTADO VACÍO (original) -->
                 <div class="empty-state">
                     <div style="font-size:4rem;margin-bottom:1rem">🔔</div>
                     <h3 style="font-family:'Sora',sans-serif;font-size:1.4rem;font-weight:700;color:#111827;margin:0 0 0.5rem">
@@ -721,7 +709,6 @@
                 </div>
             {% endif %}
         </div>
-
     </main>
 </div>
 
@@ -772,18 +759,10 @@
     </div>
 </nav>
 
-<!-- ========================= -->
-<!--   SCRIPTS (todos originales) -->
-<!-- ========================= -->
+<!-- SCRIPTS -->
 <script>
-    // ========================================
-    // SISTEMA DE FILTROS (original)
-    // ========================================
     function filtrarNotificaciones(tipo) {
-        document.querySelectorAll('.filter-btn').forEach(btn => {
-            btn.classList.remove('active');
-        });
-
+        document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
         event.target.classList.add('active');
 
         const cards = document.querySelectorAll('.notificacion-card');
@@ -802,41 +781,31 @@
         });
     }
 
-    // ========================================
-    // MARCAR TODAS COMO LEÍDAS (original)
-    // ========================================
     async function marcarTodasLeidas() {
         try {
             const response = await fetch("{% url 'notificaciones:marcar_todas_leidas' %}", {
                 method: 'POST',
                 headers: { 'X-CSRFToken': getCookie('csrftoken') }
             });
-
             if (response.ok) {
                 document.querySelectorAll('.notificacion-card').forEach(card => {
                     card.classList.remove('no-leida');
-                    // Quitar el punto verde de no leída
                     const dot = card.querySelector('[style*="border-radius:50%"]');
                     if (dot) dot.remove();
                 });
                 mostrarToast('✓ Todas las notificaciones marcadas como leídas', 'success');
             }
         } catch (error) {
-            console.error('Error:', error);
             mostrarToast('❌ Error al marcar notificaciones', 'error');
         }
     }
 
-    // ========================================
-    // ACEPTAR SOLICITUD (original)
-    // ========================================
     async function aceptarSolicitud(amigoId, notifId) {
         try {
             const response = await fetch(`/amistades/aceptar/${amigoId}/`, {
                 method: 'POST',
                 headers: { 'X-CSRFToken': getCookie('csrftoken') }
             });
-
             if (response.ok) {
                 const card = document.querySelector(`[data-id="${notifId}"]`);
                 const actionsDiv = card.querySelector('.mt-4');
@@ -844,21 +813,16 @@
                 mostrarToast('✓ Solicitud de amistad aceptada', 'success');
             }
         } catch (error) {
-            console.error('Error:', error);
             mostrarToast('❌ Error al aceptar solicitud', 'error');
         }
     }
 
-    // ========================================
-    // RECHAZAR SOLICITUD (original)
-    // ========================================
     async function rechazarSolicitud(amigoId, notifId) {
         try {
             const response = await fetch(`/amistades/rechazar/${amigoId}/`, {
                 method: 'POST',
                 headers: { 'X-CSRFToken': getCookie('csrftoken') }
             });
-
             if (response.ok) {
                 const card = document.querySelector(`[data-id="${notifId}"]`);
                 card.style.opacity = '0';
@@ -867,14 +831,10 @@
                 mostrarToast('Solicitud rechazada', 'info');
             }
         } catch (error) {
-            console.error('Error:', error);
             mostrarToast('❌ Error al rechazar solicitud', 'error');
         }
     }
 
-    // ========================================
-    // SISTEMA DE TOASTS (original)
-    // ========================================
     function mostrarToast(mensaje, tipo = 'success') {
         const colores = {
             success: 'bg-green-500',
@@ -882,14 +842,11 @@
             warning: 'bg-yellow-500',
             info: 'bg-blue-500'
         };
-
         const toast = document.createElement('div');
         toast.className = `fixed bottom-6 right-6 ${colores[tipo]} text-white px-6 py-4 rounded-xl shadow-2xl z-50 font-semibold`;
         toast.style.animation = 'slideIn 0.3s ease-out';
         toast.textContent = mensaje;
-
         document.body.appendChild(toast);
-
         setTimeout(() => {
             toast.style.opacity = '0';
             toast.style.transform = 'translateX(400px)';
@@ -897,9 +854,6 @@
         }, 3000);
     }
 
-    // ========================================
-    // UTILIDADES (original)
-    // ========================================
     function getCookie(name) {
         let cookieValue = null;
         if (document.cookie && document.cookie !== '') {
@@ -915,7 +869,6 @@
         return cookieValue;
     }
 
-    // Auto-actualizar cada 30 segundos (original)
     setInterval(() => { location.reload(); }, 30000);
 </script>
 

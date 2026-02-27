@@ -1,4 +1,7 @@
-# applications/chat/views.py - VERSIÓN CON MODERACIÓN IA
+# applications/chat/views.py
+"""
+Views de chat con moderación usando Perspective API
+"""
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
@@ -11,12 +14,15 @@ from django.core.exceptions import ValidationError
 from applications.moderacion.decorators import moderar_mensaje_chat
 from applications.usuarios.models import Usuario
 from applications.amistades.models import Amistad
-from applications.moderacion.moderacion_service import moderacion
+from applications.moderacion.moderacion_service import ModeracionService
 from .models import Chat, Mensaje
 import logging
 import json
 
 logger = logging.getLogger(__name__)
+
+# Instancia global del moderador
+moderador = ModeracionService()
 
 
 def obtener_usuario_actual(request):
@@ -179,7 +185,7 @@ def iniciar_chat(request, usuario_id):
 def enviar_mensaje(request, chat_id):
     """
     Envía un mensaje en un chat (para formularios sin WebSocket)
-    CON MODERACIÓN IA
+    CON MODERACIÓN PERSPECTIVE API
     """
     if request.method != 'POST':
         return redirect('chat:chat_room', chat_id=chat_id)
@@ -194,41 +200,8 @@ def enviar_mensaje(request, chat_id):
     contenido = request.POST.get('contenido', '').strip()
     
     if contenido:
-        # ========================================
-        # MODERACIÓN DE MENSAJE DE CHAT
-        # ========================================
-        logger.info(f"🔍 Moderando mensaje de chat")
-        resultado = moderacion.moderar_texto(contenido)
-        
-        # Solo bloquear contenido MUY grave en chats
-        if not resultado['permitido']:
-            # Si es filtro local de palabras, ser más permisivo
-            if resultado.get('metodo') == 'filtro_local':
-                messages.warning(
-                    request,
-                    "⚠️ Por favor, evita usar lenguaje ofensivo"
-                )
-            # Si OpenAI lo detectó, bloquear solo casos graves
-            elif resultado.get('metodo') == 'openai_api':
-                categorias_graves = [
-                    'sexual', 'sexual/minors', 'violence/graphic', 
-                    'hate/threatening', 'self-harm/intent'
-                ]
-                
-                if any(cat in resultado.get('categorias_violadas', []) for cat in categorias_graves):
-                    logger.warning(f"❌ Mensaje bloqueado: {resultado['razon']}")
-                    messages.error(
-                        request,
-                        "❌ Tu mensaje fue bloqueado por contenido inapropiado grave"
-                    )
-                    return redirect('chat:chat_room', chat_id=chat_id)
-                else:
-                    messages.warning(
-                        request,
-                        "⚠️ Por favor, mantén un lenguaje respetuoso"
-                    )
-        
-        # Crear mensaje (el signal también moderará)
+        # El decorador @moderar_mensaje_chat ya validó el contenido
+        # Crear mensaje (el signal también moderará como segunda capa)
         try:
             Mensaje.objects.create(
                 chat=chat,
@@ -239,11 +212,11 @@ def enviar_mensaje(request, chat_id):
             chat.actualizado_en = timezone.now()
             chat.save(update_fields=['actualizado_en'])
             
-            logger.info(f"✅ Mensaje enviado correctamente")
+            logger.info(f"✅ Mensaje enviado correctamente por {usuario_actual.nombre}")
             
         except ValidationError as e:
             logger.error(f"❌ Mensaje rechazado por signal: {e}")
-            messages.error(request, "❌ Tu mensaje fue bloqueado")
+            messages.error(request, str(e))
     
     return redirect('chat:chat_room', chat_id=chat_id)
 
@@ -273,20 +246,22 @@ def crear_grupo(request):
         # ========================================
         # MODERACIÓN DE NOMBRE Y DESCRIPCIÓN DEL GRUPO
         # ========================================
-        resultado_nombre = moderacion.moderar_texto(nombre_grupo)
-        if not resultado_nombre['permitido']:
+        resultado_nombre = moderador.moderar_texto(nombre_grupo)
+        if resultado_nombre['bloqueado']:
+            logger.warning(f"🚫 Nombre de grupo bloqueado: {resultado_nombre['razon']}")
             messages.error(
                 request,
-                f"⚠️ Nombre de grupo bloqueado: {resultado_nombre['razon']}"
+                f"El nombre del grupo contiene contenido inapropiado: {resultado_nombre['razon']}"
             )
             return redirect('chat:crear_grupo')
         
         if descripcion:
-            resultado_desc = moderacion.moderar_texto(descripcion)
-            if not resultado_desc['permitido']:
+            resultado_desc = moderador.moderar_texto(descripcion)
+            if resultado_desc['bloqueado']:
+                logger.warning(f"🚫 Descripción de grupo bloqueada: {resultado_desc['razon']}")
                 messages.error(
                     request,
-                    f"⚠️ Descripción bloqueada: {resultado_desc['razon']}"
+                    f"La descripción contiene contenido inapropiado: {resultado_desc['razon']}"
                 )
                 return redirect('chat:crear_grupo')
         
@@ -332,8 +307,9 @@ def api_obtener_mensajes(request, chat_id):
         id__gt=ultimo_id
     ).select_related('autor').order_by('enviado')
     
+    # Marcar como vistos
     for mensaje in mensajes_nuevos:
-        if mensaje.autor != usuario_actual:
+        if mensaje.autor != usuario_actual and not mensaje.visto:
             mensaje.marcar_como_visto()
     
     mensajes_data = []
@@ -358,7 +334,7 @@ def api_obtener_mensajes(request, chat_id):
 def api_enviar_mensaje(request, chat_id):
     """
     API para enviar un mensaje vía AJAX
-    CON MODERACIÓN IA
+    CON MODERACIÓN PERSPECTIVE API
     """
     if request.method != 'POST':
         return JsonResponse({'error': 'Método no permitido'}, status=405)
@@ -370,30 +346,30 @@ def api_enviar_mensaje(request, chat_id):
     
     chat = get_object_or_404(Chat, id=chat_id, participantes=usuario_actual)
     
-    data = json.loads(request.body)
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'JSON inválido'}, status=400)
+    
     contenido = data.get('contenido', '').strip()
     
     if not contenido:
         return JsonResponse({'error': 'El mensaje no puede estar vacío'}, status=400)
     
     # ========================================
-    # MODERACIÓN DE MENSAJE
+    # MODERACIÓN CON PERSPECTIVE API
     # ========================================
-    resultado = moderacion.moderar_texto(contenido)
+    logger.info(f"🔍 Moderando mensaje AJAX de {usuario_actual.nombre}")
+    resultado = moderador.moderar_texto(contenido)
     
-    # Solo bloquear contenido grave
-    if not resultado['permitido'] and resultado.get('metodo') == 'openai_api':
-        categorias_graves = [
-            'sexual', 'sexual/minors', 'violence/graphic',
-            'hate/threatening', 'self-harm/intent'
-        ]
-        
-        if any(cat in resultado.get('categorias_violadas', []) for cat in categorias_graves):
-            logger.warning(f"❌ Mensaje AJAX bloqueado: {resultado['razon']}")
-            return JsonResponse({
-                'error': 'Mensaje bloqueado por contenido inapropiado',
-                'razon': resultado['razon']
-            }, status=400)
+    if resultado['bloqueado']:
+        logger.warning(f"🚫 Mensaje AJAX bloqueado: {resultado['razon']}")
+        return JsonResponse({
+            'success': False,
+            'error': 'Tu mensaje contiene contenido inapropiado y no puede ser enviado',
+            'razon': resultado['razon'],
+            'categorias': resultado.get('categorias_detectadas', [])
+        }, status=400)
     
     # Crear mensaje
     try:
@@ -405,6 +381,8 @@ def api_enviar_mensaje(request, chat_id):
         
         chat.actualizado_en = timezone.now()
         chat.save(update_fields=['actualizado_en'])
+        
+        logger.info(f"✅ Mensaje AJAX enviado correctamente")
         
         return JsonResponse({
             'success': True,
@@ -419,9 +397,10 @@ def api_enviar_mensaje(request, chat_id):
         })
     
     except ValidationError as e:
+        logger.error(f"❌ Mensaje rechazado por signal: {e}")
         return JsonResponse({
-            'error': 'Mensaje bloqueado',
-            'razon': str(e)
+            'success': False,
+            'error': str(e)
         }, status=400)
 
 
@@ -442,10 +421,12 @@ def eliminar_chat(request, chat_id):
         chat = Chat.objects.get(id=chat_id, participantes=usuario_actual)
         
         if not chat.is_group:
+            # Chat individual
             chat.participantes.remove(usuario_actual)
             if chat.participantes.count() == 0:
                 chat.delete()
         else:
+            # Chat grupal
             chat.participantes.remove(usuario_actual)
             if chat.admin_grupo == usuario_actual:
                 nuevo_admin = chat.participantes.first()
@@ -472,9 +453,15 @@ def vaciar_mensajes(request, chat_id):
     
     try:
         chat = Chat.objects.get(id=chat_id, participantes=usuario_actual)
+        cantidad = chat.mensajes.count()
         chat.mensajes.all().delete()
         
-        return JsonResponse({'success': True, 'message': 'Mensajes vaciados'})
+        logger.info(f"🗑️ {cantidad} mensajes eliminados del chat {chat_id} por {usuario_actual.nombre}")
+        
+        return JsonResponse({
+            'success': True,
+            'message': f'{cantidad} mensajes eliminados'
+        })
     
     except Chat.DoesNotExist:
         return JsonResponse({'error': 'Chat no encontrado'}, status=404)
@@ -489,8 +476,15 @@ def silenciar_chat(request, chat_id):
     if not usuario_actual:
         return JsonResponse({'error': 'Usuario no identificado'}, status=403)
     
-    data = json.loads(request.body)
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        data = {}
+    
     silenciado = data.get('silenciado', True)
+    
+    # Aquí puedes guardar la preferencia en la BD si tienes un modelo para eso
+    # Por ahora solo retornamos éxito
     
     return JsonResponse({
         'success': True,
@@ -509,13 +503,20 @@ def obtener_archivos_compartidos(request, chat_id):
     
     try:
         chat = Chat.objects.get(id=chat_id, participantes=usuario_actual)
-        mensajes_con_archivos = chat.mensajes.exclude(archivo='').select_related('autor')
+        
+        # Si tienes campo de archivo en Mensaje
+        if hasattr(Mensaje, 'archivo'):
+            mensajes_con_archivos = chat.mensajes.exclude(
+                archivo=''
+            ).select_related('autor').order_by('-enviado')
+        else:
+            mensajes_con_archivos = []
         
         archivos = []
         for mensaje in mensajes_con_archivos:
             archivos.append({
                 'id': mensaje.id,
-                'tipo': mensaje.tipo_archivo,
+                'tipo': getattr(mensaje, 'tipo_archivo', 'unknown'),
                 'url': mensaje.archivo.url if mensaje.archivo else None,
                 'autor': mensaje.autor.nombre,
                 'fecha': mensaje.enviado.isoformat()
@@ -539,7 +540,7 @@ def buscar_mensajes(request, chat_id):
     if not usuario_actual:
         return JsonResponse({'error': 'Usuario no identificado'}, status=403)
     
-    query = request.GET.get('q', '')
+    query = request.GET.get('q', '').strip()
     
     if not query:
         return JsonResponse({'error': 'Query vacío'}, status=400)

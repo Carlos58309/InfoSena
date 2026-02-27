@@ -1,162 +1,174 @@
 # applications/moderacion/signals.py
 """
-Signals para moderar contenido automáticamente antes de guardar
+Signals para moderación automática
+Se ejecutan ANTES de guardar los modelos en la base de datos
 """
 
+import logging
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
 from django.core.exceptions import ValidationError
-from .moderacion_service import moderacion
-from .models import RegistroModeracion
-import logging
+from applications.moderacion.moderacion_service import ModeracionService
 
 logger = logging.getLogger(__name__)
 
+# Instancia única del servicio de moderación
+_moderador = None
 
-def registrar_moderacion(usuario, tipo_contenido, resultado_moderacion,
-                         contenido_texto=None, archivo_url=None, request=None):
-    """Helper para registrar una moderación en la base de datos"""
-    try:
-        ip_address = None
-        user_agent = None
-        if request:
-            ip_address = request.META.get('REMOTE_ADDR')
-            user_agent = request.META.get('HTTP_USER_AGENT', '')[:255]
-
-        RegistroModeracion.objects.create(
-            usuario=usuario,
-            tipo_contenido=tipo_contenido,
-            resultado='aprobado' if resultado_moderacion['permitido'] else 'bloqueado',
-            contenido_texto=contenido_texto[:500] if contenido_texto else None,
-            archivo_url=archivo_url,
-            razon=resultado_moderacion.get('razon', ''),
-            categorias_violadas=resultado_moderacion.get('categorias_violadas', []),
-            score_confianza=resultado_moderacion.get('score_confianza', {}),
-            metodo_usado=resultado_moderacion.get('metodo', 'openai_api'),
-            ip_address=ip_address,
-            user_agent=user_agent
-        )
-    except Exception as e:
-        logger.error(f"Error registrando moderación: {e}")
+def get_moderador():
+    """Obtener instancia del moderador (singleton)"""
+    global _moderador
+    if _moderador is None:
+        _moderador = ModeracionService()
+    return _moderador
 
 
-# ─────────────────────────────────────────────────────────────
-# PUBLICACIONES
-# ─────────────────────────────────────────────────────────────
-
-@receiver(pre_save, sender='publicaciones.Publicacion')
-def moderar_publicacion(sender, instance, **kwargs):
-    """Modera contenido de publicaciones antes de guardar"""
-    if instance.pk is None:
-        logger.info(f"🔍 Moderando publicación: {instance.titulo}")
-
-        resultado_titulo = moderacion.moderar_texto(instance.titulo)
-        if not resultado_titulo['permitido']:
-            logger.warning(f"❌ Título bloqueado: {resultado_titulo['razon']}")
-            raise ValidationError({'titulo': f"Título bloqueado: {resultado_titulo['razon']}"})
-
-        resultado_contenido = moderacion.moderar_texto(instance.contenido)
-        if not resultado_contenido['permitido']:
-            logger.warning(f"❌ Contenido bloqueado: {resultado_contenido['razon']}")
-            try:
-                from applications.usuarios.models import Usuario
-                usuario = Usuario.objects.filter(documento=instance.autor.numero_documento).first()
-                registrar_moderacion(
-                    usuario=usuario,
-                    tipo_contenido='texto',
-                    resultado_moderacion=resultado_contenido,
-                    contenido_texto=instance.contenido
-                )
-            except Exception:
-                pass
-            raise ValidationError({'contenido': f"Contenido bloqueado: {resultado_contenido['razon']}"})
-
-        logger.info(f"✅ Publicación aprobada: {instance.titulo}")
-
-
-# ─────────────────────────────────────────────────────────────
-# COMENTARIOS
-# ─────────────────────────────────────────────────────────────
-
-@receiver(pre_save, sender='publicaciones.Comentario')
-def moderar_comentario(sender, instance, **kwargs):
-    """Modera comentarios antes de guardar"""
-    if instance.pk is None:
-        logger.info("🔍 Moderando comentario")
-
-        resultado = moderacion.moderar_texto(instance.contenido)
-
-        if not resultado['permitido']:
-            logger.warning(f"❌ Comentario bloqueado: {resultado['razon']}")
-            try:
-                from applications.usuarios.models import Usuario
-                usuario = Usuario.objects.filter(documento=instance.autor.numero_documento).first()
-                registrar_moderacion(
-                    usuario=usuario,
-                    tipo_contenido='texto',
-                    resultado_moderacion=resultado,
-                    contenido_texto=instance.contenido
-                )
-            except Exception:
-                pass
-            raise ValidationError({'contenido': f"Comentario bloqueado: {resultado['razon']}"})
-
-        logger.info("✅ Comentario aprobado")
-
-
-# ─────────────────────────────────────────────────────────────
-# MENSAJES DE CHAT
-# ─────────────────────────────────────────────────────────────
+# ============================================================
+# SIGNALS PARA MENSAJES DE CHAT
+# ============================================================
 
 @receiver(pre_save, sender='chat.Mensaje')
-def moderar_mensaje_chat(sender, instance, **kwargs):
+def moderar_mensaje_antes_de_guardar(sender, instance, **kwargs):
     """
-    Modera mensajes de chat antes de guardar.
-
-    REGLAS:
-    - Filtro local (palabras prohibidas) → SIEMPRE bloquea
-    - OpenAI API → bloquea solo categorías graves
-    - Error/rate-limit → bloquea (seguro por defecto)
+    Modera mensajes de chat antes de guardarlos en la BD
+    Si el contenido es inapropiado, lanza ValidationError
     """
-    if instance.pk is None and instance.contenido:
-        logger.info("🔍 Moderando mensaje de chat")
+    # Solo moderar mensajes nuevos (no actualizaciones)
+    if instance.pk is not None:
+        return
+    
+    contenido = instance.contenido
+    
+    if not contenido or not contenido.strip():
+        return
+    
+    try:
+        logger.info(f"🔍 [SIGNAL] Moderando mensaje: {contenido[:50]}...")
+        
+        moderador = get_moderador()
+        resultado = moderador.moderar_texto(contenido)
+        
+        if resultado['bloqueado']:
+            logger.warning(f"🚫 [SIGNAL] Mensaje bloqueado: {resultado['razon']}")
+            raise ValidationError(
+                f"Tu mensaje contiene contenido inapropiado y no puede ser enviado. "
+                f"Razón: {resultado['razon']}"
+            )
+        
+        logger.info(f"✅ [SIGNAL] Mensaje aprobado")
+        
+    except ValidationError:
+        raise
+    except Exception as e:
+        logger.error(f"❌ [SIGNAL] Error al moderar mensaje: {e}")
+        # En caso de error, permitir el mensaje (fail-open)
+        pass
 
-        resultado = moderacion.moderar_texto(instance.contenido)
 
-        if not resultado['permitido']:
-            metodo = resultado.get('metodo', '')
+# ============================================================
+# SIGNALS PARA PUBLICACIONES
+# ============================================================
 
-            # Palabras prohibidas → bloquear siempre
-            if metodo == 'filtro_local':
-                logger.warning(f"❌ Mensaje bloqueado (filtro local): {resultado['razon']}")
-                registrar_moderacion(
-                    usuario=instance.autor,
-                    tipo_contenido='texto',
-                    resultado_moderacion=resultado,
-                    contenido_texto=instance.contenido
+@receiver(pre_save, sender='publicaciones.Publicacion')
+def moderar_publicacion_antes_de_guardar(sender, instance, **kwargs):
+    """
+    Modera publicaciones antes de guardarlas en la BD
+    Valida tanto el título como el contenido
+    """
+    # Solo moderar publicaciones nuevas
+    if instance.pk is not None:
+        return
+    
+    moderador = get_moderador()
+    
+    # Moderar título
+    if instance.titulo:
+        try:
+            logger.info(f"🔍 [SIGNAL] Moderando título: {instance.titulo[:50]}...")
+            
+            resultado_titulo = moderador.moderar_texto(instance.titulo)
+            
+            if resultado_titulo['bloqueado']:
+                logger.warning(f"🚫 [SIGNAL] Título bloqueado: {resultado_titulo['razon']}")
+                raise ValidationError(
+                    f"El título contiene contenido inapropiado. "
+                    f"Razón: {resultado_titulo['razon']}"
                 )
-                raise ValidationError({'contenido': 'Mensaje bloqueado: usa un lenguaje respetuoso'})
+            
+            logger.info(f"✅ [SIGNAL] Título aprobado")
+            
+        except ValidationError:
+            raise
+        except Exception as e:
+            logger.error(f"❌ [SIGNAL] Error al moderar título: {e}")
+    
+    # Moderar contenido
+    if instance.contenido:
+        try:
+            logger.info(f"🔍 [SIGNAL] Moderando contenido: {instance.contenido[:50]}...")
+            
+            resultado_contenido = moderador.moderar_texto(instance.contenido)
+            
+            if resultado_contenido['bloqueado']:
+                logger.warning(f"🚫 [SIGNAL] Contenido bloqueado: {resultado_contenido['razon']}")
+                raise ValidationError(
+                    f"El contenido de la publicación es inapropiado. "
+                    f"Razón: {resultado_contenido['razon']}"
+                )
+            
+            logger.info(f"✅ [SIGNAL] Contenido aprobado")
+            
+        except ValidationError:
+            raise
+        except Exception as e:
+            logger.error(f"❌ [SIGNAL] Error al moderar contenido: {e}")
 
-            # OpenAI detectó algo grave
-            elif metodo == 'openai_api':
-                categorias_graves = [
-                    'sexual', 'sexual/minors', 'violence/graphic',
-                    'hate/threatening', 'self-harm/intent',
-                    'harassment/threatening', 'illicit/violent'
-                ]
-                if any(cat in resultado.get('categorias_violadas', []) for cat in categorias_graves):
-                    logger.warning(f"❌ Mensaje bloqueado (OpenAI): {resultado['razon']}")
-                    registrar_moderacion(
-                        usuario=instance.autor,
-                        tipo_contenido='texto',
-                        resultado_moderacion=resultado,
-                        contenido_texto=instance.contenido
-                    )
-                    raise ValidationError({'contenido': 'Mensaje bloqueado por contenido inapropiado grave'})
 
-            # Rate-limit o error → bloquear con mensaje amigable
-            elif metodo in ('error_rate_limit', 'error_fallback'):
-                logger.warning(f"❌ Mensaje bloqueado (servicio no disponible): {resultado['razon']}")
-                raise ValidationError({'contenido': resultado['razon']})
+# ============================================================
+# SIGNALS PARA COMENTARIOS
+# ============================================================
 
-        logger.info("✅ Mensaje aprobado")
+@receiver(pre_save, sender='publicaciones.Comentario')
+def moderar_comentario_antes_de_guardar(sender, instance, **kwargs):
+    """
+    Modera comentarios antes de guardarlos en la BD
+    """
+    # Solo moderar comentarios nuevos
+    if instance.pk is not None:
+        return
+    
+    contenido = instance.contenido
+    
+    if not contenido or not contenido.strip():
+        return
+    
+    try:
+        logger.info(f"🔍 [SIGNAL] Moderando comentario: {contenido[:50]}...")
+        
+        moderador = get_moderador()
+        resultado = moderador.moderar_texto(contenido)
+        
+        if resultado['bloqueado']:
+            logger.warning(f"🚫 [SIGNAL] Comentario bloqueado: {resultado['razon']}")
+            raise ValidationError(
+                f"Tu comentario contiene contenido inapropiado. "
+                f"Razón: {resultado['razon']}"
+            )
+        
+        logger.info(f"✅ [SIGNAL] Comentario aprobado")
+        
+    except ValidationError:
+        raise
+    except Exception as e:
+        logger.error(f"❌ [SIGNAL] Error al moderar comentario: {e}")
+        pass
+
+
+# ============================================================
+# LOGGING DE INICIALIZACIÓN
+# ============================================================
+
+logger.info("✅ Signals de moderación registrados correctamente")
+logger.info("   → Mensaje (chat.Mensaje)")
+logger.info("   → Publicación (publicaciones.Publicacion)")
+logger.info("   → Comentario (publicaciones.Comentario)")

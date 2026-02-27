@@ -178,9 +178,18 @@ DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 ADMIN_EMAIL = EMAIL_HOST_USER
 
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
-
+PERSPECTIVE_API_KEY = 'AIzaSyClFIfrYfiMOtH3nDTgBtYNSxS08en0fH4'
 # Modelo de moderación
 OPENAI_MODERATION_MODEL = 'omni-moderation-latest'
+
+PERSPECTIVE_THRESHOLDS = {
+    'TOXICITY': 0.7,          # Toxicidad general (recomendado: 0.6-0.8)
+    'SEVERE_TOXICITY': 0.6,   # Toxicidad severa (recomendado: 0.5-0.7)
+    'INSULT': 0.7,            # Insultos directos (recomendado: 0.6-0.8)
+    'PROFANITY': 0.7,         # Groserías/palabrotas (recomendado: 0.6-0.8)
+    'THREAT': 0.6,            # Amenazas (recomendado: 0.5-0.7)
+    'IDENTITY_ATTACK': 0.7,   # Ataques por identidad (recomendado: 0.6-0.8)
+}
 
 # Configuración de moderación
 MODERACION_CACHE_TIMEOUT = 300

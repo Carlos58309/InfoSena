@@ -1,178 +1,174 @@
 # applications/moderacion/decorators.py
 """
-Decoradores para aplicar moderación automática en views
+Decoradores para moderación automática
+Validan el contenido antes de guardar o procesar
 """
 
-from functools import wraps
-from django.contrib import messages
-from django.shortcuts import redirect
-from .moderacion_service import moderacion
 import logging
+from functools import wraps
+from django.http import JsonResponse
+from django.core.exceptions import ValidationError
+from applications.moderacion.moderacion_service import ModeracionService
 
 logger = logging.getLogger(__name__)
 
 
-def moderar_texto_post(campo_texto='contenido', redirect_url=None):
-    """Decorador para moderar texto de un POST"""
-    def decorator(view_func):
-        @wraps(view_func)
-        def wrapper(request, *args, **kwargs):
-            if request.method == 'POST':
-                texto = request.POST.get(campo_texto, '')
-                if texto:
-                    resultado = moderacion.moderar_texto(texto)
-                    if not resultado['permitido']:
-                        logger.warning(f"❌ Contenido bloqueado: {resultado['razon']}")
-                        messages.error(request, f"⚠️ Tu contenido fue bloqueado: {resultado['razon']}")
-                        return redirect(redirect_url or request.path)
-            return view_func(request, *args, **kwargs)
-        return wrapper
-    return decorator
-
-
-def moderar_archivos_post(campo_archivos='archivos', max_archivos=10):
-    """Decorador para moderar archivos de un POST"""
-    def decorator(view_func):
-        @wraps(view_func)
-        def wrapper(request, *args, **kwargs):
-            if request.method == 'POST':
-                archivos = request.FILES.getlist(campo_archivos)
-                if len(archivos) > max_archivos:
-                    messages.error(request, f"❌ Máximo {max_archivos} archivos permitidos")
-                    return redirect(request.path)
-                for i, archivo in enumerate(archivos):
-                    resultado = moderacion.moderar_archivo(archivo)
-                    if not resultado['permitido']:
-                        logger.warning(f"❌ Archivo {i+1} bloqueado: {resultado['razon']}")
-                        messages.error(request, f"⚠️ Archivo '{archivo.name}' bloqueado: {resultado['razon']}")
-                        return redirect(request.path)
-            return view_func(request, *args, **kwargs)
-        return wrapper
-    return decorator
-
-
-def moderar_contenido_completo(
-    campo_texto='contenido',
-    campo_imagenes='imagenes',
-    campo_videos='videos',
-    max_imagenes=10,
-    max_videos=5
-):
-    """Decorador completo que modera texto, imágenes y videos"""
-    def decorator(view_func):
-        @wraps(view_func)
-        def wrapper(request, *args, **kwargs):
-            if request.method == 'POST':
-                errores = []
-
-                texto = request.POST.get(campo_texto, '')
-                if texto:
-                    resultado_texto = moderacion.moderar_texto(texto)
-                    if not resultado_texto['permitido']:
-                        errores.append(f"Texto: {resultado_texto['razon']}")
-
-                imagenes = request.FILES.getlist(campo_imagenes)
-                if len(imagenes) > max_imagenes:
-                    errores.append(f"Máximo {max_imagenes} imágenes permitidas")
-                else:
-                    for i, imagen in enumerate(imagenes):
-                        resultado_img = moderacion.moderar_archivo(imagen)
-                        if not resultado_img['permitido']:
-                            errores.append(f"Imagen {i+1}: {resultado_img['razon']}")
-
-                videos = request.FILES.getlist(campo_videos)
-                if len(videos) > max_videos:
-                    errores.append(f"Máximo {max_videos} videos permitidos")
-                else:
-                    for i, video in enumerate(videos):
-                        resultado_vid = moderacion.moderar_archivo(video)
-                        if not resultado_vid['permitido']:
-                            errores.append(f"Video {i+1}: {resultado_vid['razon']}")
-
-                if errores:
-                    for error in errores:
-                        messages.error(request, f"⚠️ {error}")
-                    logger.warning(f"❌ Contenido bloqueado: {', '.join(errores)}")
-                    return redirect(request.path)
-
-            return view_func(request, *args, **kwargs)
-        return wrapper
-    return decorator
-
-
-def moderar_mensaje_chat(campo_mensaje='contenido'):
+def moderar_mensaje_chat(view_func):
     """
-    Decorador para mensajes de chat.
-
-    Bloquea:
-    - Palabras prohibidas (filtro local) → siempre
-    - OpenAI categorías graves → siempre
-    - Rate-limit/error → bloquea con mensaje amigable
+    Decorador para moderar mensajes de chat antes de guardarlos
+    Uso:
+        @moderar_mensaje_chat
+        def enviar_mensaje(request, chat_id):
+            ...
     """
-    def decorator(view_func):
-        @wraps(view_func)
-        def wrapper(request, *args, **kwargs):
-            if request.method == 'POST':
-                mensaje = request.POST.get(campo_mensaje, '')
-                if mensaje:
-                    resultado = moderacion.moderar_texto(mensaje)
-
-                    if not resultado['permitido']:
-                        metodo = resultado.get('metodo', '')
-
-                        # Palabras prohibidas → siempre bloquear
-                        if metodo == 'filtro_local':
-                            logger.warning(f"❌ Mensaje bloqueado (filtro local): {resultado['razon']}")
-                            messages.error(request, "⚠️ Por favor, usa un lenguaje respetuoso")
-                            return redirect(request.path)
-
-                        # OpenAI detectó contenido grave
-                        elif metodo == 'openai_api':
-                            categorias_graves = [
-                                'sexual', 'sexual/minors', 'violence/graphic',
-                                'hate/threatening', 'self-harm/intent',
-                                'harassment/threatening', 'illicit/violent'
-                            ]
-                            if any(cat in resultado.get('categorias_violadas', []) for cat in categorias_graves):
-                                logger.warning(f"❌ Mensaje bloqueado (OpenAI grave): {resultado['razon']}")
-                                messages.error(request, "⚠️ Tu mensaje contiene contenido inapropiado")
-                                return redirect(request.path)
-
-                        # Rate-limit o error → bloquear con mensaje amigable
-                        elif metodo in ('error_rate_limit', 'error_fallback'):
-                            messages.error(request, f"⚠️ {resultado['razon']}")
-                            return redirect(request.path)
-
+    @wraps(view_func)
+    def wrapper(request, *args, **kwargs):
+        # Solo validar POST requests
+        if request.method != 'POST':
             return view_func(request, *args, **kwargs)
-        return wrapper
-    return decorator
-
-
-def validar_perfil(campo_nombre='nombre', campo_biografia='biografia'):
-    """Decorador para validar datos de perfil"""
-    def decorator(view_func):
-        @wraps(view_func)
-        def wrapper(request, *args, **kwargs):
-            if request.method == 'POST':
-                errores = []
-
-                nombre = request.POST.get(campo_nombre, '')
-                if nombre:
-                    resultado_nombre = moderacion.validar_nombre_usuario(nombre)
-                    if not resultado_nombre['permitido']:
-                        errores.append(f"Nombre: {resultado_nombre['razon']}")
-
-                biografia = request.POST.get(campo_biografia, '')
-                if biografia:
-                    resultado_bio = moderacion.validar_biografia(biografia)
-                    if not resultado_bio['permitido']:
-                        errores.append(f"Biografía: {resultado_bio['razon']}")
-
-                if errores:
-                    for error in errores:
-                        messages.error(request, f"⚠️ {error}")
-                    return redirect(request.path)
-
+        
+        try:
+            # Obtener el contenido del mensaje
+            import json
+            if request.content_type == 'application/json':
+                data = json.loads(request.body)
+                contenido = data.get('contenido', '')
+            else:
+                contenido = request.POST.get('contenido', '')
+            
+            if not contenido:
+                return view_func(request, *args, **kwargs)
+            
+            # Moderar el contenido
+            logger.info(f"🔍 Moderando mensaje de chat: {contenido[:50]}...")
+            
+            moderador = ModeracionService()
+            resultado = moderador.moderar_texto(contenido)
+            
+            if resultado['bloqueado']:
+                logger.warning(f"🚫 Mensaje bloqueado: {resultado['razon']}")
+                
+                # Si es JSON, retornar JSON
+                if request.content_type == 'application/json':
+                    return JsonResponse({
+                        'success': False,
+                        'error': 'Tu mensaje contiene contenido inapropiado y no puede ser enviado.',
+                        'detalles': resultado['razon'],
+                        'categorias': resultado['categorias_detectadas']
+                    }, status=400)
+                else:
+                    # Si es form, lanzar ValidationError
+                    raise ValidationError(
+                        'Tu mensaje contiene contenido inapropiado y no puede ser enviado.'
+                    )
+            
+            logger.info(f"✅ Mensaje aprobado")
             return view_func(request, *args, **kwargs)
-        return wrapper
-    return decorator
+            
+        except ValidationError:
+            raise
+        except Exception as e:
+            logger.error(f"❌ Error en decorador de moderación: {e}")
+            # En caso de error, permitir el mensaje (fail-open)
+            return view_func(request, *args, **kwargs)
+    
+    return wrapper
+
+
+def moderar_publicacion(view_func):
+    """
+    Decorador para moderar publicaciones antes de crearlas
+    Uso:
+        @moderar_publicacion
+        def crear_publicacion(request):
+            ...
+    """
+    @wraps(view_func)
+    def wrapper(request, *args, **kwargs):
+        if request.method != 'POST':
+            return view_func(request, *args, **kwargs)
+        
+        try:
+            # Obtener datos de la publicación
+            titulo = request.POST.get('titulo', '')
+            contenido = request.POST.get('contenido', '')
+            
+            moderador = ModeracionService()
+            
+            # Moderar título
+            if titulo:
+                logger.info(f"🔍 Moderando título: {titulo[:50]}...")
+                resultado_titulo = moderador.moderar_texto(titulo)
+                
+                if resultado_titulo['bloqueado']:
+                    logger.warning(f"🚫 Título bloqueado: {resultado_titulo['razon']}")
+                    raise ValidationError(
+                        f'El título contiene contenido inapropiado: {resultado_titulo["razon"]}'
+                    )
+            
+            # Moderar contenido
+            if contenido:
+                logger.info(f"🔍 Moderando contenido: {contenido[:50]}...")
+                resultado_contenido = moderador.moderar_texto(contenido)
+                
+                if resultado_contenido['bloqueado']:
+                    logger.warning(f"🚫 Contenido bloqueado: {resultado_contenido['razon']}")
+                    raise ValidationError(
+                        f'El contenido de la publicación es inapropiado: {resultado_contenido["razon"]}'
+                    )
+            
+            logger.info("✅ Publicación aprobada")
+            return view_func(request, *args, **kwargs)
+            
+        except ValidationError:
+            raise
+        except Exception as e:
+            logger.error(f"❌ Error en moderación de publicación: {e}")
+            # En caso de error, permitir la publicación
+            return view_func(request, *args, **kwargs)
+    
+    return wrapper
+
+
+def moderar_comentario(view_func):
+    """
+    Decorador para moderar comentarios antes de crearlos
+    Uso:
+        @moderar_comentario
+        def crear_comentario(request, publicacion_id):
+            ...
+    """
+    @wraps(view_func)
+    def wrapper(request, *args, **kwargs):
+        if request.method != 'POST':
+            return view_func(request, *args, **kwargs)
+        
+        try:
+            # Obtener contenido del comentario
+            contenido = request.POST.get('contenido', '')
+            
+            if not contenido:
+                return view_func(request, *args, **kwargs)
+            
+            # Moderar
+            logger.info(f"🔍 Moderando comentario: {contenido[:50]}...")
+            
+            moderador = ModeracionService()
+            resultado = moderador.moderar_texto(contenido)
+            
+            if resultado['bloqueado']:
+                logger.warning(f"🚫 Comentario bloqueado: {resultado['razon']}")
+                raise ValidationError(
+                    f'Tu comentario contiene contenido inapropiado: {resultado["razon"]}'
+                )
+            
+            logger.info("✅ Comentario aprobado")
+            return view_func(request, *args, **kwargs)
+            
+        except ValidationError:
+            raise
+        except Exception as e:
+            logger.error(f"❌ Error en moderación de comentario: {e}")
+            return view_func(request, *args, **kwargs)
+    
+    return wrapper

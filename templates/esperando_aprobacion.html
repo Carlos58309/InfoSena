@@ -6,103 +6,241 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Esperando Aprobación - INFOSENA</title>
     <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-green-200 min-h-screen flex items-center justify-center p-4">
 
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl p-10">
-        
-        <!-- LOGO -->
-        <div class="text-center mb-8">
-            <img src="{% static 'img/logo.png' %}" alt="INFOSENA" class="w-48 mx-auto mb-6">
-            
-            <!-- ICONO DE RELOJ -->
-            <div class="w-24 h-24 mx-auto mb-4 bg-yellow-100 rounded-full flex items-center justify-center">
-                <svg class="w-12 h-12 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <style>
+        body{
+            font-family:'Inter',sans-serif;
+            min-height:100vh;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            padding:1.5rem;
+        }
+
+        .card{
+            width:100%;
+            max-width:600px;
+            background:#fff;
+            border-radius:26px;
+            box-shadow:0 20px 60px rgba(13,54,4,.1);
+            overflow:hidden;
+            animation:fade .4s ease;
+        }
+
+        @keyframes fade{
+            from{opacity:0;transform:translateY(20px)}
+            to{opacity:1;transform:translateY(0)}
+        }
+
+        .card-header{
+            background:linear-gradient(135deg,#0d3604 0%,#1a6b0a 55%,#2b9e15 100%);
+            padding:2rem;
+            text-align:center;
+            color:#fff;
+        }
+
+        .card-header img{
+            width:8rem;
+            margin:0 auto 1rem;
+            display:block;
+        }
+
+        .card-header h2{
+            font-family:'Sora',sans-serif;
+            font-size:1.6rem;
+            font-weight:800;
+            margin-bottom:.25rem;
+        }
+
+        .card-header p{
+            font-size:.9rem;
+            opacity:.85;
+        }
+
+        .card-body{
+            padding:2rem;
+        }
+
+        .info-box{
+            background:#f0f9ff;
+            border-left:4px solid #3b82f6;
+            border-radius:12px;
+            padding:1rem 1.25rem;
+            margin-bottom:1.5rem;
+        }
+
+        .info-box h3{
+            font-weight:600;
+            color:#1e3a8a;
+            margin-bottom:.5rem;
+        }
+
+        .info-box ul li{
+            font-size:.875rem;
+            color:#1d4ed8;
+            margin-bottom:.25rem;
+        }
+
+        .data-box{
+            background:#f9fafb;
+            border-radius:12px;
+            padding:1rem 1.25rem;
+            margin-bottom:1.5rem;
+        }
+
+        .data-row{
+            display:flex;
+            justify-content:space-between;
+            margin-bottom:.5rem;
+            font-size:.875rem;
+        }
+
+        .status{
+            padding:.2rem .6rem;
+            border-radius:9999px;
+            font-size:.75rem;
+            font-weight:600;
+        }
+
+        .status.pending{
+            background:#fef3c7;
+            color:#b45309;
+        }
+
+        .time-box{
+            background:#dcfce7;
+            border-radius:12px;
+            padding:.75rem 1rem;
+            text-align:center;
+            font-size:.875rem;
+            font-weight:500;
+            color:#166534;
+            margin-bottom:1.5rem;
+        }
+
+        .btn{
+            width:100%;
+            padding:.9rem;
+            margin-top:.5rem;
+            background:linear-gradient(135deg,#16a34a,#15803d);
+            color:#fff;
+            font-family:'Sora',sans-serif;
+            font-weight:700;
+            border:none;
+            border-radius:14px;
+            cursor:pointer;
+            transition:.2s;
+            box-shadow:0 4px 14px rgba(22,163,74,.3);
+            text-align:center;
+        }
+
+        .btn:hover{
+            background:linear-gradient(135deg,#15803d,#166534);
+            transform:translateY(-1px);
+        }
+
+        .btn-secondary{
+            background:#e5e7eb;
+            color:#374151;
+        }
+
+        .btn-secondary:hover{
+            background:#d1d5db;
+        }
+
+        .note{
+            font-size:.75rem;
+            color:#6b7280;
+            text-align:center;
+            margin-top:1.5rem;
+        }
+
+        .note a{
+            color:#15803d;
+            text-decoration:none;
+        }
+
+        .note a:hover{
+            text-decoration:underline;
+        }
+
+        .icon-circle{
+            width:6rem;
+            height:6rem;
+            margin:0 auto 1rem;
+            border-radius:9999px;
+            background:#fef3c7;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+        }
+
+        .icon-circle svg{
+            width:2.5rem;
+            height:2.5rem;
+            color:#b45309;
+        }
+    </style>
+</head>
+<body class="bg-green-200 min-h-screen flex justify-center mt-10 mb-10">
+
+    <div class="card">
+
+        <!-- HEADER -->
+        <div class="card-header">
+            <h2>⏳ Esperando Aprobación</h2>
+            <p>Tu cuenta como <strong>{{ rol }}</strong> está pendiente de verificación</p>
+        </div>
+
+        <div class="card-body">
+
+            <!-- ICONO CENTRAL -->
+            <div class="icon-circle mb-6">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                 </svg>
             </div>
-            
-            <h2 class="text-3xl font-bold text-gray-800 mb-2">
-                ⏳ Esperando Aprobación
-            </h2>
-            <p class="text-gray-600 text-lg">
-                Tu cuenta como <strong>{{ rol }}</strong> está pendiente de verificación
-            </p>
-        </div>
 
-        <!-- INFORMACIÓN -->
-        <div class="bg-blue-50 border-l-4 border-blue-500 p-6 mb-6 rounded-r-lg">
-            <div class="flex items-start">
-                <svg class="w-6 h-6 text-blue-500 mr-3 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
-                </svg>
-                <div>
-                    <h3 class="font-semibold text-blue-800 mb-2">¿Qué sigue ahora?</h3>
-                    <ul class="text-blue-700 space-y-2 text-sm">
-                        <li>✅ <strong>Tu correo ha sido verificado exitosamente</strong></li>
-                        <li>📧 Se ha enviado una notificación al administrador</li>
-                        <li>⏰ El administrador revisará tu solicitud</li>
-                        <li>🔔 Recibirás un correo cuando tu cuenta sea aprobada</li>
-                    </ul>
+            <!-- INFORMACIÓN -->
+            <div class="info-box">
+                <h3>¿Qué sigue ahora?</h3>
+                <ul>
+                    <li>✅ <strong>Tu correo ha sido verificado exitosamente</strong></li>
+                    <li>📧 Se ha enviado una notificación al administrador</li>
+                    <li>⏰ El administrador revisará tu solicitud</li>
+                    <li>🔔 Recibirás un correo cuando tu cuenta sea aprobada</li>
+                </ul>
+            </div>
+
+            <!-- DATOS DEL USUARIO -->
+            <div class="data-box">
+                <h3>📋 Datos de tu solicitud</h3>
+                <div class="data-row"><span>Nombre:</span><span class="font-semibold">{{ nombre }}</span></div>
+                <div class="data-row"><span>Correo:</span><span class="font-semibold">{{ email }}</span></div>
+                <div class="data-row"><span>Rol solicitado:</span><span class="font-semibold text-green-600">{{ rol }}</span></div>
+                <div class="data-row"><span>Estado:</span>
+                    <span class="status pending">Pendiente de aprobación</span>
                 </div>
             </div>
-        </div>
 
-        <!-- DATOS DEL USUARIO -->
-        <div class="bg-gray-50 rounded-lg p-6 mb-6">
-            <h3 class="font-semibold text-gray-700 mb-4">📋 Datos de tu solicitud</h3>
-            <div class="space-y-2 text-sm">
-                <div class="flex justify-between">
-                    <span class="text-gray-600">Nombre:</span>
-                    <span class="font-semibold">{{ nombre }}</span>
-                </div>
-                <div class="flex justify-between">
-                    <span class="text-gray-600">Correo:</span>
-                    <span class="font-semibold">{{ email }}</span>
-                </div>
-                <div class="flex justify-between">
-                    <span class="text-gray-600">Rol solicitado:</span>
-                    <span class="font-semibold text-green-600">{{ rol }}</span>
-                </div>
-                <div class="flex justify-between">
-                    <span class="text-gray-600">Estado:</span>
-                    <span class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-semibold">
-                        Pendiente de aprobación
-                    </span>
-                </div>
+            <!-- TIEMPO ESTIMADO -->
+            <div class="time-box">
+                ⏱️ Tiempo estimado de aprobación: 24-48 horas hábiles
             </div>
-        </div>
 
-        <!-- TIEMPO ESTIMADO -->
-        <div class="bg-green-50 rounded-lg p-4 mb-6 text-center">
-            <p class="text-green-800 text-sm">
-                <strong>⏱️ Tiempo estimado de aprobación:</strong> 24-48 horas hábiles
-            </p>
-        </div>
+            <!-- BOTONES -->
+            <div class="flex flex-col sm:flex-row gap-4">
+                <a href="{% url 'sesion:index' %}" class="btn btn-secondary flex-1">← Volver al Inicio</a>
+                <button onclick="location.reload()" class="btn flex-1">🔄 Verificar Estado</button>
+            </div>
 
-        <!-- BOTONES -->
-        <div class="flex flex-col sm:flex-row gap-4">
-            <a href="{% url 'sesion:index' %}"
-               class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 py-3 px-6 rounded-lg font-semibold text-center transition-all">
-                ← Volver al Inicio
-            </a>
-            
-            <button onclick="location.reload()"
-                    class="flex-1 bg-green-600 hover:bg-green-700 text-white py-3 px-6 rounded-lg font-semibold transition-all">
-                🔄 Verificar Estado
-            </button>
-        </div>
-
-        <!-- NOTA ADICIONAL -->
-        <div class="mt-8 pt-6 border-t border-gray-200">
-            <p class="text-xs text-gray-500 text-center">
+            <!-- NOTA -->
+            <div class="note">
                 Si tienes preguntas, contacta al administrador en: 
-                <a href="mailto:perezpolancocarlosmario@gmail.com" class="text-green-600 hover:underline">
-                    perezpolancocarlosmario@gmail.com
-                </a>
-            </p>
-        </div>
+                <a href="mailto:perezpolancocarlosmario@gmail.com">perezpolancocarlosmario@gmail.com</a>
+            </div>
 
+        </div>
     </div>
 
 </body>

@@ -266,6 +266,49 @@
         @media (max-width: 768px) {
             .no-chat-placeholder { display: none !important; }
         }
+        @media (min-width: 769px) {
+    .info-panel-mobile {
+        position: relative !important;
+        transform: none !important;
+        transition: none !important;
+    }
+    
+    /* Cuando el panel info está abierto en desktop */
+    .info-panel-mobile.flex {
+        display: flex !important;
+        flex-direction: column !important;
+    }
+}
+
+/* Panel info - Mobile: desliza desde derecha */
+@media (max-width: 768px) {
+    .info-panel-mobile {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        width: 100% !important;
+        z-index: 30 !important;
+        transform: translateX(100%) !important;
+        transition: transform .3s cubic-bezier(.4,0,.2,1) !important;
+        background: white !important;
+    }
+    
+    .info-panel-mobile.slide-in {
+        transform: translateX(0) !important;
+    }
+    
+    /* Ocultar el panel por defecto en móvil */
+    .info-panel-mobile:not(.slide-in) {
+        display: none !important;
+    }
+    
+    .info-panel-mobile.slide-in {
+        display: flex !important;
+    }
+}
+
     </style>
 </head>
 <body class="bg-gray-100 h-screen overflow-hidden">
@@ -859,17 +902,20 @@
 <!--  JAVASCRIPT                                                -->
 <!-- ══════════════════════════════════════════════════════════ -->
 <script>
-// ── Detectar móvil ───────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════
+//  WEBSOCKET + MENSAJERÍA - VERSIÓN CORREGIDA
+//  - Evita envío duplicado de mensajes
+//  - Mejor manejo de estados
+// ══════════════════════════════════════════════════════════════
+
+// ── Variables globales ────────────────────────────────────────
 const isMobile = () => window.innerWidth <= 768;
 
-// ── Navegación móvil ────────────────────────────────────────
+// ── Navegación móvil ──────────────────────────────────────────
 function abrirChat(url) {
     if (isMobile()) {
-        // En móvil: animar la transición y luego navegar
-        const sidebar  = document.getElementById('chatSidebar');
-        const chatMain = document.getElementById('chatMain');
+        const sidebar = document.getElementById('chatSidebar');
         sidebar.classList.add('slide-out');
-        // Navegar a la URL del chat
         window.location.href = url;
     } else {
         window.location.href = url;
@@ -877,7 +923,6 @@ function abrirChat(url) {
 }
 
 function volverAlListado() {
-    // En móvil: volver a la lista de chats sin recargar si es posible
     if (window.history.length > 1) {
         window.history.back();
     } else {
@@ -885,22 +930,18 @@ function volverAlListado() {
     }
 }
 
-// ── Al cargar, si hay chat activo en móvil, mostrar el chat ──
+// ── Al cargar página ──────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
     {% if chat %}
     if (isMobile()) {
         const chatMain = document.getElementById('chatMain');
-        // Mostrar el chat directamente (sin animación de entrada al cargar)
         chatMain.classList.add('slide-in');
         chatMain.style.transition = 'none';
-        // Re-activar transition después de que se posicione
         setTimeout(() => { chatMain.style.transition = ''; }, 50);
 
-        // Ocultar el sidebar en móvil cuando hay chat activo
         const sidebar = document.getElementById('chatSidebar');
         sidebar.style.display = 'none';
 
-        // Mostrar botón de volver
         document.querySelectorAll('.mobile-back-btn').forEach(b => b.style.display = 'flex');
     }
     scrollToBottom();
@@ -908,7 +949,7 @@ document.addEventListener('DOMContentLoaded', () => {
     {% endif %}
 });
 
-// ── Toast system ─────────────────────────────────────────────
+// ── Toast system ──────────────────────────────────────────────
 function showToast(msg, type = 'error') {
     const colors = { error:'bg-red-500', success:'bg-[#2b9e15]', warning:'bg-yellow-500', info:'bg-blue-500' };
     const icons  = { error:'✕', success:'✓', warning:'⚠', info:'ℹ' };
@@ -922,7 +963,7 @@ function showToast(msg, type = 'error') {
     }, 4000);
 }
 
-// ── Modal system ─────────────────────────────────────────────
+// ── Modal system ──────────────────────────────────────────────
 let _modalCb = null;
 function showModal(title, body, label='Confirmar', danger=false, onConfirm=null) {
     document.getElementById('modalTitle').textContent = title;
@@ -936,7 +977,7 @@ function showModal(title, body, label='Confirmar', danger=false, onConfirm=null)
 }
 function closeModal() { document.getElementById('confirmModal').classList.add('hidden'); }
 
-// ── Dropdowns ────────────────────────────────────────────────
+// ── Dropdowns ─────────────────────────────────────────────────
 function closeAllDropdowns() {
     ['userMenuDropdown','chatOptionsDropdown'].forEach(id => document.getElementById(id)?.classList.add('hidden'));
 }
@@ -952,7 +993,7 @@ document.getElementById('chatOptionsBtn')?.addEventListener('click', e => {
 });
 document.addEventListener('click', closeAllDropdowns);
 
-// ── Búsqueda en sidebar ──────────────────────────────────────
+// ── Búsqueda en sidebar ───────────────────────────────────────
 document.getElementById('searchChats')?.addEventListener('input', e => {
     const q = e.target.value.toLowerCase();
     document.querySelectorAll('[data-chat-name]').forEach(row => {
@@ -960,7 +1001,7 @@ document.getElementById('searchChats')?.addEventListener('input', e => {
     });
 });
 
-// ── Panel de info del contacto ───────────────────────────────
+// ── Panel de info del contacto ────────────────────────────────
 let _infoPanelOpen = false;
 function toggleContactInfo() {
     const panel = document.getElementById('contactInfoPanel');
@@ -968,7 +1009,6 @@ function toggleContactInfo() {
     _infoPanelOpen = !_infoPanelOpen;
 
     if (isMobile()) {
-        // En móvil: desliza desde la derecha
         panel.classList.remove('hidden');
         panel.style.display = 'flex';
         setTimeout(() => panel.classList.toggle('slide-in', _infoPanelOpen), 10);
@@ -976,20 +1016,18 @@ function toggleContactInfo() {
             setTimeout(() => { panel.style.display = 'none'; }, 300);
         }
     } else {
-        // En desktop: mostrar/ocultar al lado
         panel.classList.toggle('hidden', !_infoPanelOpen);
         panel.classList.toggle('flex', _infoPanelOpen);
     }
 }
 
-// ── Sesión ────────────────────────────────────────────────────
+// ── Funciones del chat ────────────────────────────────────────
 function confirmarCerrarSesion() {
     showModal('Cerrar sesión', '¿Estás seguro de que quieres cerrar sesión?', 'Cerrar sesión', true, () => {
         window.location.href = "{% url 'sesion:login' %}";
     });
 }
 
-// ── Silenciar ─────────────────────────────────────────────────
 let _silenciado = false;
 function silenciarChat() {
     _silenciado = !_silenciado;
@@ -998,7 +1036,6 @@ function silenciarChat() {
     showToast(_silenciado ? '🔕 Chat silenciado' : '🔔 Notificaciones activadas', 'info');
 }
 
-// ── Vaciar mensajes ───────────────────────────────────────────
 function vaciarMensajes() {
     showModal('Vaciar mensajes', '¿Eliminar todos los mensajes? Esta acción no se puede deshacer.', 'Vaciar', true, () => {
         {% if chat %}
@@ -1007,15 +1044,18 @@ function vaciarMensajes() {
         })
         .then(r => r.json())
         .then(d => {
-            if (d.success) { document.getElementById('messagesList').innerHTML = ''; showToast('Mensajes eliminados','success'); }
-            else showToast('Error al vaciar mensajes','error');
+            if (d.success) { 
+                document.getElementById('messagesList').innerHTML = ''; 
+                showToast('Mensajes eliminados','success'); 
+            } else {
+                showToast('Error al vaciar mensajes','error');
+            }
         })
         .catch(() => showToast('Error de conexión','error'));
         {% endif %}
     });
 }
 
-// ── Eliminar chat ─────────────────────────────────────────────
 function eliminarChat() {
     showModal('Eliminar chat', '¿Eliminar esta conversación? No podrás recuperarla.', 'Eliminar', true, () => {
         {% if chat %}
@@ -1024,8 +1064,12 @@ function eliminarChat() {
         })
         .then(r => r.json())
         .then(d => {
-            if (d.success) { showToast('Chat eliminado','success'); setTimeout(() => window.location.href = "{% url 'chat:lista_chats' %}", 800); }
-            else showToast('Error al eliminar el chat','error');
+            if (d.success) { 
+                showToast('Chat eliminado','success'); 
+                setTimeout(() => window.location.href = "{% url 'chat:lista_chats' %}", 800); 
+            } else {
+                showToast('Error al eliminar el chat','error');
+            }
         })
         .catch(() => showToast('Error de conexión','error'));
         {% endif %}
@@ -1035,7 +1079,8 @@ function eliminarChat() {
 // ── Selección de mensajes ─────────────────────────────────────
 let _selMode = false, _selected = new Set();
 function activarSeleccion() {
-    _selMode = true; _selected.clear();
+    _selMode = true; 
+    _selected.clear();
     document.getElementById('selectionBar').classList.remove('hidden');
     document.getElementById('selectionCount').textContent = '0 seleccionados';
     document.querySelectorAll('#messagesList > div').forEach(row => {
@@ -1044,54 +1089,84 @@ function activarSeleccion() {
     });
     showToast('Toca los mensajes para seleccionarlos','info');
 }
+
 function cancelarSeleccion() {
-    _selMode = false; _selected.clear();
+    _selMode = false; 
+    _selected.clear();
     document.getElementById('selectionBar').classList.add('hidden');
     document.querySelectorAll('#messagesList > div').forEach(row => {
-        row.style.cursor = ''; row.classList.remove('bg-[#e8f5e4]');
+        row.style.cursor = ''; 
+        row.classList.remove('bg-[#e8f5e4]');
         row.removeEventListener('click', toggleSelMsg);
     });
 }
+
 function toggleSelMsg() {
     const id = this.dataset.msgId;
-    if (_selected.has(id)) { _selected.delete(id); this.classList.remove('bg-[#e8f5e4]'); }
-    else                   { _selected.add(id);    this.classList.add('bg-[#e8f5e4]'); }
+    if (_selected.has(id)) { 
+        _selected.delete(id); 
+        this.classList.remove('bg-[#e8f5e4]'); 
+    } else { 
+        _selected.add(id); 
+        this.classList.add('bg-[#e8f5e4]'); 
+    }
     document.getElementById('selectionCount').textContent = `${_selected.size} seleccionado${_selected.size !== 1 ? 's' : ''}`;
 }
+
 function eliminarSeleccionados() {
-    if (!_selected.size) { showToast('No hay mensajes seleccionados','warning'); return; }
+    if (!_selected.size) { 
+        showToast('No hay mensajes seleccionados','warning'); 
+        return; 
+    }
     showModal('Eliminar mensajes', `¿Eliminar ${_selected.size} mensaje(s)?`, 'Eliminar', true, () => {
         _selected.forEach(id => document.querySelector(`[data-msg-id="${id}"]`)?.remove());
-        cancelarSeleccion(); showToast('Mensajes eliminados','success');
+        cancelarSeleccion(); 
+        showToast('Mensajes eliminados','success');
     });
 }
 
-// ── Búsqueda en el chat ───────────────────────────────────────
+// ── Búsqueda en chat ──────────────────────────────────────────
 function openSearchModal() {
     document.getElementById('searchMsgModal').classList.remove('hidden');
     setTimeout(() => document.getElementById('searchMsgInput').focus(), 50);
 }
+
 function closeSearchModal() {
     document.getElementById('searchMsgModal').classList.add('hidden');
     document.getElementById('searchMsgInput').value = '';
     document.getElementById('searchMsgResults').innerHTML = 'Escribe para buscar mensajes…';
     document.querySelectorAll('#messagesList > div').forEach(r => r.style.background = '');
 }
+
 document.getElementById('searchMsgInput')?.addEventListener('input', function() {
     const q = this.value.trim().toLowerCase();
     const resultsEl = document.getElementById('searchMsgResults');
     document.querySelectorAll('#messagesList > div').forEach(r => r.style.background = '');
-    if (!q) { resultsEl.innerHTML = 'Escribe para buscar mensajes…'; return; }
-    const matches = [...document.querySelectorAll('#messagesList > div')].filter(r => r.textContent.toLowerCase().includes(q));
-    if (!matches.length) { resultsEl.innerHTML = '<p class="text-gray-400 text-center py-6">Sin resultados</p>'; return; }
+    
+    if (!q) { 
+        resultsEl.innerHTML = 'Escribe para buscar mensajes…'; 
+        return; 
+    }
+    
+    const matches = [...document.querySelectorAll('#messagesList > div')].filter(r => 
+        r.textContent.toLowerCase().includes(q)
+    );
+    
+    if (!matches.length) { 
+        resultsEl.innerHTML = '<p class="text-gray-400 text-center py-6">Sin resultados</p>'; 
+        return; 
+    }
+    
     resultsEl.innerHTML = matches.map((r,i) => {
         const txt = (r.querySelector('p')?.textContent||'').slice(0,60);
         return `<button class="w-full text-left px-3 py-2.5 rounded-lg hover:bg-gray-50 transition border-b border-gray-50" onclick="scrollToMatch(${i})">
             <p class="text-sm text-gray-800">${escapeHtml(txt)}${txt.length>=60?'…':''}</p></button>`;
     }).join('');
+    
     matches.forEach(r => r.style.background = 'rgba(43,158,21,.10)');
     window._searchMatches = matches;
 });
+
 function scrollToMatch(i) {
     window._searchMatches?.[i]?.scrollIntoView({ behavior:'smooth', block:'center' });
 }
@@ -1103,6 +1178,7 @@ if (msgInput) {
         this.style.height = 'auto';
         this.style.height = Math.min(this.scrollHeight, 120) + 'px';
     });
+    
     msgInput.addEventListener('keydown', e => {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
@@ -1111,131 +1187,111 @@ if (msgInput) {
     });
 }
 
-// ── Filtros de chats (Todos / No leídos / Favoritos / Grupos) ──
-(function() {
-    const filterBtns = document.querySelectorAll('.filter-btn');
-    const chatRows   = document.querySelectorAll('[data-chat-name]');
-
-    function setActiveFilter(btn) {
-        filterBtns.forEach(b => {
-            b.classList.remove('bg-[#2b9e15]', 'text-white', 'border-transparent');
-            b.classList.add('border', 'border-white/40', 'text-white/80');
-        });
-        btn.classList.add('bg-[#2b9e15]', 'text-white', 'border-transparent');
-        btn.classList.remove('border', 'border-white/40', 'text-white/80');
-    }
-
-    function applyFilter(filter) {
-        let visible = 0;
-        chatRows.forEach(row => {
-            let show = false;
-            if (filter === 'todos') {
-                show = true;
-            } else if (filter === 'noleidos') {
-                show = parseInt(row.dataset.noLeidos || '0') > 0;
-            } else if (filter === 'favoritos') {
-                // Si tienes campo de favoritos en el contexto, ajusta aquí
-                show = row.dataset.favorito === 'true';
-            } else if (filter === 'grupos') {
-                show = row.dataset.esGrupo === 'true';
-            }
-            row.style.display = show ? 'flex' : 'none';
-            if (show) visible++;
-        });
-
-        // Si ninguno visible y no es "todos", mostrar mensaje
-        const noChatsMsg = document.getElementById('noFilterResult');
-        if (noChatsMsg) noChatsMsg.remove();
-        if (visible === 0 && filter !== 'todos') {
-            const msgs = { noleidos:'No tienes mensajes sin leer', favoritos:'Aún no tienes chats favoritos', grupos:'No tienes grupos de chat' };
-            const el = document.createElement('div');
-            el.id = 'noFilterResult';
-            el.className = 'flex flex-col items-center justify-center py-12 px-6 text-center';
-            el.innerHTML = `<div class="w-12 h-12 bg-[#e8f5e4] rounded-xl flex items-center justify-center mb-3"><svg class="w-6 h-6 text-[#2b9e15]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div><p class="text-sm text-gray-500">${msgs[filter] || 'Sin resultados'}</p>`;
-            document.querySelector('.sidebar-list')?.appendChild(el);
-        }
-
-        // Feedback visual con toast solo al cambiar (no en "todos")
-        if (filter !== 'todos') {
-            const labels = { noleidos:'📬 No leídos', favoritos:'⭐ Favoritos', grupos:'👥 Grupos' };
-            showToast(`Filtro: ${labels[filter] || filter}`, 'info');
-        }
-    }
-
-    filterBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            setActiveFilter(btn);
-            applyFilter(btn.dataset.filter);
-        });
-    });
-
-    // Combinar con búsqueda de texto: cuando el usuario escribe, "todos" vuelve a aplicar
-    const searchInput = document.getElementById('searchChats');
-    if (searchInput) {
-        searchInput.addEventListener('input', e => {
-            const q = e.target.value.toLowerCase();
-            // Si hay texto, ignorar filtro activo y mostrar coincidencias
-            chatRows.forEach(row => {
-                row.style.display = row.dataset.chatName.toLowerCase().includes(q) ? 'flex' : 'none';
-            });
-            // Si se borra el texto, reactivar el filtro activo
-            if (!q) {
-                const activeBtn = document.querySelector('.filter-btn.bg-\\[\\#2b9e15\\]');
-                if (activeBtn) applyFilter(activeBtn.dataset.filter);
-            }
-        });
-    }
-})();
-
 // ── Utils ─────────────────────────────────────────────────────
-function escapeHtml(t) { return t.replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'})[m]); }
+function escapeHtml(t) { 
+    return t.replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'})[m]); 
+}
+
 function scrollToBottom() {
     const c = document.getElementById('messagesContainer');
     if (c) c.scrollTop = c.scrollHeight;
 }
 
 // ══════════════════════════════════════════════════════════════
-//  WEBSOCKET + MENSAJERÍA
+//  WEBSOCKET + MENSAJERÍA - CON PREVENCIÓN DE DUPLICADOS
 // ══════════════════════════════════════════════════════════════
 {% if chat %}
 const chatId    = {{ chat.id }};
 const usuarioId = {{ usuario.id }};
 const isGroup   = {{ is_group|yesno:"true,false" }};
-const messageForm   = document.getElementById('messageForm');
+const messageForm = document.getElementById('messageForm');
 const typingIndicator = document.getElementById('typingIndicator');
-const statusText      = document.getElementById('statusText');
-const messagesList    = document.getElementById('messagesList');
+const statusText = document.getElementById('statusText');
+const messagesList = document.getElementById('messagesList');
 
-let chatSocket = null, typingTimer = null, reconnectAttempts = 0;
+let chatSocket = null;
+let typingTimer = null;
+let reconnectAttempts = 0;
 const MAX_RECONNECT = 5;
+
+// ⭐ VARIABLE PARA EVITAR ENVÍO DUPLICADO
+let enviandoMensaje = false;
 
 function initWebSocket() {
     const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
-    chatSocket  = new WebSocket(`${proto}//${location.host}/ws/chat/${chatId}/?usuario_id=${usuarioId}`);
-    chatSocket.onopen    = () => { reconnectAttempts = 0; };
-    chatSocket.onmessage = e  => handleWsMsg(JSON.parse(e.data));
-    chatSocket.onerror   = () => {};
-    chatSocket.onclose   = () => {
-        if (reconnectAttempts++ < MAX_RECONNECT) setTimeout(initWebSocket, 3000);
-        else usarFallbackHTTP();
+    chatSocket = new WebSocket(`${proto}//${location.host}/ws/chat/${chatId}/?usuario_id=${usuarioId}`);
+    
+    chatSocket.onopen = () => { 
+        console.log('✅ WebSocket conectado');
+        reconnectAttempts = 0; 
+    };
+    
+    chatSocket.onmessage = e => handleWsMsg(JSON.parse(e.data));
+    
+    chatSocket.onerror = e => {
+        console.error('❌ Error en WebSocket:', e);
+    };
+    
+    chatSocket.onclose = () => {
+        console.log('🔌 WebSocket cerrado');
+        if (reconnectAttempts++ < MAX_RECONNECT) {
+            console.log(`🔄 Reintentando conexión (${reconnectAttempts}/${MAX_RECONNECT})...`);
+            setTimeout(initWebSocket, 3000);
+        } else {
+            console.log('❌ No se pudo reconectar, usando fallback HTTP');
+            usarFallbackHTTP();
+        }
     };
 }
 
 function handleWsMsg(data) {
-    if (data.type === 'new_message') appendMsg(data.mensaje);
-    else if (data.type === 'typing') mostrarTyping(data.is_typing);
-    else if (data.type === 'error') showToast(data.message || 'Mensaje bloqueado', 'error');
+    if (data.type === 'new_message') {
+        appendMsg(data.mensaje);
+    } else if (data.type === 'typing') {
+        mostrarTyping(data.is_typing);
+    } else if (data.type === 'error') {
+        showToast(data.message || 'Mensaje bloqueado', 'error');
+        // ⭐ Reactivar envío después de error
+        enviandoMensaje = false;
+    }
 }
 
+// ⭐ FORM SUBMIT CON PREVENCIÓN DE DUPLICADOS
 if (messageForm) {
     messageForm.addEventListener('submit', e => {
         e.preventDefault();
+        
+        // ⭐ PREVENIR ENVÍO DUPLICADO
+        if (enviandoMensaje) {
+            console.log('⚠️ Ya se está enviando un mensaje, ignorando...');
+            return;
+        }
+        
         const contenido = msgInput.value.trim();
         if (!contenido) return;
+        
+        // ⭐ MARCAR COMO ENVIANDO
+        enviandoMensaje = true;
+        console.log('📤 Enviando mensaje:', contenido);
+        
         if (chatSocket?.readyState === WebSocket.OPEN) {
-            chatSocket.send(JSON.stringify({ action: 'send_message', contenido }));
-            msgInput.value = ''; msgInput.style.height = 'auto';
-        } else { enviarHTTP(contenido); }
+            chatSocket.send(JSON.stringify({ 
+                action: 'send_message', 
+                contenido 
+            }));
+            
+            // Limpiar input y resetear altura
+            msgInput.value = ''; 
+            msgInput.style.height = 'auto';
+            
+            // ⭐ Reactivar después de un tiempo de seguridad
+            setTimeout(() => {
+                enviandoMensaje = false;
+            }, 1000);
+            
+        } else {
+            enviarHTTP(contenido);
+        }
     });
 }
 
@@ -1244,7 +1300,9 @@ if (msgInput) {
         if (chatSocket?.readyState !== WebSocket.OPEN) return;
         clearTimeout(typingTimer);
         chatSocket.send(JSON.stringify({ action:'typing', is_typing:true }));
-        typingTimer = setTimeout(() => chatSocket.send(JSON.stringify({ action:'typing', is_typing:false })), 2000);
+        typingTimer = setTimeout(() => {
+            chatSocket.send(JSON.stringify({ action:'typing', is_typing:false }));
+        }, 2000);
     });
 }
 
@@ -1266,6 +1324,9 @@ function appendMsg(msg) {
         </div>`;
     messagesList.appendChild(div);
     scrollToBottom();
+    
+    // ⭐ Reactivar envío cuando se recibe confirmación
+    enviandoMensaje = false;
 }
 
 function mostrarTyping(on) {
@@ -1276,26 +1337,136 @@ function mostrarTyping(on) {
 function enviarHTTP(contenido) {
     fetch("{% url 'chat:api_enviar_mensaje' chat.id %}", {
         method: 'POST',
-        headers: { 'Content-Type':'application/json', 'X-CSRFToken':'{{ csrf_token }}' },
+        headers: { 
+            'Content-Type':'application/json', 
+            'X-CSRFToken':'{{ csrf_token }}' 
+        },
         body: JSON.stringify({ contenido })
-    }).then(r=>r.json()).then(d => {
-        if (d.success) { appendMsg(d.mensaje); msgInput.value=''; msgInput.style.height='auto'; }
-        else showToast(d.error || 'Mensaje bloqueado','error');
-    }).catch(() => showToast('Error al enviar el mensaje','error'));
+    })
+    .then(r => r.json())
+    .then(d => {
+        if (d.success) { 
+            appendMsg(d.mensaje); 
+            msgInput.value=''; 
+            msgInput.style.height='auto'; 
+        } else {
+            showToast(d.error || 'Mensaje bloqueado','error');
+        }
+        // ⭐ Reactivar envío
+        enviandoMensaje = false;
+    })
+    .catch(err => {
+        console.error('Error al enviar mensaje:', err);
+        showToast('Error al enviar el mensaje','error');
+        // ⭐ Reactivar envío
+        enviandoMensaje = false;
+    });
 }
 
-let _lastId = {{ mensajes.last.id|default:0 }}, _poll = null;
+let _lastId = {{ mensajes.last.id|default:0 }};
+let _poll = null;
+
 function usarFallbackHTTP() {
     _poll = setInterval(() => {
         fetch(`{% url 'chat:api_obtener_mensajes' chat.id %}?ultimo_id=${_lastId}`)
-            .then(r=>r.json()).then(d => {
-                d.mensajes?.forEach(m => { appendMsg(m); _lastId = Math.max(_lastId, m.id); });
-            }).catch(() => {});
+            .then(r => r.json())
+            .then(d => {
+                d.mensajes?.forEach(m => { 
+                    appendMsg(m); 
+                    _lastId = Math.max(_lastId, m.id); 
+                });
+            })
+            .catch(err => {
+                console.error('Error en polling:', err);
+            });
     }, 3000);
 }
 
-window.addEventListener('beforeunload', () => { chatSocket?.close(); _poll && clearInterval(_poll); });
+window.addEventListener('beforeunload', () => { 
+    chatSocket?.close(); 
+    if (_poll) clearInterval(_poll); 
+});
 {% endif %}
+
+// ── Filtros de chats ──────────────────────────────────────────
+(function() {
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    const chatRows = document.querySelectorAll('[data-chat-name]');
+
+    function setActiveFilter(btn) {
+        filterBtns.forEach(b => {
+            b.classList.remove('bg-[#2b9e15]', 'text-white', 'border-transparent');
+            b.classList.add('border', 'border-white/40', 'text-white/80');
+        });
+        btn.classList.add('bg-[#2b9e15]', 'text-white', 'border-transparent');
+        btn.classList.remove('border', 'border-white/40', 'text-white/80');
+    }
+
+    function applyFilter(filter) {
+        let visible = 0;
+        chatRows.forEach(row => {
+            let show = false;
+            if (filter === 'todos') {
+                show = true;
+            } else if (filter === 'noleidos') {
+                show = parseInt(row.dataset.noLeidos || '0') > 0;
+            } else if (filter === 'favoritos') {
+                show = row.dataset.favorito === 'true';
+            } else if (filter === 'grupos') {
+                show = row.dataset.esGrupo === 'true';
+            }
+            row.style.display = show ? 'flex' : 'none';
+            if (show) visible++;
+        });
+
+        const noChatsMsg = document.getElementById('noFilterResult');
+        if (noChatsMsg) noChatsMsg.remove();
+        
+        if (visible === 0 && filter !== 'todos') {
+            const msgs = { 
+                noleidos:'No tienes mensajes sin leer', 
+                favoritos:'Aún no tienes chats favoritos', 
+                grupos:'No tienes grupos de chat' 
+            };
+            const el = document.createElement('div');
+            el.id = 'noFilterResult';
+            el.className = 'flex flex-col items-center justify-center py-12 px-6 text-center';
+            el.innerHTML = `<div class="w-12 h-12 bg-[#e8f5e4] rounded-xl flex items-center justify-center mb-3">
+                <svg class="w-6 h-6 text-[#2b9e15]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+            </div>
+            <p class="text-sm text-gray-500">${msgs[filter] || 'Sin resultados'}</p>`;
+            document.querySelector('.sidebar-list')?.appendChild(el);
+        }
+
+        if (filter !== 'todos') {
+            const labels = { noleidos:'📬 No leídos', favoritos:'⭐ Favoritos', grupos:'👥 Grupos' };
+            showToast(`Filtro: ${labels[filter] || filter}`, 'info');
+        }
+    }
+
+    filterBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            setActiveFilter(btn);
+            applyFilter(btn.dataset.filter);
+        });
+    });
+
+    const searchInput = document.getElementById('searchChats');
+    if (searchInput) {
+        searchInput.addEventListener('input', e => {
+            const q = e.target.value.toLowerCase();
+            chatRows.forEach(row => {
+                row.style.display = row.dataset.chatName.toLowerCase().includes(q) ? 'flex' : 'none';
+            });
+            if (!q) {
+                const activeBtn = document.querySelector('.filter-btn.bg-\\[\\#2b9e15\\]');
+                if (activeBtn) applyFilter(activeBtn.dataset.filter);
+            }
+        });
+    }
+})();
 </script>
 </body>
 </html>

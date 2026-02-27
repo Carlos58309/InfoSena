@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -5,225 +6,995 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Crear Publicación - InfoSena</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f0f2f5;
+            margin: 0;
+        }
+
+        /* ============================================ */
+        /* HEADER                                      */
+        /* ============================================ */
+        .header {
+            background: linear-gradient(135deg, #0d3604 0%, #1a6b0a 55%, #2b9e15 100%);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.25);
+        }
+
+        .header-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 1.25rem;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            text-decoration: none;
+            flex-shrink: 0;
+        }
+
+        .logo-monogram {
+            width: 40px; height: 40px;
+            background: rgba(255,255,255,0.18);
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'Sora', sans-serif;
+            color: white; font-weight: 700; font-size: 1rem; letter-spacing: -1px;
+            border: 1.5px solid rgba(255,255,255,0.25);
+        }
+
+        .logo-text {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.2rem; font-weight: 700;
+            color: white; letter-spacing: -0.5px;
+        }
+
+        .logo-text span { color: #7efa8a; }
+
+        .nav-icon-btn {
+            position: relative;
+            width: 44px; height: 44px;
+            border-radius: 14px;
+            background: rgba(255,255,255,0.12);
+            border: none; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            color: white;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .nav-icon-btn:hover {
+            background: rgba(255,255,255,0.22);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 14px rgba(0,0,0,0.2);
+        }
+
+        .nav-icon-btn:active { transform: scale(0.95); }
+
+        .tooltip-wrap { position: relative; }
+
+        .tooltip-tip {
+            position: absolute;
+            bottom: calc(100% + 8px); left: 50%;
+            transform: translateX(-50%);
+            background: #111827; color: white;
+            font-size: 0.72rem; font-weight: 600;
+            padding: 0.3rem 0.65rem; border-radius: 8px;
+            white-space: nowrap; opacity: 0;
+            pointer-events: none; transition: opacity 0.15s; z-index: 300;
+        }
+
+        .tooltip-tip::after {
+            content: '';
+            position: absolute; top: 100%; left: 50%;
+            transform: translateX(-50%);
+            border: 4px solid transparent;
+            border-top-color: #111827;
+        }
+
+        .tooltip-wrap:hover .tooltip-tip { opacity: 1; }
+
+        .avatar-btn-header {
+            width: 42px; height: 42px; border-radius: 14px;
+            overflow: hidden; cursor: pointer;
+            border: 2.5px solid rgba(255,255,255,0.4);
+            transition: all 0.2s;
+            background: rgba(255,255,255,0.12);
+            display: flex; align-items: center; justify-content: center;
+            color: white; text-decoration: none;
+        }
+
+        .avatar-btn-header:hover { border-color: white; transform: translateY(-1px); }
+        .avatar-btn-header img { width: 100%; height: 100%; object-fit: cover; }
+        .nav-divider { width: 1px; height: 28px; background: rgba(255,255,255,0.2); margin: 0 0.25rem; }
+
+        /* ============================================ */
+        /* LAYOUT PRINCIPAL                            */
+        /* ============================================ */
+        .page-layout {
+            max-width: 860px;
+            margin: 0 auto;
+            padding: 2rem 1.25rem;
+        }
+
+        /* ============================================ */
+        /* PAGE HEADER                                 */
+        /* ============================================ */
+        .page-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 1.75rem;
+        }
+
+        .page-title {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: #111827;
+            margin: 0;
+            line-height: 1.2;
+        }
+
+        .page-subtitle {
+            color: #6b7280;
+            font-size: 0.9rem;
+            margin-top: 0.3rem;
+        }
+
+        .btn-volver {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.55rem 1.1rem;
+            background: white;
+            color: #374151;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-decoration: none;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: all 0.2s;
+            flex-shrink: 0;
+            border: 1.5px solid #e5e7eb;
+        }
+
+        .btn-volver:hover {
+            background: #f9fafb;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 14px rgba(0,0,0,0.1);
+        }
+
+        /* ============================================ */
+        /* FORMULARIO CARD                             */
+        /* ============================================ */
+        .form-card {
+            background: white;
+            border-radius: 22px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+
+        .form-card-header {
+            background: linear-gradient(135deg, #0d3604, #2b9e15);
+            padding: 1.25rem 1.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .form-card-header h2 {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: white;
+            margin: 0;
+        }
+
+        .form-card-header p {
+            color: rgba(255,255,255,0.75);
+            font-size: 0.8rem;
+            margin: 0;
+        }
+
+        .form-card-body { padding: 1.75rem; }
+
+        /* ============================================ */
+        /* CAMPOS DEL FORMULARIO                       */
+        /* ============================================ */
+        .form-group { margin-bottom: 1.5rem; }
+
+        .form-label {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.875rem;
+            font-weight: 700;
+            color: #374151;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-label .label-icon {
+            width: 22px; height: 22px;
+            background: #f0fdf4;
+            border-radius: 7px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.75rem;
+            flex-shrink: 0;
+        }
+
+        .form-label .required {
+            color: #ef4444;
+            font-size: 0.75rem;
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 13px;
+            font-size: 0.9rem;
+            font-family: 'Inter', sans-serif;
+            color: #111827;
+            background: #fafafa;
+            transition: all 0.2s;
+            outline: none;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            border-color: #16a34a;
+            background: white;
+            box-shadow: 0 0 0 4px rgba(22,163,74,0.08);
+        }
+
+        .form-input::placeholder, .form-textarea::placeholder {
+            color: #9ca3af;
+        }
+
+        .form-textarea {
+            resize: none;
+            line-height: 1.6;
+        }
+
+        .form-hint {
+            font-size: 0.78rem;
+            color: #9ca3af;
+            margin-top: 0.4rem;
+        }
+
+        .form-divider {
+            height: 1px;
+            background: #f3f4f6;
+            margin: 1.5rem 0;
+        }
+
+        /* ============================================ */
+        /* UPLOAD ZONES                                */
+        /* ============================================ */
+        .upload-zone {
+            border: 2px dashed #d1d5db;
+            border-radius: 16px;
+            padding: 2rem 1.5rem;
+            text-align: center;
+            transition: all 0.2s;
+            cursor: pointer;
+            background: #fafafa;
+            position: relative;
+        }
+
+        .upload-zone:hover {
+            border-color: #16a34a;
+            background: #f0fdf4;
+        }
+
+        .upload-zone.video-zone:hover {
+            border-color: #a855f7;
+            background: #faf5ff;
+        }
+
+        .upload-zone.drag-over {
+            border-color: #16a34a;
+            background: #f0fdf4;
+            transform: scale(1.01);
+        }
+
+        .upload-icon {
+            width: 52px; height: 52px;
+            border-radius: 16px;
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 0.75rem;
+        }
+
+        .upload-icon.img-icon { background: #dcfce7; }
+        .upload-icon.vid-icon { background: #ede9fe; }
+
+        .upload-title {
+            font-family: 'Sora', sans-serif;
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: #374151;
+            margin-bottom: 0.25rem;
+        }
+
+        .upload-subtitle { font-size: 0.8rem; color: #9ca3af; }
+
+        .upload-link {
+            font-weight: 700;
+            text-decoration: underline;
+            text-decoration-style: dotted;
+            cursor: pointer;
+        }
+
+        .upload-link.img-link { color: #16a34a; }
+        .upload-link.vid-link { color: #a855f7; }
+
+        /* ============================================ */
+        /* PREVIEWS DE ARCHIVOS                        */
+        /* ============================================ */
+        .preview-grid-img {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .preview-grid-vid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .preview-item {
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            border: 2px solid #f3f4f6;
+            transition: border-color 0.2s;
+            position: relative;
+        }
+
+        .preview-item:hover { border-color: #16a34a; }
+
+        .preview-item img, .preview-item video {
+            width: 100%; height: 130px;
+            object-fit: cover; display: block;
+        }
+
+        .preview-item video { height: 150px; }
+
+        .preview-meta {
+            padding: 0.4rem 0.5rem;
+            background: #fafafa;
+        }
+
+        .preview-meta p {
+            font-size: 0.7rem; color: #6b7280;
+            margin: 0; white-space: nowrap;
+            overflow: hidden; text-overflow: ellipsis;
+        }
+
+        /* ============================================ */
+        /* CONTADOR DE ARCHIVOS                        */
+        /* ============================================ */
+        .file-counter {
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+            padding: 0.75rem 1rem;
+            background: #eff6ff;
+            border: 1.5px solid #bfdbfe;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            color: #1d4ed8;
+            font-weight: 500;
+        }
+
+        /* ============================================ */
+        /* BOTONES DE ENVÍO                            */
+        /* ============================================ */
+        .form-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+        }
+
+        .btn-submit {
+            padding: 0.85rem 1.5rem;
+            background: linear-gradient(135deg, #16a34a, #15803d);
+            color: white;
+            font-family: 'Sora', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 700;
+            border: none;
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 14px rgba(22,163,74,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-submit:hover {
+            background: linear-gradient(135deg, #15803d, #166534);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(22,163,74,0.35);
+        }
+
+        .btn-submit:active { transform: scale(0.98); }
+
+        .btn-submit:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-cancel {
+            padding: 0.85rem 1.5rem;
+            background: #f3f4f6;
+            color: #374151;
+            font-family: 'Sora', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 700;
+            border: 2px solid #e5e7eb;
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-cancel:hover {
+            background: #e5e7eb;
+            transform: translateY(-1px);
+        }
+
+        /* ============================================ */
+        /* CONSEJOS                                    */
+        /* ============================================ */
+        .tips-card {
+            background: white;
+            border-radius: 18px;
+            padding: 1.25rem 1.5rem;
+            margin-top: 1.25rem;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            border-left: 4px solid #16a34a;
+        }
+
+        .tips-title {
+            font-family: 'Sora', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #15803d;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .tips-list {
+            list-style: none;
+            padding: 0; margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+
+        .tips-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+            font-size: 0.82rem;
+            color: #374151;
+            line-height: 1.4;
+        }
+
+        .tip-dot {
+            width: 6px; height: 6px;
+            background: #16a34a;
+            border-radius: 50%;
+            flex-shrink: 0;
+            margin-top: 0.35rem;
+        }
+
+        /* ============================================ */
+        /* ADVERTENCIA / TOAST                         */
+        /* ============================================ */
+        .toast-advertencia {
+            position: fixed;
+            top: 80px; right: 1rem;
+            background: white;
+            border-radius: 14px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+            padding: 1rem 1.25rem;
+            max-width: 360px;
+            z-index: 500;
+            border-left: 4px solid #f59e0b;
+            animation: slideInRight 0.3s ease;
+            font-size: 0.875rem;
+            color: #374151;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.6rem;
+        }
+
+        .toast-advertencia.error { border-left-color: #ef4444; }
+        .toast-advertencia.info  { border-left-color: #3b82f6; }
+
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(60px); }
+            to   { opacity: 1; transform: translateX(0); }
+        }
+
+        /* ============================================ */
+        /* CONTADOR CARACTERES                         */
+        /* ============================================ */
+        .char-counter-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 0.5rem;
+        }
+
+        .char-count-num {
+            font-size: 0.78rem;
+            color: #9ca3af;
+            font-weight: 500;
+        }
+
+        /* Input error state */
+        .input-error {
+            border-color: #ef4444 !important;
+            box-shadow: 0 0 0 4px rgba(239,68,68,0.08) !important;
+        }
+
+        /* Input success state */
+        .input-ok {
+            border-color: #16a34a !important;
+        }
+
+        /* Mobile bottom nav */
+        .mobile-bottom-nav {
+            display: none;
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            background: white;
+            border-top: 1px solid #e5e7eb;
+            z-index: 100;
+            padding: 0.4rem 0 calc(0.4rem + env(safe-area-inset-bottom));
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
+        }
+
+        .mobile-bottom-nav-inner { display: flex; justify-content: space-around; align-items: center; }
+
+        .mob-nav-btn {
+            display: flex; flex-direction: column; align-items: center; gap: 0.15rem;
+            color: #9ca3af; text-decoration: none; font-size: 0.6rem; font-weight: 600;
+            padding: 0.3rem 0.5rem; border-radius: 12px; transition: all 0.2s;
+            border: none; background: none; cursor: pointer;
+        }
+
+        .mob-nav-icon {
+            width: 26px; height: 26px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 8px; transition: all 0.2s;
+        }
+
+        /* ============================================ */
+        /* RESPONSIVE                                  */
+        /* ============================================ */
+        @media (max-width: 768px) {
+            .page-layout { padding: 1rem 0.75rem; }
+
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.75rem;
+            }
+
+            .page-title { font-size: 1.4rem; }
+            .btn-volver { align-self: flex-start; }
+
+            .form-card-body { padding: 1.25rem; }
+
+            .form-actions { grid-template-columns: 1fr; }
+            .btn-submit, .btn-cancel { width: 100%; }
+
+            .preview-grid-img { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); }
+            .preview-grid-vid { grid-template-columns: 1fr; }
+
+            .upload-zone { padding: 1.25rem 1rem; }
+
+            .mobile-bottom-nav { display: block; }
+            body { padding-bottom: 72px; }
+        }
+
+        @media (max-width: 480px) {
+            .header-inner { padding: 0 0.75rem; }
+            .logo-text { font-size: 1rem; }
+            .logo-monogram { width: 34px; height: 34px; font-size: 0.85rem; }
+            .nav-icon-btn { width: 38px; height: 38px; }
+
+            .page-title { font-size: 1.2rem; }
+            .form-card-header { padding: 1rem 1.25rem; }
+        }
+    </style>
 </head>
-<body class="bg-gray-200">
-    {% if messages %}
-    <div class="messages-container fixed top-20 left-1/2 transform -translate-x-1/2 z-50 w-11/12 md:w-1/3">
-        {% for message in messages %}
-        <div class="p-4 mb-3 rounded-xl text-white font-semibold shadow-lg
-                    {% if message.tags == 'success' %} bg-green-500
-                    {% elif message.tags == 'error' %} bg-red-500
-                    {% elif message.tags == 'warning' %} bg-yellow-500
-                    {% else %} bg-blue-500 {% endif %}">
-            {{ message }}
-        </div>
-        {% endfor %}
+<body>
+
+{% if messages %}
+<div class="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 w-11/12 md:w-1/3">
+    {% for message in messages %}
+    <div class="p-4 mb-3 rounded-xl text-white font-semibold shadow-lg
+                {% if message.tags == 'success' %}bg-green-500
+                {% elif message.tags == 'error' %}bg-red-500
+                {% elif message.tags == 'warning' %}bg-yellow-500
+                {% else %}bg-blue-500{% endif %}">
+        {{ message }}
     </div>
-    {% endif %}
+    {% endfor %}
+</div>
+{% endif %}
 
-    <!-- HEADER -->
-    <header class="hero bg-gradient-to-r from-[#0d3604] to-[#2b9e15] shadow-lg sticky top-0 z-50">
-        <nav class="container mx-auto px-2 py-2 relative">
-            <div class="flex justify-between items-center">
-                <div class="flex flex-row-reverse items-center">
-                    {% load static %}
-                    <img src="{% static 'img/logo2.png' %}" width="200px" />
-                </div>
-                <div class="hidden md:flex items-center space-x-6">
-                    <a href="{% url 'perfil:home' %}">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white"
-                            stroke-width="2" class="w-10 h-10">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 9.75L12 3l9 6.75V21H3V9.75z" />
-                        </svg>
-                    </a>
-                    <a href="">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white"
-                            stroke-width="1.5" class="w-12 h-12">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M12 22a2 2 0 002-2H10a2 2 0 002 2zm6-6V11a6 6 0 10-12 0v5l-1.5 2.5h15L18 16z" />
-                        </svg>
-                    </a>
-                    <a href="{% url 'perfil:perfiles' %}">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white"
-                            stroke-width="2" class="w-10 h-10">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M12 12a5 5 0 100-10 5 5 0 000 10zm7 8c0-4-3-7-7-7s-7 3-7 7" />
-                        </svg>
-                    </a>
-                </div>
-            </div>
-        </nav>
-    </header>
+<!-- ========================= -->
+<!--      HEADER MEJORADO      -->
+<!-- ========================= -->
+<header class="header">
+    <div class="header-inner">
 
-    <!-- CONTENIDO PRINCIPAL -->
-    <div class="container mx-auto px-4 py-8">
-        <div class="max-w-4xl mx-auto">
-            <!-- Título de la página -->
-            <div class="mb-6 flex items-center justify-between">
-                <div>
-                    <h1 class="text-3xl font-bold text-gray-800">📝 Crear nueva publicación</h1>
-                    <p class="text-gray-600 mt-2">Comparte información importante con la comunidad</p>
-                </div>
-                <a href="{% url 'perfil:perfiles' %}" 
-                   class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition shadow-md">
-                    ⬅️ Volver
+        <!-- LOGO -->
+        <a href="{% url 'sesion:home' %}" class="logo-area">
+            <div class="logo-monogram">iS</div>
+            <span class="logo-text">Info<span>Sena</span></span>
+        </a>
+
+        <!-- ICONOS DESKTOP -->
+        <div class="hidden md:flex items-center gap-1">
+
+            <div class="tooltip-wrap">
+                <a href="{% url 'sesion:home' %}" class="nav-icon-btn">
+                    <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 9.75L12 3l9 6.75V21H3V9.75z"/>
+                    </svg>
                 </a>
+                <div class="tooltip-tip">Inicio</div>
             </div>
 
-            <!-- Formulario -->
-            <div class="bg-white rounded-3xl shadow-lg p-8">
-                <form method="POST" enctype="multipart/form-data" id="publicacionForm" class="space-y-6">
-                    {% csrf_token %}
+            <div class="tooltip-wrap">
+                <a href="{% url 'chat:lista_chats' %}" class="nav-icon-btn">
+                    <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6A8.38 8.38 0 0111.5 3h1a8.5 8.5 0 018.5 8.5z"/>
+                    </svg>
+                </a>
+                <div class="tooltip-tip">Chat</div>
+            </div>
 
-                    <!-- Título -->
-                    <div>
-                        <label for="titulo" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Título de la publicación *
-                        </label>
-                        <input type="text" 
-                               id="titulo" 
-                               name="titulo" 
-                               required
-                               maxlength="200"
-                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition"
-                               placeholder="Escribe un título llamativo...">
+            <div class="tooltip-wrap">
+                <a href="{% url 'sesion:amigos' %}" class="nav-icon-btn">
+                    <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <circle cx="7" cy="7" r="4"/>
+                        <path d="M1 21v-2a6 6 0 016-6h0a6 6 0 016 6v2"/>
+                        <circle cx="17" cy="9" r="3.5"/>
+                        <path d="M14 21v-2a4 4 0 014-4h0a4 4 0 014 4v2"/>
+                    </svg>
+                </a>
+                <div class="tooltip-tip">Amigos</div>
+            </div>
+
+            <div class="tooltip-wrap">
+                <a href="{% url 'notificaciones:lista' %}" class="nav-icon-btn">
+                    <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 22a2 2 0 002-2H10a2 2 0 002 2zm6-6V11a6 6 0 10-12 0v5l-1.5 2.5h15L18 16z"/>
+                    </svg>
+                </a>
+                <div class="tooltip-tip">Notificaciones</div>
+            </div>
+
+            <div class="nav-divider"></div>
+
+            <a href="{% url 'perfil:perfiles' %}" class="avatar-btn-header">
+                {% if usuario.foto %}
+                <img src="{{ usuario.foto.url }}" alt="{{ usuario.nombre }}">
+                {% else %}
+                <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 12a5 5 0 100-10 5 5 0 000 10zm7 8c0-4-3-7-7-7s-7 3-7 7"/>
+                </svg>
+                {% endif %}
+            </a>
+        </div>
+
+        <!-- BOTONES MOBILE -->
+        <div class="flex md:hidden items-center gap-2">
+            <a href="{% url 'sesion:home' %}" class="nav-icon-btn">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path d="M3 9.75L12 3l9 6.75V21H3V9.75z"/>
+                </svg>
+            </a>
+            <a href="{% url 'perfil:perfiles' %}" class="avatar-btn-header" style="width:38px;height:38px">
+                {% if usuario.foto %}
+                <img src="{{ usuario.foto.url }}" alt="{{ usuario.nombre }}">
+                {% else %}
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path d="M12 12a5 5 0 100-10 5 5 0 000 10zm7 8c0-4-3-7-7-7s-7 3-7 7"/>
+                </svg>
+                {% endif %}
+            </a>
+        </div>
+    </div>
+</header>
+
+<!-- ========================= -->
+<!--    CONTENIDO PRINCIPAL    -->
+<!-- ========================= -->
+<div class="page-layout">
+
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">Crear publicación</h1>
+            <p class="page-subtitle">Comparte información importante con la comunidad SENA</p>
+        </div>
+        <a href="{% url 'perfil:perfiles' %}" class="btn-volver">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+            </svg>
+            Volver
+        </a>
+    </div>
+
+    <!-- FORMULARIO -->
+    <div class="form-card">
+
+        <!-- Header de la card -->
+        <div class="form-card-header">
+            <div style="width:40px;height:40px;background:rgba(255,255,255,0.2);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0">
+                📝
+            </div>
+            <div>
+                <h2>Nueva publicación</h2>
+                <p>Completa los campos para publicar en el feed</p>
+            </div>
+        </div>
+
+        <div class="form-card-body">
+            <form method="POST" enctype="multipart/form-data" id="publicacionForm">
+                {% csrf_token %}
+
+                <!-- TÍTULO -->
+                <div class="form-group">
+                    <label for="titulo" class="form-label">
+                        <div class="label-icon">✏️</div>
+                        Título de la publicación
+                        <span class="required">*</span>
+                    </label>
+                    <input type="text"
+                           id="titulo"
+                           name="titulo"
+                           required
+                           maxlength="200"
+                           class="form-input"
+                           placeholder="Escribe un título claro y llamativo...">
+                    <p class="form-hint">Máximo 200 caracteres</p>
+                </div>
+
+                <!-- CATEGORÍA -->
+                <div class="form-group">
+                    <label for="categoria" class="form-label">
+                        <div class="label-icon">🏷️</div>
+                        Categoría
+                    </label>
+                    <select id="categoria" name="categoria" class="form-select">
+                        {% for value, label in categorias %}
+                        <option value="{{ value }}">{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- CONTENIDO -->
+                <div class="form-group">
+                    <label for="contenido" class="form-label">
+                        <div class="label-icon">📄</div>
+                        Contenido
+                        <span class="required">*</span>
+                    </label>
+                    <textarea id="contenido"
+                              name="contenido"
+                              required
+                              rows="9"
+                              class="form-textarea"
+                              placeholder="Escribe el contenido de tu publicación. Organiza la información en párrafos claros..."></textarea>
+
+                    <!-- Barra contador + advertencia (se inyecta por JS) -->
+                    <div class="char-counter-bar">
+                        <span id="advertenciaContenido" class="hidden" style="font-size:0.78rem;color:#b45309;font-weight:600"></span>
+                        <span id="contadorCaracteres" class="char-count-num">0 / 5000</span>
                     </div>
+                </div>
 
-                    <!-- Categoría -->
-                    <div>
-                        <label for="categoria" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Categoría
-                        </label>
-                        <select id="categoria" 
-                                name="categoria"
-                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition">
-                            {% for value, label in categorias %}
-                            <option value="{{ value }}">{{ label }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
+                <div class="form-divider"></div>
 
-                    <!-- Contenido -->
-                    <div>
-                        <label for="contenido" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Contenido *
-                        </label>
-                        <textarea id="contenido" 
-                                  name="contenido" 
-                                  required
-                                  rows="10"
-                                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition resize-none"
-                                  placeholder="Escribe el contenido de tu publicación..."></textarea>
-                        <p class="text-sm text-gray-500 mt-1">Mínimo 20 caracteres</p>
-                    </div>
+                <!-- IMÁGENES -->
+                <div class="form-group">
+                    <label class="form-label">
+                        <div class="label-icon">📷</div>
+                        Imágenes
+                        <span style="font-size:0.75rem;color:#9ca3af;font-weight:500">(opcional · máx. 10)</span>
+                    </label>
 
-                    <!-- Imágenes (Múltiples) -->
-                    <div>
-                        <label for="imagenes" class="block text-sm font-semibold text-gray-700 mb-2">
-                            📷 Imágenes (opcional - máx. 10)
-                        </label>
-                        <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:border-green-500 transition">
-                            <div class="space-y-1 text-center w-full">
-                                <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
-                                    <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    <label for="imagenes" style="cursor:pointer">
+                        <div class="upload-zone" id="imgDropZone">
+                            <div class="upload-icon img-icon">
+                                <svg width="24" height="24" fill="none" stroke="#16a34a" stroke-width="2" viewBox="0 0 24 24">
+                                    <rect x="3" y="3" width="18" height="18" rx="3" ry="3"/>
+                                    <circle cx="8.5" cy="8.5" r="1.5"/>
+                                    <polyline points="21 15 16 10 5 21"/>
                                 </svg>
-                                <div class="flex text-sm text-gray-600 justify-center">
-                                    <label for="imagenes" class="relative cursor-pointer bg-white rounded-md font-medium text-green-600 hover:text-green-500 focus-within:outline-none">
-                                        <span>Selecciona imágenes</span>
-                                        <input id="imagenes" 
-                                               name="imagenes" 
-                                               type="file" 
-                                               accept="image/jpeg,image/jpg,image/png,image/gif,image/webp" 
-                                               multiple 
-                                               class="sr-only">
-                                    </label>
-                                    <p class="pl-1">o arrastra y suelta</p>
-                                </div>
-                                <p class="text-xs text-gray-500">PNG, JPG, GIF, WEBP hasta 10MB cada una</p>
-                                <p class="text-xs font-semibold text-green-600">Puedes seleccionar múltiples imágenes</p>
                             </div>
+                            <div class="upload-title">Arrastra tus imágenes aquí</div>
+                            <p class="upload-subtitle">
+                                o <span class="upload-link img-link">selecciona desde tu dispositivo</span>
+                            </p>
+                            <p style="font-size:0.75rem;color:#d1d5db;margin-top:0.5rem">PNG, JPG, GIF, WEBP · hasta 10 MB c/u</p>
                         </div>
-                        
-                        <!-- Preview de imágenes -->
-                        <div id="imagePreviewContainer" class="mt-4 grid grid-cols-2 md:grid-cols-3 gap-4 hidden">
-                            <!-- Las previsualizaciones se agregarán aquí dinámicamente -->
-                        </div>
-                    </div>
+                        <input id="imagenes" name="imagenes" type="file"
+                               accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
+                               multiple class="sr-only" style="display:none">
+                    </label>
 
-                    <!-- Videos (Múltiples) -->
-                    <div>
-                        <label for="videos" class="block text-sm font-semibold text-gray-700 mb-2">
-                            🎥 Videos (opcional - máx. 5)
-                        </label>
-                        <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-purple-300 border-dashed rounded-lg hover:border-purple-500 transition">
-                            <div class="space-y-1 text-center w-full">
-                                <svg class="mx-auto h-12 w-12 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                    <div id="imagePreviewContainer" class="preview-grid-img hidden"></div>
+                </div>
+
+                <!-- VIDEOS -->
+                <div class="form-group">
+                    <label class="form-label">
+                        <div class="label-icon">🎥</div>
+                        Videos
+                        <span style="font-size:0.75rem;color:#9ca3af;font-weight:500">(opcional · máx. 5)</span>
+                    </label>
+
+                    <label for="videos" style="cursor:pointer">
+                        <div class="upload-zone video-zone" id="vidDropZone">
+                            <div class="upload-icon vid-icon">
+                                <svg width="24" height="24" fill="none" stroke="#a855f7" stroke-width="2" viewBox="0 0 24 24">
+                                    <path d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
                                 </svg>
-                                <div class="flex text-sm text-gray-600 justify-center">
-                                    <label for="videos" class="relative cursor-pointer bg-white rounded-md font-medium text-purple-600 hover:text-purple-500 focus-within:outline-none">
-                                        <span>Selecciona videos</span>
-                                        <input id="videos" 
-                                               name="videos" 
-                                               type="file" 
-                                               accept="video/mp4,video/avi,video/mov,video/wmv,video/webm" 
-                                               multiple 
-                                               class="sr-only">
-                                    </label>
-                                    <p class="pl-1">o arrastra y suelta</p>
-                                </div>
-                                <p class="text-xs text-gray-500">MP4, AVI, MOV, WEBM hasta 50MB cada uno</p>
-                                <p class="text-xs font-semibold text-purple-600">Puedes seleccionar múltiples videos</p>
                             </div>
+                            <div class="upload-title">Arrastra tus videos aquí</div>
+                            <p class="upload-subtitle">
+                                o <span class="upload-link vid-link">selecciona desde tu dispositivo</span>
+                            </p>
+                            <p style="font-size:0.75rem;color:#d1d5db;margin-top:0.5rem">MP4, AVI, MOV, WEBM · hasta 50 MB c/u</p>
                         </div>
-                        
-                        <!-- Preview de videos -->
-                        <div id="videoPreviewContainer" class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4 hidden">
-                            <!-- Las previsualizaciones se agregarán aquí dinámicamente -->
-                        </div>
-                    </div>
+                        <input id="videos" name="videos" type="file"
+                               accept="video/mp4,video/avi,video/mov,video/wmv,video/webm"
+                               multiple class="sr-only" style="display:none">
+                    </label>
 
-                    <!-- Contador de archivos -->
-                    <div id="fileCounter" class="hidden bg-blue-50 border-l-4 border-blue-500 p-4 rounded-lg">
-                        <p class="text-sm text-blue-700">
-                            📊 <span id="imageCount">0</span> imagen(es) y <span id="videoCount">0</span> video(s) seleccionado(s)
-                        </p>
-                    </div>
+                    <div id="videoPreviewContainer" class="preview-grid-vid hidden"></div>
+                </div>
 
-                    <!-- Botones -->
-                    <div class="flex gap-4 pt-4">
-                        <button type="submit"
-                                id="submitBtn"
-                                class="flex-1 px-6 py-3 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition shadow-md">
-                            ✅ Publicar
-                        </button>
-                        <a href="{% url 'perfil:perfiles' %}"
-                           class="flex-1 px-6 py-3 bg-gray-200 text-gray-700 text-center font-semibold rounded-lg hover:bg-gray-300 transition shadow-md">
-                            ❌ Cancelar
-                        </a>
-                    </div>
-                </form>
-            </div>
+                <!-- CONTADOR DE ARCHIVOS -->
+                <div id="fileCounter" class="file-counter hidden" style="margin-bottom:1.5rem">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="flex-shrink:0">
+                        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+                    </svg>
+                    <span>
+                        <span id="imageCount">0</span> imagen(es) y
+                        <span id="videoCount">0</span> video(s) seleccionado(s)
+                    </span>
+                </div>
 
-            <!-- Consejos -->
-            <div class="mt-6 bg-blue-50 border-l-4 border-blue-500 p-4 rounded-lg">
-                <h3 class="font-semibold text-blue-800 mb-2">💡 Consejos para una buena publicación:</h3>
-                <ul class="text-sm text-blue-700 space-y-1 list-disc list-inside">
-                    <li>Usa un título claro y descriptivo</li>
-                    <li>Organiza el contenido en párrafos cortos</li>
-                    <li>Incluye información relevante y verificada</li>
-                    <li>Agrega imágenes y videos para mayor impacto</li>
-                    <li>Puedes subir hasta 10 imágenes y 5 videos</li>
-                </ul>
-            </div>
+                <!-- BOTONES -->
+                <div class="form-actions">
+                    <button type="submit" id="submitBtn" class="btn-submit">
+                        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+                        </svg>
+                        Publicar
+                    </button>
+                    <a href="{% url 'perfil:perfiles' %}" class="btn-cancel">
+                        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                        Cancelar
+                    </a>
+                </div>
+
+            </form>
         </div>
     </div>
 
+    <!-- CONSEJOS -->
+    <div class="tips-card">
+        <div class="tips-title">
+            <span>💡</span> Consejos para una buena publicación
+        </div>
+        <ul class="tips-list">
+            <li><div class="tip-dot"></div>Usa un título claro y descriptivo que capture la atención</li>
+            <li><div class="tip-dot"></div>Organiza el contenido en párrafos cortos y fáciles de leer</li>
+            <li><div class="tip-dot"></div>Incluye información relevante y verificada para la comunidad</li>
+            <li><div class="tip-dot"></div>Agrega imágenes y videos para mayor impacto visual</li>
+            <li><div class="tip-dot"></div>Puedes subir hasta 10 imágenes y 5 videos por publicación</li>
+        </ul>
+    </div>
+
+</div>
+
+<!-- MOBILE BOTTOM NAV -->
+<nav class="mobile-bottom-nav">
+    <div class="mobile-bottom-nav-inner">
+        <a href="{% url 'sesion:home' %}" class="mob-nav-btn">
+            <div class="mob-nav-icon">
+                <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path d="M3 9.75L12 3l9 6.75V21H3V9.75z" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            Inicio
+        </a>
+        <a href="{% url 'chat:lista_chats' %}" class="mob-nav-btn">
+            <div class="mob-nav-icon">
+                <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6A8.38 8.38 0 0111.5 3h1a8.5 8.5 0 018.5 8.5z"/>
+                </svg>
+            </div>
+            Chat
+        </a>
+        <a href="{% url 'sesion:amigos' %}" class="mob-nav-btn">
+            <div class="mob-nav-icon">
+                <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <circle cx="7" cy="7" r="4"/>
+                    <path d="M1 21v-2a6 6 0 016-6h0a6 6 0 016 6v2"/>
+                </svg>
+            </div>
+            Amigos
+        </a>
+        <a href="{% url 'notificaciones:lista' %}" class="mob-nav-btn">
+            <div class="mob-nav-icon">
+                <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/>
+                </svg>
+            </div>
+            Alertas
+        </a>
+        <a href="{% url 'perfil:perfiles' %}" class="mob-nav-btn">
+            <div class="mob-nav-icon">
+                <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 12a5 5 0 100-10 5 5 0 000 10zm7 8c0-4-3-7-7-7s-7 3-7 7"/>
+                </svg>
+            </div>
+            Perfil
+        </a>
+    </div>
+</nav>
+
+<!-- ========================= -->
+<!--   SCRIPTS (todos originales) -->
+<!-- ========================= -->
 <script>
-    // Ocultar mensajes después de 5 segundos
+    // Ocultar mensajes después de 4 segundos
     setTimeout(() => {
-        const messages = document.querySelectorAll('.messages-container div');
-        messages.forEach(msg => {
+        document.querySelectorAll('.messages-container div').forEach(msg => {
             msg.style.transition = 'opacity 0.6s ease';
             msg.style.opacity = '0';
             setTimeout(() => msg.remove(), 600);
@@ -231,11 +1002,10 @@
     }, 4000);
 
     // ================================================================
-    // ⭐ SISTEMA DE MODERACIÓN MEJORADO
+    // ⭐ SISTEMA DE MODERACIÓN (original completo)
     // ================================================================
-    
+
     const PALABRAS_PROHIBIDAS = {
-        // Palabras base con sus variaciones comunes
         'puta': ['puta', 'put4', 'p.u.t.a', 'pvta', 'pùta', 'pūta'],
         'puto': ['puto', 'put0', 'p.u.t.o', 'pvto', 'pùto'],
         'mierda': ['mierda', 'mierd4', 'm13rd4', 'mrda', 'mi3rda', 'miérda', 'm1erda'],
@@ -254,24 +1024,18 @@
     const MAX_TEXTO_LENGTH = 5000;
     const MAX_IMAGES = 10;
     const MAX_VIDEOS = 5;
-    const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10MB
-    const MAX_VIDEO_SIZE = 50 * 1024 * 1024; // 50MB
+    const MAX_IMAGE_SIZE = 10 * 1024 * 1024;
+    const MAX_VIDEO_SIZE = 50 * 1024 * 1024;
 
-    // Función mejorada para detectar palabras prohibidas
     function detectarPalabrasProhibidas(texto) {
         if (!texto) return [];
-        
-        // Normalizar texto: eliminar tildes, convertir a minúsculas, quitar caracteres especiales
         const textoNormalizado = texto
             .toLowerCase()
-            .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // Quitar tildes
-            .replace(/[^a-z0-9\s]/g, ' ') // Reemplazar caracteres especiales con espacios
-            .replace(/\s+/g, ' ') // Normalizar espacios
+            .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+            .replace(/[^a-z0-9\s]/g, ' ')
+            .replace(/\s+/g, ' ')
             .trim();
-        
         const palabrasEncontradas = [];
-        
-        // Buscar en cada categoría de palabras prohibidas
         for (const [palabraBase, variaciones] of Object.entries(PALABRAS_PROHIBIDAS)) {
             for (const variacion of variaciones) {
                 const variacionNormalizada = variacion
@@ -280,10 +1044,7 @@
                     .replace(/[^a-z0-9\s]/g, ' ')
                     .replace(/\s+/g, ' ')
                     .trim();
-                
-                // Buscar como palabra completa o como parte de una palabra
                 const regex = new RegExp(`\\b${variacionNormalizada}\\b|${variacionNormalizada}`, 'gi');
-                
                 if (regex.test(textoNormalizado)) {
                     if (!palabrasEncontradas.includes(palabraBase)) {
                         palabrasEncontradas.push(palabraBase);
@@ -291,109 +1052,99 @@
                 }
             }
         }
-        
         return palabrasEncontradas;
     }
 
     function mostrarAdvertenciaModeracion(mensaje, tipo = 'warning') {
-        const colores = {
-            'warning': 'bg-yellow-500',
-            'error': 'bg-red-500',
-            'info': 'bg-blue-500'
-        };
-        
-        const advertencia = document.createElement('div');
-        advertencia.className = `fixed top-4 right-4 ${colores[tipo]} text-white px-6 py-3 rounded-lg shadow-lg z-50 max-w-md`;
-        advertencia.innerHTML = `⚠️ ${mensaje}`;
-        document.body.appendChild(advertencia);
-        
+        // Eliminar toasts previos
+        document.querySelectorAll('.toast-adv').forEach(t => t.remove());
+
+        const iconos = { warning: '⚠️', error: '🚫', info: 'ℹ️' };
+
+        const toast = document.createElement('div');
+        toast.className = `toast-advertencia ${tipo === 'error' ? 'error' : tipo === 'info' ? 'info' : ''} toast-adv`;
+        toast.innerHTML = `
+            <span style="font-size:1.2rem;flex-shrink:0">${iconos[tipo] || '⚠️'}</span>
+            <div>
+                <div style="font-weight:700;font-size:0.82rem;color:#111827;margin-bottom:2px">
+                    ${tipo === 'error' ? 'Error de validación' : tipo === 'info' ? 'Información' : 'Advertencia'}
+                </div>
+                <div style="font-size:0.82rem;color:#374151">${mensaje}</div>
+            </div>
+        `;
+        document.body.appendChild(toast);
+
         setTimeout(() => {
-            advertencia.style.transition = 'opacity 0.5s';
-            advertencia.style.opacity = '0';
-            setTimeout(() => advertencia.remove(), 500);
+            toast.style.transition = 'opacity 0.4s, transform 0.4s';
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateX(60px)';
+            setTimeout(() => toast.remove(), 400);
         }, 5000);
     }
 
     // ==========================================
-    // ⭐ VALIDACIÓN EN TIEMPO REAL PARA TÍTULO
+    // VALIDACIÓN EN TIEMPO REAL — TÍTULO (original)
     // ==========================================
     const tituloInput = document.getElementById('titulo');
-
     if (tituloInput) {
         tituloInput.addEventListener('input', function() {
             const palabrasEncontradas = detectarPalabrasProhibidas(this.value);
-            
             if (palabrasEncontradas.length > 0) {
-                this.style.borderColor = '#ef4444'; // rojo
-                this.style.boxShadow = '0 0 0 3px rgba(239, 68, 68, 0.1)';
+                this.classList.add('input-error');
+                this.classList.remove('input-ok');
             } else {
-                this.style.borderColor = '';
-                this.style.boxShadow = '';
+                this.classList.remove('input-error');
+                if (this.value.length > 0) this.classList.add('input-ok');
             }
         });
     }
 
     // ==========================================
-    // ⭐ VALIDACIÓN EN TIEMPO REAL PARA CONTENIDO
+    // VALIDACIÓN EN TIEMPO REAL — CONTENIDO (original)
     // ==========================================
     const contenidoTextarea = document.getElementById('contenido');
+    const advertenciaSpan = document.getElementById('advertenciaContenido');
+    const contadorSpan = document.getElementById('contadorCaracteres');
 
     if (contenidoTextarea) {
-        // Crear contador y advertencia
-        const contadorDiv = document.createElement('div');
-        contadorDiv.className = 'mt-2 flex justify-between items-center text-sm';
-        contadorDiv.innerHTML = `
-            <span id="advertenciaContenido" class="text-yellow-600 font-medium hidden"></span>
-            <span id="contadorCaracteres" class="text-gray-500">0 / ${MAX_TEXTO_LENGTH}</span>
-        `;
-        contenidoTextarea.parentNode.appendChild(contadorDiv);
-        
-        const advertenciaSpan = document.getElementById('advertenciaContenido');
-        const contadorSpan = document.getElementById('contadorCaracteres');
-        
         contenidoTextarea.addEventListener('input', function() {
             const texto = this.value;
             const longitud = texto.length;
-            
-            // Actualizar contador
+
             contadorSpan.textContent = `${longitud} / ${MAX_TEXTO_LENGTH}`;
-            
+
             if (longitud > MAX_TEXTO_LENGTH) {
-                contadorSpan.className = 'text-red-600 font-semibold';
+                contadorSpan.style.color = '#ef4444';
+                contadorSpan.style.fontWeight = '700';
             } else if (longitud > MAX_TEXTO_LENGTH * 0.9) {
-                contadorSpan.className = 'text-yellow-600';
+                contadorSpan.style.color = '#b45309';
+                contadorSpan.style.fontWeight = '600';
             } else {
-                contadorSpan.className = 'text-gray-500';
+                contadorSpan.style.color = '#9ca3af';
+                contadorSpan.style.fontWeight = '500';
             }
-            
-            // Detectar palabras prohibidas
+
             const palabrasEncontradas = detectarPalabrasProhibidas(texto);
-            
             if (palabrasEncontradas.length > 0) {
-                advertenciaSpan.textContent = '⚠️ Detectamos lenguaje inapropiado. Por favor, revisa tu texto.';
+                advertenciaSpan.textContent = '⚠️ Se detectó lenguaje inapropiado. Revisa tu texto.';
                 advertenciaSpan.classList.remove('hidden');
-                this.style.borderColor = '#ef4444';
-                this.style.boxShadow = '0 0 0 3px rgba(239, 68, 68, 0.1)';
+                this.classList.add('input-error');
+                this.classList.remove('input-ok');
             } else {
                 advertenciaSpan.classList.add('hidden');
-                this.style.borderColor = '';
-                this.style.boxShadow = '';
+                this.classList.remove('input-error');
             }
         });
     }
 
     // ================================================================
-    // SISTEMA DE PREVIEW Y VALIDACIÓN DE ARCHIVOS
+    // SISTEMA DE PREVIEW DE ARCHIVOS (original completo)
     // ================================================================
 
-    // Preview de múltiples imágenes
     document.getElementById('imagenes').addEventListener('change', function(event) {
         const container = document.getElementById('imagePreviewContainer');
         const files = Array.from(event.target.files);
-        
         console.log(`📷 Imágenes seleccionadas: ${files.length}`);
-        
-        // Validar cantidad
         if (files.length > MAX_IMAGES) {
             alert(`⚠️ Máximo ${MAX_IMAGES} imágenes permitidas`);
             event.target.value = '';
@@ -402,8 +1153,6 @@
             updateFileCounter();
             return;
         }
-        
-        // Validar tamaño
         for (let file of files) {
             if (file.size > MAX_IMAGE_SIZE) {
                 alert(`⚠️ La imagen "${file.name}" excede el tamaño máximo de 10MB`);
@@ -413,43 +1162,34 @@
                 updateFileCounter();
                 return;
             }
-            console.log(`   - ${file.name}: ${(file.size / 1024 / 1024).toFixed(2)} MB`);
         }
-        
-        // Mostrar previsualizaciones
         if (files.length > 0) {
             container.innerHTML = '';
             container.classList.remove('hidden');
-            
-            files.forEach((file, index) => {
+            files.forEach((file) => {
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     const div = document.createElement('div');
-                    div.className = 'relative group';
+                    div.className = 'preview-item';
                     div.innerHTML = `
-                        <img src="${e.target.result}" 
-                             class="w-full h-40 object-cover rounded-lg shadow-md border-2 border-gray-200 group-hover:border-green-500 transition"
-                             alt="${file.name}">
-                        <p class="text-xs text-gray-600 mt-1 text-center truncate">${file.name}</p>
-                        <p class="text-xs text-gray-500 text-center">${(file.size / 1024 / 1024).toFixed(2)} MB</p>
+                        <img src="${e.target.result}" alt="${file.name}">
+                        <div class="preview-meta">
+                            <p title="${file.name}">${file.name}</p>
+                            <p style="color:#9ca3af">${(file.size / 1024 / 1024).toFixed(2)} MB</p>
+                        </div>
                     `;
                     container.appendChild(div);
                 };
                 reader.readAsDataURL(file);
             });
-            
             updateFileCounter();
         }
     });
 
-    // Preview de múltiples videos
     document.getElementById('videos').addEventListener('change', function(event) {
         const container = document.getElementById('videoPreviewContainer');
         const files = Array.from(event.target.files);
-        
         console.log(`🎥 Videos seleccionados: ${files.length}`);
-        
-        // Validar cantidad
         if (files.length > MAX_VIDEOS) {
             alert(`⚠️ Máximo ${MAX_VIDEOS} videos permitidos`);
             event.target.value = '';
@@ -458,8 +1198,6 @@
             updateFileCounter();
             return;
         }
-        
-        // Validar tamaño
         for (let file of files) {
             if (file.size > MAX_VIDEO_SIZE) {
                 alert(`⚠️ El video "${file.name}" excede el tamaño máximo de 50MB`);
@@ -469,169 +1207,139 @@
                 updateFileCounter();
                 return;
             }
-            console.log(`   - ${file.name}: ${(file.size / 1024 / 1024).toFixed(2)} MB`);
         }
-        
-        // Mostrar previsualizaciones
         if (files.length > 0) {
             container.innerHTML = '';
             container.classList.remove('hidden');
-            
-            files.forEach((file, index) => {
+            files.forEach((file) => {
                 const div = document.createElement('div');
-                div.className = 'relative group';
-                
+                div.className = 'preview-item';
                 const videoURL = URL.createObjectURL(file);
                 div.innerHTML = `
-                    <video class="w-full h-48 object-cover rounded-lg shadow-md border-2 border-gray-200 group-hover:border-purple-500 transition" 
-                           controls>
+                    <video controls>
                         <source src="${videoURL}" type="${file.type}">
-                        Tu navegador no soporta el elemento de video.
                     </video>
-                    <p class="text-xs text-gray-600 mt-1 text-center truncate">${file.name}</p>
-                    <p class="text-xs text-gray-500 text-center">${(file.size / 1024 / 1024).toFixed(2)} MB</p>
+                    <div class="preview-meta">
+                        <p title="${file.name}">${file.name}</p>
+                        <p style="color:#9ca3af">${(file.size / 1024 / 1024).toFixed(2)} MB</p>
+                    </div>
                 `;
                 container.appendChild(div);
             });
-            
             updateFileCounter();
         }
     });
 
-    // Actualizar contador de archivos
     function updateFileCounter() {
         const counter = document.getElementById('fileCounter');
         const imageCount = document.getElementById('imageCount');
         const videoCount = document.getElementById('videoCount');
-        
         const imagenes = document.getElementById('imagenes').files.length;
         const videos = document.getElementById('videos').files.length;
-        
         imageCount.textContent = imagenes;
         videoCount.textContent = videos;
-        
         if (imagenes > 0 || videos > 0) {
             counter.classList.remove('hidden');
         } else {
             counter.classList.add('hidden');
         }
-        
-        console.log(`📊 Contador actualizado: ${imagenes} imagen(es), ${videos} video(s)`);
     }
 
+    // Drag and drop (mejora UX)
+    ['imgDropZone', 'vidDropZone'].forEach(id => {
+        const zone = document.getElementById(id);
+        if (!zone) return;
+        zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+        zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+        zone.addEventListener('drop', e => {
+            e.preventDefault();
+            zone.classList.remove('drag-over');
+            const input = document.getElementById(id === 'imgDropZone' ? 'imagenes' : 'videos');
+            input.files = e.dataTransfer.files;
+            input.dispatchEvent(new Event('change'));
+        });
+    });
+
     // ==========================================
-    // ⭐ VALIDACIÓN COMPLETA DEL FORMULARIO
+    // ⭐ VALIDACIÓN COMPLETA DEL FORMULARIO (original)
     // ==========================================
     document.getElementById('publicacionForm').addEventListener('submit', function(e) {
         e.preventDefault();
-        
         const titulo = document.getElementById('titulo').value.trim();
         const contenido = document.getElementById('contenido').value.trim();
         const imagenes = document.getElementById('imagenes').files;
         const videos = document.getElementById('videos').files;
-        
-        console.log('🔍 Validando formulario...');
-        
-        // ⭐ VALIDACIÓN 1: TÍTULO
+
+        // Validación 1: Título
         const palabrasTitulo = detectarPalabrasProhibidas(titulo);
         if (palabrasTitulo.length > 0) {
-            mostrarAdvertenciaModeracion(
-                'El título contiene lenguaje inapropiado. Por favor, modifícalo.',
-                'error'
-            );
+            mostrarAdvertenciaModeracion('El título contiene lenguaje inapropiado. Por favor, modifícalo.', 'error');
             document.getElementById('titulo').focus();
             return false;
         }
-        
-        // ⭐ VALIDACIÓN 2: CONTENIDO LONGITUD
+
+        // Validación 2: Contenido longitud mínima
         if (contenido.length < 20) {
-            mostrarAdvertenciaModeracion(
-                'El contenido debe tener al menos 20 caracteres',
-                'error'
-            );
+            mostrarAdvertenciaModeracion('El contenido debe tener al menos 20 caracteres', 'error');
             document.getElementById('contenido').focus();
             return false;
         }
-        
+
+        // Validación 3: Contenido longitud máxima
         if (contenido.length > MAX_TEXTO_LENGTH) {
-            mostrarAdvertenciaModeracion(
-                `El contenido no puede exceder ${MAX_TEXTO_LENGTH} caracteres`,
-                'error'
-            );
+            mostrarAdvertenciaModeracion(`El contenido no puede exceder ${MAX_TEXTO_LENGTH} caracteres`, 'error');
             document.getElementById('contenido').focus();
             return false;
         }
-        
-        // ⭐ VALIDACIÓN 3: CONTENIDO PALABRAS PROHIBIDAS
+
+        // Validación 4: Palabras prohibidas en contenido
         const palabrasContenido = detectarPalabrasProhibidas(contenido);
         if (palabrasContenido.length > 0) {
-            console.log('⚠️ Palabras detectadas:', palabrasContenido);
-            
             const confirmar = confirm(
                 '⚠️ Tu publicación contiene lenguaje que podría ser inapropiado.\n\n' +
                 'El sistema de moderación del servidor podría bloquearla.\n\n' +
                 '¿Deseas continuar de todos modos?'
             );
-            
-            if (!confirmar) {
-                document.getElementById('contenido').focus();
-                return false;
-            }
+            if (!confirmar) { document.getElementById('contenido').focus(); return false; }
         }
-        
-        // ⭐ VALIDACIÓN 4: CANTIDAD DE ARCHIVOS
+
+        // Validación 5: Cantidad de archivos
         if (imagenes.length > MAX_IMAGES) {
-            mostrarAdvertenciaModeracion(
-                `Máximo ${MAX_IMAGES} imágenes permitidas`,
-                'error'
-            );
+            mostrarAdvertenciaModeracion(`Máximo ${MAX_IMAGES} imágenes permitidas`, 'error');
             return false;
         }
-        
         if (videos.length > MAX_VIDEOS) {
-            mostrarAdvertenciaModeracion(
-                `Máximo ${MAX_VIDEOS} videos permitidos`,
-                'error'
-            );
+            mostrarAdvertenciaModeracion(`Máximo ${MAX_VIDEOS} videos permitidos`, 'error');
             return false;
         }
-        
-        // ⭐ VALIDACIÓN 5: TAMAÑO DE ARCHIVOS
+
+        // Validación 6: Tamaño de archivos
         for (let imagen of imagenes) {
             if (imagen.size > MAX_IMAGE_SIZE) {
-                mostrarAdvertenciaModeracion(
-                    `La imagen "${imagen.name}" excede el tamaño máximo de 10MB`,
-                    'error'
-                );
+                mostrarAdvertenciaModeracion(`La imagen "${imagen.name}" excede el tamaño máximo de 10MB`, 'error');
                 return false;
             }
         }
-        
         for (let video of videos) {
             if (video.size > MAX_VIDEO_SIZE) {
-                mostrarAdvertenciaModeracion(
-                    `El video "${video.name}" excede el tamaño máximo de 50MB`,
-                    'error'
-                );
+                mostrarAdvertenciaModeracion(`El video "${video.name}" excede el tamaño máximo de 50MB`, 'error');
                 return false;
             }
         }
-        
-        // ✅ TODO VALIDADO - ENVIAR FORMULARIO
-        console.log('✅ Validación exitosa, enviando formulario...');
-        console.log(`   - Imágenes: ${imagenes.length}`);
-        console.log(`   - Videos: ${videos.length}`);
-        
-        // Mostrar indicador de carga
+
+        // ✅ Todo validado — enviar
         const submitBtn = document.getElementById('submitBtn');
         submitBtn.disabled = true;
-        submitBtn.innerHTML = '⏳ Publicando...';
-        submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
-        
-        // Enviar formulario
+        submitBtn.innerHTML = `
+            <svg class="animate-spin" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10" stroke-opacity="0.25"/><path d="M12 2a10 10 0 0110 10" stroke-opacity="0.75"/>
+            </svg>
+            Publicando...
+        `;
         this.submit();
         return true;
     });
 </script>
+
 </body>
 </html>

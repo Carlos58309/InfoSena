@@ -9,9 +9,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
-        /* ============================================ */
-        /* VARIABLES Y BASE                            */
-        /* ============================================ */
         :root {
             --verde: #0d7a2f;
             --verde-claro: #1db954;
@@ -26,17 +23,11 @@
             margin: 0;
         }
 
-        /* ============================================ */
-        /* SCROLLBAR                                   */
-        /* ============================================ */
         .scrollbar-thin::-webkit-scrollbar { width: 6px; }
         .scrollbar-thin::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
         .scrollbar-thin::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 10px; }
         .scrollbar-thin::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
 
-        /* ============================================ */
-        /* HEADER MEJORADO                             */
-        /* ============================================ */
         .header {
             background: linear-gradient(135deg, #0d3604 0%, #1a6b0a 55%, #2b9e15 100%);
             position: sticky;
@@ -56,7 +47,6 @@
             gap: 1rem;
         }
 
-        /* Logo */
         .logo-area {
             display: flex;
             align-items: center;
@@ -91,7 +81,6 @@
 
         .logo-text span { color: #7efa8a; }
 
-        /* Search bar header */
         .header-search {
             flex: 1;
             max-width: 400px;
@@ -143,7 +132,6 @@
             align-items: center;
         }
 
-        /* Search panel (dropdown resultados) */
         .search-panel {
             position: absolute;
             top: calc(100% + 10px);
@@ -188,7 +176,6 @@
             cursor: pointer;
         }
 
-        /* Nav icon buttons (header) */
         .nav-icon-btn {
             position: relative;
             width: 44px;
@@ -218,7 +205,6 @@
             box-shadow: 0 0 0 2px rgba(255,255,255,0.4);
         }
 
-        /* Tooltip */
         .tooltip-wrap { position: relative; }
 
         .tooltip-tip {
@@ -251,7 +237,6 @@
 
         .tooltip-wrap:hover .tooltip-tip { opacity: 1; }
 
-        /* Badge */
         .notif-badge {
             position: absolute;
             top: 5px;
@@ -276,7 +261,6 @@
             50%       { transform: scale(1.2); }
         }
 
-        /* Avatar btn */
         .avatar-btn-header {
             width: 42px;
             height: 42px;
@@ -305,7 +289,6 @@
             object-fit: cover;
         }
 
-        /* Dropdown menus (header) */
         .hdr-dropdown {
             position: absolute;
             top: calc(100% + 12px);
@@ -374,7 +357,6 @@
 
         .hdr-dropdown-divider { height: 1px; background: #f3f4f6; margin: 0.2rem 0; }
 
-        /* Header nav divider */
         .nav-divider {
             width: 1px;
             height: 28px;
@@ -382,9 +364,6 @@
             margin: 0 0.25rem;
         }
 
-        /* ============================================ */
-        /* SIDEBAR IZQUIERDO MEJORADO                  */
-        /* ============================================ */
         .sidebar-left {
             position: sticky;
             top: calc(64px + 1.25rem);
@@ -404,7 +383,6 @@
             margin-bottom: 0.75rem;
         }
 
-        /* User profile link top of sidebar */
         .sidebar-user {
             display: flex;
             align-items: center;
@@ -464,7 +442,6 @@
             padding: 0.4rem 0.75rem 0.2rem;
         }
 
-        /* Sidebar nav items */
         .sidebar-nav-item {
             display: flex;
             align-items: center;
@@ -545,9 +522,6 @@
             padding: 0 4px;
         }
 
-        /* ============================================ */
-        /* MOBILE BOTTOM NAV                           */
-        /* ============================================ */
         .mobile-bottom-nav {
             display: none;
             position: fixed;
@@ -613,7 +587,7 @@
         }
 
         /* ============================================ */
-        /* MEDIA GRIDS (originales, sin cambios)       */
+        /* MEDIA GRIDS                                 */
         /* ============================================ */
         .media-grid-1 {
             display: grid;
@@ -690,7 +664,6 @@
         }
 
         .media-item:hover img { transform: scale(1.05); }
-
         .media-item.video-item { position: relative; }
 
         .media-item video {
@@ -737,79 +710,6 @@
 
         .media-overlay:hover { background: rgba(0, 0, 0, 0.85); }
 
-        /* Modales media */
-        .modal-media {
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.95);
-            z-index: 9999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 1rem;
-        }
-
-        .modal-media.hidden { display: none; }
-
-        .modal-close-btn {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            width: 3.5rem;
-            height: 3.5rem;
-            background: rgba(0,0,0,0.5);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            font-size: 2rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-            z-index: 10000;
-        }
-
-        .modal-close-btn:hover { background: rgba(0,0,0,0.8); transform: scale(1.1); }
-
-        .modal-nav-btn {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 3rem;
-            height: 3rem;
-            background: rgba(255,255,255,0.2);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-        }
-
-        .modal-nav-btn:hover { background: rgba(255,255,255,0.3); transform: translateY(-50%) scale(1.1); }
-        .modal-nav-btn.prev { left: 1rem; }
-        .modal-nav-btn.next { right: 1rem; }
-        .modal-nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
-
-        .modal-counter {
-            position: absolute;
-            top: 1rem;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0,0,0,0.7);
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-size: 0.875rem;
-            font-weight: 600;
-            backdrop-filter: blur(10px);
-        }
-
-        /* Publicacion card */
         .publicacion-card {
             transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
@@ -818,7 +718,6 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.1);
         }
 
-        /* Animations */
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to   { opacity: 1; transform: translateY(0); }
@@ -833,9 +732,6 @@
 
         .animate-slide-in { animation: slide-in 0.3s ease-out; }
 
-        /* ============================================ */
-        /* RESPONSIVE                                  */
-        /* ============================================ */
         @media (max-width: 768px) {
             .media-grid-1, .media-grid-2, .media-grid-3,
             .media-grid-4, .media-grid-5plus { max-height: 400px; }
@@ -871,7 +767,6 @@
     <header class="header">
         <div class="header-inner">
 
-            <!-- LOGO -->
             {% load static %}
             <a href="{% url 'sesion:home' %}" class="logo-area home-reload-btn">
                 <div class="logo-monogram">iS</div>
@@ -883,19 +778,13 @@
                 <svg class="search-icon-abs" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <circle cx="11" cy="11" r="7"/><line x1="16" y1="16" x2="21" y2="21"/>
                 </svg>
-                <input
-                    type="text"
-                    id="searchInput"
-                    placeholder="Buscar personas..."
-                    autocomplete="off"
-                />
+                <input type="text" id="searchInput" placeholder="Buscar personas..." autocomplete="off"/>
                 <button id="clearSearchBtn" class="clear-btn-abs hidden">
                     <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M18.3 5.71a1 1 0 0 0-1.42 0L12 10.59 7.11 5.7A1 1 0 1 0 5.7 7.11L10.59 12 5.7 16.89a1 1 0 1 0 1.41 1.41L12 13.41l4.88 4.89a1 1 0 0 0 1.42-1.42L13.41 12l4.89-4.88a1 1 0 0 0 0-1.41z"/>
                     </svg>
                 </button>
 
-                <!-- Panel resultados desktop -->
                 <div id="searchPanel" class="search-panel hidden">
                     <div class="search-panel-header">
                         <h3 id="panelTitle">Búsquedas recientes</h3>
@@ -922,7 +811,6 @@
             <!-- ICONOS DESKTOP -->
             <div class="hidden md:flex items-center gap-1">
 
-                <!-- Home -->
                 <div class="tooltip-wrap">
                     <a href="{% url 'sesion:home' %}" class="nav-icon-btn home-reload-btn is-active">
                         <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -931,7 +819,6 @@
                     </a>
                 </div>
 
-                <!-- Chat -->
                 <div class="tooltip-wrap">
                     <a href="{% url 'chat:lista_chats' %}" class="nav-icon-btn">
                         <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -940,7 +827,6 @@
                     </a>
                 </div>
 
-                <!-- Amigos -->
                 <div class="tooltip-wrap">
                     <a href="{% url 'sesion:amigos' %}" class="nav-icon-btn">
                         <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -961,7 +847,6 @@
                         <span id="notificationBadge" class="notif-badge hidden">0</span>
                     </button>
 
-                    <!-- Menú notificaciones (original) -->
                     <div id="menuNotificaciones" class="hdr-dropdown" style="width:320px; right:0">
                         <div class="hdr-dropdown-header" style="display:flex;justify-content:space-between;align-items:center">
                             <h4>🔔 Notificaciones</h4>
@@ -997,7 +882,6 @@
                         {% endif %}
                     </button>
 
-                    <!-- Menú perfil mejorado (original functions) -->
                     <div id="menuPerfil" class="hdr-dropdown" style="width:230px; right:0">
                         <div class="hdr-dropdown-header">
                             <div style="display:flex;align-items:center;gap:0.65rem">
@@ -1055,37 +939,29 @@
                 </div>
             </div>
 
-            <!-- BOTONES MOBILE (header) -->
+            <!-- BOTONES MOBILE -->
             <div class="flex md:hidden items-center gap-2">
                 <button id="btnSearch" class="nav-icon-btn">
                     <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <circle cx="11" cy="11" r="7"/><line x1="16" y1="16" x2="21" y2="21"/>
                     </svg>
                 </button>
-               
             </div>
         </div>
 
-        <!-- BÚSQUEDA MOBILE EXPANDIBLE (original) -->
+        <!-- BÚSQUEDA MOBILE EXPANDIBLE -->
         <div id="mobileSearchBox" class="hidden px-4 pb-3 md:hidden">
             <div class="bg-white/15 border border-white/25 rounded-2xl px-4 py-2 flex items-center gap-3 relative">
                 <svg width="16" height="16" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2" viewBox="0 0 24 24" class="flex-shrink-0">
                     <circle cx="11" cy="11" r="7"/><line x1="16" y1="16" x2="21" y2="21"/>
                 </svg>
-                <input
-                    type="text"
-                    id="mobileSearchInput"
-                    placeholder="Buscar personas..."
-                    class="flex-1 outline-none bg-transparent text-white placeholder-white/60 text-sm"
-                    autocomplete="off"
-                />
+                <input type="text" id="mobileSearchInput" placeholder="Buscar personas..."
+                    class="flex-1 outline-none bg-transparent text-white placeholder-white/60 text-sm" autocomplete="off"/>
                 <button id="clearMobileSearchBtn" class="hidden text-white/70">
                     <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M18.3 5.71a1 1 0 0 0-1.42 0L12 10.59 7.11 5.7A1 1 0 1 0 5.7 7.11L10.59 12 5.7 16.89a1 1 0 1 0 1.41 1.41L12 13.41l4.88 4.89a1 1 0 0 0 1.42-1.42L13.41 12l4.89-4.88a1 1 0 0 0 0-1.41z"/>
                     </svg>
                 </button>
-
-                <!-- Panel móvil -->
                 <div id="mobileSearchPanel" class="search-panel hidden" style="top:calc(100% + 8px)">
                     <div class="search-panel-header">
                         <h3 id="mobilePanelTitle">Búsquedas recientes</h3>
@@ -1107,9 +983,6 @@
                 </div>
             </div>
         </div>
-
-        <!-- MENU MOBILE DESPLEGABLE (original) -->
-       
     </header>
 
     <!-- ========================= -->
@@ -1117,12 +990,9 @@
     <!-- ========================= -->
     <div class="pt-5 grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 h-screen" style="max-width:1400px;margin:0 auto;padding-left:1.25rem;padding-right:1.25rem;gap:1.25rem">
 
-        <!-- ========================= -->
-        <!--     SIDEBAR IZQUIERDO     -->
-        <!-- ========================= -->
+        <!-- SIDEBAR IZQUIERDO -->
         <aside class="hidden md:block md:col-span-1 sidebar-left">
             <div class="sidebar-card">
-                <!-- Perfil del usuario -->
                 <a href="{% url 'perfil:perfiles' %}" class="sidebar-user">
                     <div class="sidebar-user-avatar">
                         {% if usuario.foto %}
@@ -1148,7 +1018,6 @@
 
                 <div class="sidebar-divider"></div>
 
-                <!-- Navegación principal -->
                 <nav>
                     <a href="{% url 'sesion:home' %}" class="sidebar-nav-item active home-reload-btn">
                         <div class="sni-icon">
@@ -1239,7 +1108,7 @@
                     </div>
                 </div>
 
-                <!-- MEDIA GRID (original sin cambios) -->
+                <!-- MEDIA GRID -->
                 {% if publicacion.archivos.all %}
                 {% with total_media=publicacion.archivos.all|length %}
                 <div class="
@@ -1281,7 +1150,9 @@
                 </div>
 
                 <script>
-                    inicializarMediaPublicacion({{ publicacion.id }}, [
+                (function() {
+                    var pubId = {{ publicacion.id }};
+                    var archivos = [
                         {% for archivo in publicacion.archivos.all %}
                         {
                             tipo: '{{ archivo.tipo }}',
@@ -1289,52 +1160,78 @@
                             alt: '{{ publicacion.titulo|escapejs }}'
                         }{% if not forloop.last %},{% endif %}
                         {% endfor %}
-                    ]);
+                    ];
+                    function tryInit() {
+                        if (typeof inicializarMediaPublicacion === 'function') {
+                            inicializarMediaPublicacion(pubId, archivos);
+                        } else {
+                            setTimeout(tryInit, 50);
+                        }
+                    }
+                    tryInit();
+                })();
                 </script>
                 {% endwith %}
                 {% endif %}
 
-                <!-- ACCIONES (originales) -->
-                <div class="px-4 py-3 border-t border-gray-200">
-                    <div class="flex items-center justify-between text-sm text-gray-600 mb-3">
+                <!-- ============================================ -->
+                <!-- ACCIONES: LIKES, COMENTARIOS, COMPARTIR     -->
+                <!-- ============================================ -->
+                <div class="px-4 pb-3">
+                    <!-- Contadores -->
+                    <div class="flex justify-between items-center py-2 text-sm text-gray-500 border-b border-gray-200">
                         <div class="flex items-center gap-2">
-                            <span class="inline-flex items-center justify-center w-5 h-5 bg-red-500 rounded-full text-white text-xs">❤️</span>
-                            <span id="likes-{{ publicacion.id }}" class="hover:underline cursor-pointer">
-                                {{ publicacion.likes.count }} personas
-                            </span>
+                            <div class="w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center">
+                                <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"/>
+                                </svg>
+                            </div>
+                            <span id="likes-count-{{ publicacion.id }}">{{ publicacion.likes.count }}</span> personas
                         </div>
-                        <span class="hover:underline cursor-pointer">{{ publicacion.comentarios.count }} comentarios</span>
+                        <span id="comentarios-count-{{ publicacion.id }}">{{ publicacion.comentarios.count }} comentarios</span>
                     </div>
 
-                    <div class="flex items-center justify-around border-t border-gray-200 pt-2">
-                        <button onclick="likePost({{ publicacion.id }})"
-                                class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg hover:bg-gray-100 transition-colors flex-1">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-6 h-6 text-gray-600">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"/>
+                    <!-- Botones -->
+                    <div class="flex items-center justify-around pt-1">
+
+                        <!-- ME GUSTA -->
+                        <button onclick="reaccionar({{ publicacion.id }})"
+                                id="btn-like-{{ publicacion.id }}"
+                                class="flex items-center gap-2 px-6 py-2 rounded-lg hover:bg-gray-100 transition text-gray-600 font-medium text-sm
+                                       {% if usuario in publicacion.likes.all %}text-blue-600{% endif %}">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3H14zM7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"/>
                             </svg>
-                            <span class="font-semibold text-gray-700">Me gusta</span>
+                            Me gusta
                         </button>
 
+                        <!-- COMENTAR -->
                         <button onclick="openModal({{ publicacion.id }})"
-                                class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg hover:bg-gray-100 transition-colors flex-1">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-6 h-6 text-gray-600">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                                class="flex items-center gap-2 px-6 py-2 rounded-lg hover:bg-gray-100 transition text-gray-600 font-medium text-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
                             </svg>
-                            <span class="font-semibold text-gray-700">Comentar</span>
+                            Comentar
                         </button>
 
-                        <button class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg hover:bg-gray-100 transition-colors flex-1">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-6 h-6 text-gray-600">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/>
+                        <!-- COMPARTIR -->
+                        <button onclick="compartir({{ publicacion.id }})"
+                                class="flex items-center gap-2 px-6 py-2 rounded-lg hover:bg-gray-100 transition text-gray-600 font-medium text-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/>
                             </svg>
-                            <span class="font-semibold text-gray-700">Compartir</span>
+                            Compartir
                         </button>
                     </div>
                 </div>
 
-                <!-- MODAL COMENTARIOS (original) -->
+                <!-- ============================================ -->
+                <!-- MODAL COMENTARIOS (AJAX, sin recarga)       -->
+                <!-- ============================================ -->
                 <div id="modal-{{ publicacion.id }}" class="hidden fixed inset-0 bg-black/50 flex justify-center items-center z-50 p-4">
                     <div class="bg-white w-full max-w-2xl rounded-2xl overflow-hidden shadow-2xl max-h-[80vh] flex flex-col">
+
+                        <!-- Header modal -->
                         <div class="p-4 border-b flex justify-between items-center bg-gray-50">
                             <h3 class="font-bold text-lg">Comentarios de {{ publicacion.autor.nombre }}</h3>
                             <button onclick="closeModal({{ publicacion.id }})"
@@ -1345,19 +1242,22 @@
                             </button>
                         </div>
 
-                        <div class="p-4 space-y-4 overflow-y-auto flex-1">
+                        <!-- Lista de comentarios -->
+                        <div class="p-4 space-y-3 overflow-y-auto flex-1" id="lista-comentarios-{{ publicacion.id }}">
                             {% for comentario in publicacion.comentarios.all %}
-                            <div class="flex items-start gap-3 p-3 hover:bg-gray-50 rounded-lg transition">
-                                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-gray-300 to-gray-400 flex items-center justify-center flex-shrink-0 text-xl">👤</div>
+                            <div class="flex items-start gap-3">
+                                {% if comentario.get_autor_foto %}
+                                <img src="{{ comentario.get_autor_foto }}" class="w-10 h-10 rounded-full object-cover flex-shrink-0">
+                                {% else %}
+                                <div class="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center flex-shrink-0 text-xl">👤</div>
+                                {% endif %}
                                 <div class="flex-1">
                                     <div class="bg-gray-100 rounded-2xl px-4 py-2">
-                                        <p class="font-semibold text-sm text-gray-900">{{ comentario.autor.nombre }}</p>
-                                        <p class="text-gray-700 mt-1">{{ comentario.contenido }}</p>
+                                        <p class="font-semibold text-sm text-gray-900">{{ comentario.get_autor_nombre }}</p>
+                                        <p class="text-gray-700 mt-0.5">{{ comentario.contenido }}</p>
                                     </div>
-                                    <div class="flex items-center gap-4 mt-1 px-3 text-xs text-gray-500">
+                                    <div class="flex items-center gap-4 mt-1 px-2 text-xs text-gray-500">
                                         <span>{{ comentario.fecha_creacion|timesince }} atrás</span>
-                                        <button class="hover:underline font-semibold">Me gusta</button>
-                                        <button class="hover:underline font-semibold">Responder</button>
                                         {% if user == comentario.autor or user == publicacion.autor.user %}
                                         <a href="{% url 'publicaciones:eliminar_comentario' comentario.id %}"
                                            class="text-red-500 hover:underline font-semibold ml-auto">Eliminar</a>
@@ -1366,7 +1266,7 @@
                                 </div>
                             </div>
                             {% empty %}
-                            <div class="text-center py-8">
+                            <div class="text-center py-8" id="vacio-{{ publicacion.id }}">
                                 <div class="text-5xl mb-3">💬</div>
                                 <p class="text-gray-600 font-semibold">Sé el primero en comentar</p>
                                 <p class="text-gray-400 text-sm mt-1">Comparte tu opinión sobre esta publicación</p>
@@ -1374,26 +1274,28 @@
                             {% endfor %}
                         </div>
 
-                        <form method="POST" action="{% url 'publicaciones:comentar' publicacion.id %}"
-                              class="flex items-center gap-3 p-4 border-t bg-gray-50">
-                            {% csrf_token %}
-                            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center flex-shrink-0">
+                        <!-- Input comentario (AJAX) -->
+                        <div class="flex items-center gap-3 p-4 border-t bg-gray-50">
+                            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center flex-shrink-0 overflow-hidden">
                                 {% if usuario.foto %}
                                 <img src="{{ usuario.foto.url }}" class="w-10 h-10 rounded-full object-cover">
                                 {% else %}
                                 <span class="text-white text-xl">👤</span>
                                 {% endif %}
                             </div>
-                            <input name="contenido"
-                                   class="flex-1 bg-gray-100 rounded-full px-4 py-2 outline-none focus:bg-white focus:ring-2 focus:ring-green-500 transition"
-                                   placeholder="Escribe un comentario..."
-                                   required>
-                            <button type="submit" class="bg-green-600 text-white p-2 rounded-full hover:bg-green-700 transition">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <input
+                                class="input-comentario flex-1 bg-gray-100 rounded-full px-4 py-2 outline-none focus:bg-white focus:ring-2 focus:ring-green-500 transition text-sm"
+                                placeholder="Escribe un comentario..."
+                                data-id="{{ publicacion.id }}"
+                                onkeypress="if(event.key==='Enter') enviarComentario({{ publicacion.id }})">
+                            <button
+                                onclick="enviarComentario({{ publicacion.id }})"
+                                class="bg-green-600 text-white p-2 rounded-full hover:bg-green-700 transition flex-shrink-0">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
                                 </svg>
                             </button>
-                        </form>
+                        </div>
                     </div>
                 </div>
 
@@ -1409,12 +1311,10 @@
 
         </main>
 
-        <!-- ========================= -->
-        <!--     COLUMNA DERECHA       -->
-        <!-- ========================= -->
+        <!-- COLUMNA DERECHA -->
         <aside class="hidden lg:block lg:col-span-2 bg-transparent h-[calc(100vh-5rem)] sticky top-20 overflow-y-auto p-4">
 
-            <!-- Solicitudes de amistad (original) -->
+            <!-- Solicitudes de amistad -->
             <div class="bg-white p-4 rounded-3xl shadow-md mb-4">
                 <h2 class="font-bold mb-3 flex items-center justify-between text-gray-800">
                     <span class="flex items-center gap-2"><span class="text-2xl">📬</span> Solicitudes de amistad</span>
@@ -1424,7 +1324,6 @@
                     </span>
                     {% endif %}
                 </h2>
-
                 {% if solicitudes_recibidas and solicitudes_recibidas|length > 0 %}
                 <div class="space-y-3 max-h-96 overflow-y-auto scrollbar-thin">
                     {% for solicitud in solicitudes_recibidas %}
@@ -1474,7 +1373,7 @@
                 {% endif %}
             </div>
 
-            <!-- Sugerencias (original) -->
+            <!-- Sugerencias -->
             <div class="bg-white p-4 rounded-3xl shadow-md mb-4">
                 <h2 class="font-bold mb-3 text-gray-800 flex items-center gap-2">
                     <span class="text-2xl">💡</span> Sugerencias de amistad
@@ -1527,7 +1426,7 @@
                 {% endif %}
             </div>
 
-            <!-- Contactos (original) -->
+            <!-- Contactos -->
             <div class="bg-white p-4 rounded-3xl shadow-md">
                 <h2 class="font-bold mb-3 flex items-center justify-between text-gray-800">
                     <span class="flex items-center gap-2"><span class="text-2xl">👥</span> Contactos</span>
@@ -1584,7 +1483,7 @@
                 </div>
                 Inicio
             </a>
-            <a href="{% url 'chat:lista_chats' %}" class="mob-nav-btn" style="position:relative">
+            <a href="{% url 'chat:lista_chats' %}" class="mob-nav-btn">
                 <div class="mob-nav-icon">
                     <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6A8.38 8.38 0 0111.5 3h1a8.5 8.5 0 018.5 8.5z"/>
@@ -1603,7 +1502,7 @@
                 </div>
                 Amigos
             </a>
-            <a href="{% url 'notificaciones:lista' %}" class="mob-nav-btn" style="position:relative">
+            <a href="{% url 'notificaciones:lista' %}" class="mob-nav-btn">
                 <div class="mob-nav-icon">
                     <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/>
@@ -1623,19 +1522,13 @@
     </nav>
 
     <!-- ========================= -->
-    <!--     TODOS LOS SCRIPTS     -->
+    <!--       SCRIPTS             -->
     <!-- ========================= -->
 
-    <!-- Mobile menu toggle -->
+    <!-- Mobile search toggle -->
     <script>
         document.getElementById("btnSearch")?.addEventListener("click", () => {
             document.getElementById("mobileSearchBox").classList.toggle("hidden");
-            document.getElementById("mobileMenu").classList.add("hidden");
-        });
-
-        document.getElementById("btnMenu")?.addEventListener("click", () => {
-            document.getElementById("mobileMenu").classList.toggle("hidden");
-            document.getElementById("mobileSearchBox").classList.add("hidden");
         });
 
         // Ocultar mensajes después de 4s
@@ -1651,14 +1544,10 @@
     <!-- Menús header (perfil / notificaciones) -->
     <script>
         function toggleHeaderDropdown(menuId) {
-            const menus = ['menuPerfil', 'menuNotificaciones'];
-            menus.forEach(id => {
+            ['menuPerfil', 'menuNotificaciones'].forEach(id => {
                 const el = document.getElementById(id);
-                if (id === menuId) {
-                    el.classList.toggle('show');
-                } else {
-                    el.classList.remove('show');
-                }
+                if (id === menuId) el.classList.toggle('show');
+                else el.classList.remove('show');
             });
         }
 
@@ -1673,46 +1562,14 @@
         });
 
         document.addEventListener("click", (e) => {
-            if (!e.target.closest('#menuPerfil') && !e.target.closest('#btnPerfil')) {
+            if (!e.target.closest('#menuPerfil') && !e.target.closest('#btnPerfil'))
                 document.getElementById("menuPerfil")?.classList.remove('show');
-            }
-            if (!e.target.closest('#menuNotificaciones') && !e.target.closest('#btnNotificaciones')) {
+            if (!e.target.closest('#menuNotificaciones') && !e.target.closest('#btnNotificaciones'))
                 document.getElementById("menuNotificaciones")?.classList.remove('show');
-            }
         });
     </script>
 
-    <!-- Likes y comentarios (original) -->
-    <script>
-        function likePost(id) {
-            fetch(`/publicaciones/like/${id}/`)
-                .then(res => res.json())
-                .then(data => {
-                    document.getElementById(`likes-${id}`).innerText = `${data.likes_count} personas`;
-                });
-        }
-
-        function openModal(id) {
-            document.getElementById(`modal-${id}`).classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closeModal(id) {
-            document.getElementById(`modal-${id}`).classList.add('hidden');
-            document.body.style.overflow = 'auto';
-        }
-
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                document.querySelectorAll('[id^="modal-"]').forEach(modal => {
-                    modal.classList.add('hidden');
-                });
-                document.body.style.overflow = 'auto';
-            }
-        });
-    </script>
-
-    <!-- Home reload (original) -->
+    <!-- Home reload -->
     <script>
     document.addEventListener('DOMContentLoaded', function() {
         document.querySelectorAll('.home-reload-btn').forEach(button => {
@@ -1740,7 +1597,189 @@
     });
     </script>
 
-    <!-- NOTIFICACIONES EN TIEMPO REAL (original completo) -->
+    <!-- ============================================ -->
+    <!-- UTILITARIOS GLOBALES (getCookie, mostrarToast) -->
+    <!-- ============================================ -->
+    <script>
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            for (let cookie of document.cookie.split(';')) {
+                cookie = cookie.trim();
+                if (cookie.startsWith(name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    function mostrarToast(mensaje, tipo = 'success') {
+        const colores = { success: 'bg-green-500', error: 'bg-red-500', warning: 'bg-yellow-500', info: 'bg-blue-500' };
+        const toast = document.createElement('div');
+        toast.className = `fixed bottom-6 right-6 ${colores[tipo]} text-white px-6 py-3 rounded-xl shadow-2xl z-50 animate-slide-in`;
+        toast.textContent = mensaje;
+        document.body.appendChild(toast);
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateX(400px)';
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }
+    </script>
+
+    <!-- ============================================ -->
+    <!-- LIKES, COMENTARIOS Y COMPARTIR (AJAX)       -->
+    <!-- ============================================ -->
+    <script>
+    // ── MODAL DE COMENTARIOS ────────────────────────────────────────
+    function openModal(id) {
+        document.getElementById(`modal-${id}`).classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+        const lista = document.getElementById(`lista-comentarios-${id}`);
+        if (lista) lista.scrollTop = lista.scrollHeight;
+    }
+
+    function closeModal(id) {
+        document.getElementById(`modal-${id}`).classList.add('hidden');
+        document.body.style.overflow = 'auto';
+    }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            // Cerrar modales de comentarios
+            document.querySelectorAll('[id^="modal-"]').forEach(modal => {
+                if (!modal.id.includes('mediaModal')) {
+                    modal.classList.add('hidden');
+                    document.body.style.overflow = 'auto';
+                }
+            });
+        }
+    });
+
+    // ── LIKES (POST con CSRF + feedback visual) ────────────────────
+    function reaccionar(id) {
+        fetch(`/publicaciones/like/${id}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            // Actualizar contador
+            const contador = document.getElementById(`likes-count-${id}`);
+            if (contador) contador.innerText = data.likes_count;
+
+            // Actualizar color del botón
+            const btn = document.getElementById(`btn-like-${id}`);
+            if (btn) {
+                if (data.liked) {
+                    btn.classList.add('text-blue-600');
+                    btn.classList.remove('text-gray-600');
+                } else {
+                    btn.classList.add('text-gray-600');
+                    btn.classList.remove('text-blue-600');
+                }
+            }
+        })
+        .catch(err => {
+            console.error('Error:', err);
+            mostrarToast('❌ Error al procesar reacción', 'error');
+        });
+    }
+
+    // ── COMPARTIR ──────────────────────────────────────────────────
+    function compartir(id) {
+        const url = window.location.origin + '/publicaciones/' + id + '/';
+        if (navigator.share) {
+            navigator.share({ title: 'InfoSena', url: url });
+        } else {
+            navigator.clipboard.writeText(url).then(() => {
+                mostrarToast('✅ Enlace copiado al portapapeles', 'success');
+            }).catch(() => {
+                mostrarToast('❌ No se pudo copiar el enlace', 'error');
+            });
+        }
+    }
+
+    // ── ENVIAR COMENTARIO (AJAX, sin recarga) ──────────────────────
+    function enviarComentario(id) {
+        const input = document.querySelector(`.input-comentario[data-id="${id}"]`);
+        const contenido = input.value.trim();
+        if (!contenido) return;
+
+        input.disabled = true;
+
+        const formData = new FormData();
+        formData.append('contenido', contenido);
+        formData.append('csrfmiddlewaretoken', getCookie('csrftoken'));
+
+        fetch(`/publicaciones/comentar/${id}/`, {
+            method: 'POST',
+            body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+            input.disabled = false;
+
+            if (!data.ok) {
+                mostrarToast('❌ ' + (data.error || 'Error al comentar'), 'error');
+                return;
+            }
+
+            const lista = document.getElementById(`lista-comentarios-${id}`);
+
+            // Quitar mensaje de "sé el primero" si existe
+            const vacio = document.getElementById(`vacio-${id}`);
+            if (vacio) vacio.remove();
+
+            // Agregar el nuevo comentario al DOM
+            const div = document.createElement('div');
+            div.className = 'flex items-start gap-3 animate-fade-in';
+            div.innerHTML = `
+                <div class="flex items-start gap-3">
+                    ${data.foto
+                        ? `<img src="${data.foto}" class="w-10 h-10 rounded-full object-cover flex-shrink-0 border-2 border-gray-200">`
+                        : `<div class="w-10 h-10 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center flex-shrink-0 text-white text-sm font-bold">
+                               ${data.autor.charAt(0).toUpperCase()}
+                           </div>`
+                    }
+                    <div class="flex-1">
+                        <div class="bg-gray-100 rounded-2xl px-4 py-2">
+                            <p class="font-semibold text-sm text-gray-900">${data.autor}</p>
+                            <p class="text-gray-700 mt-0.5">${data.contenido}</p>
+                        </div>
+                        <div class="flex items-center gap-4 mt-1 px-2 text-xs text-gray-500">
+                            <span>Justo ahora</span>
+                            <button class="hover:text-blue-600 font-semibold transition">Me gusta</button>
+                            <button class="hover:text-blue-600 font-semibold transition">Responder</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            lista.appendChild(div);
+            lista.scrollTop = lista.scrollHeight;
+            input.value = '';
+
+            // Actualizar contador de comentarios en el feed
+            const totalEl = document.getElementById(`comentarios-count-${id}`);
+            if (totalEl && data.total) {
+                totalEl.innerText = `${data.total} comentarios`;
+            }
+        })
+        .catch(err => {
+            input.disabled = false;
+            console.error(err);
+            mostrarToast('❌ Error al enviar comentario', 'error');
+        });
+    }
+    </script>
+
+    <!-- NOTIFICACIONES EN TIEMPO REAL -->
     <script>
     let notificationInterval;
 
@@ -1847,29 +1886,9 @@
             if (response.ok) { actualizarBadge(0); cargarNotificaciones(); mostrarToast('✓ Notificaciones marcadas como leídas','success'); }
         } catch(e) { mostrarToast('❌ Error al marcar notificaciones','error'); }
     }
-
-    function mostrarToast(mensaje, tipo = 'success') {
-        const colores = { success:'bg-green-500', error:'bg-red-500', warning:'bg-yellow-500', info:'bg-blue-500' };
-        const toast = document.createElement('div');
-        toast.className = `fixed bottom-6 right-6 ${colores[tipo]} text-white px-6 py-3 rounded-xl shadow-2xl z-50 animate-slide-in`;
-        toast.textContent = mensaje;
-        document.body.appendChild(toast);
-        setTimeout(() => { toast.style.opacity='0'; toast.style.transform='translateX(400px)'; setTimeout(()=>toast.remove(),300); }, 3000);
-    }
-
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            for (let cookie of document.cookie.split(';')) {
-                cookie = cookie.trim();
-                if (cookie.startsWith(name + '=')) { cookieValue = decodeURIComponent(cookie.substring(name.length+1)); break; }
-            }
-        }
-        return cookieValue;
-    }
     </script>
 
-    <!-- BÚSQUEDA (original completa) -->
+    <!-- BÚSQUEDA -->
     <script>
     const searchInput = document.getElementById('searchInput');
     const mobileSearchInput = document.getElementById('mobileSearchInput');
@@ -2063,87 +2082,164 @@
     }
 
     function getEmojiPorTipo(tipo) { return {'aprendiz':'🎓','instructor':'👨‍🏫','bienestar':'🏥'}[tipo]||'👤'; }
-    function escapeHtml(t) { return t.replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m])); }
+    function escapeHtml(t) { return String(t).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m])); }
     function escapeRegex(t) { return t.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'); }
     </script>
 
-    <!-- MODALES MEDIA (original completo) -->
+    <!-- MODALES MEDIA -->
     <script>
     const publicacionesMedia = {};
 
-    function inicializarMediaPublicacion(publicacionId, archivos) {
-        publicacionesMedia[publicacionId] = archivos;
-    }
+    window.inicializarMediaPublicacion = function(publicacionId, archivos) {
+        publicacionesMedia[String(publicacionId)] = archivos;
+    };
 
-    function abrirMediaModal(publicacionId, index) {
-        const archivos = publicacionesMedia[publicacionId];
-        if (!archivos || !archivos[index]) return;
-        const modal = crearModalMedia(publicacionId, index, archivos.length);
-        document.body.appendChild(modal);
-        document.body.style.overflow = 'hidden';
-        cargarArchivoEnModal(modal, archivos[index]);
-    }
+    window.abrirMediaModal = function(publicacionId, index) {
+        const key = String(publicacionId);
+        const archivos = publicacionesMedia[key];
 
-    function crearModalMedia(publicacionId, indexActual, totalArchivos) {
-        const modal = document.createElement('div');
-        modal.className = 'modal-media';
-        modal.dataset.publicacionId = publicacionId;
-        modal.dataset.currentIndex = indexActual;
-        modal.onclick = (e) => { if (e.target === modal) cerrarModal(modal); };
-        modal.innerHTML = `
-            <button class="modal-close-btn" onclick="cerrarModal(this.parentElement)">×</button>
-            ${totalArchivos > 1 ? `
-            <div class="modal-counter"><span id="modal-counter-text">${indexActual+1} / ${totalArchivos}</span></div>
-            <button class="modal-nav-btn prev" onclick="navegarMedia(this,-1)">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7"/></svg>
-            </button>
-            <button class="modal-nav-btn next" onclick="navegarMedia(this,1)">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"/></svg>
-            </button>` : ''}
-            <div id="modal-content-container"></div>`;
-        return modal;
-    }
-
-    function cargarArchivoEnModal(modal, archivo) {
-        const container = modal.querySelector('#modal-content-container');
-        if (archivo.tipo === 'imagen') {
-            container.innerHTML = `<img src="${archivo.url}" alt="${archivo.alt||'Imagen'}" onclick="event.stopPropagation()" style="max-width:90%;max-height:90vh;object-fit:contain;">`;
-        } else if (archivo.tipo === 'video') {
-            container.innerHTML = `<video controls autoplay onclick="event.stopPropagation()" style="max-width:90%;max-height:90vh;"><source src="${archivo.url}" type="video/mp4"><source src="${archivo.url}" type="video/webm"><source src="${archivo.url}" type="video/ogg">Tu navegador no soporta videos.</video>`;
+        if (!archivos || archivos.length === 0) {
+            console.warn('No hay archivos para publicacion:', publicacionId);
+            return;
         }
-    }
 
-    function navegarMedia(btn, direccion) {
-        const modal = btn.closest('.modal-media');
-        const archivos = publicacionesMedia[modal.dataset.publicacionId];
-        let idx = parseInt(modal.dataset.currentIndex) + direccion;
-        if (idx < 0 || idx >= archivos.length) return;
-        modal.dataset.currentIndex = idx;
-        const counter = modal.querySelector('#modal-counter-text');
-        if (counter) counter.textContent = `${idx+1} / ${archivos.length}`;
-        actualizarBotonesNavegacion(modal, idx, archivos.length);
-        cargarArchivoEnModal(modal, archivos[idx]);
-    }
+        const existente = document.getElementById('mediaModalOverlay');
+        if (existente) existente.remove();
 
-    function actualizarBotonesNavegacion(modal, idx, total) {
-        const prev = modal.querySelector('.modal-nav-btn.prev');
-        const next = modal.querySelector('.modal-nav-btn.next');
-        if (prev) prev.disabled = idx === 0;
-        if (next) next.disabled = idx === total - 1;
-    }
+        let currentIndex = parseInt(index) || 0;
+        if (currentIndex >= archivos.length) currentIndex = 0;
 
-    function cerrarModal(modal) {
-        modal.querySelectorAll('video').forEach(v => { v.pause(); v.currentTime = 0; });
-        modal.remove();
-        document.body.style.overflow = 'auto';
+        const overlay = document.createElement('div');
+        overlay.id = 'mediaModalOverlay';
+        overlay.style.cssText = `
+            position:fixed; inset:0;
+            background:rgba(0,0,0,0.95);
+            z-index:99999;
+            display:flex; align-items:center; justify-content:center;
+        `;
+
+        const btnCerrar = document.createElement('button');
+        btnCerrar.dataset.action = 'cerrar';
+        btnCerrar.style.cssText = `
+            position:absolute; top:16px; right:16px;
+            width:44px; height:44px; border-radius:50%;
+            background:rgba(255,255,255,0.15); border:none;
+            color:white; font-size:1.6rem; cursor:pointer;
+            display:flex; align-items:center; justify-content:center;
+            z-index:100; line-height:1;
+        `;
+        btnCerrar.textContent = '×';
+
+        const contador = document.createElement('div');
+        contador.id = 'mediaContador';
+        contador.style.cssText = `
+            position:absolute; top:16px; left:50%; transform:translateX(-50%);
+            background:rgba(0,0,0,0.6); color:white;
+            padding:6px 16px; border-radius:20px;
+            font-size:0.85rem; font-weight:600; z-index:100;
+            display: ${archivos.length > 1 ? 'block' : 'none'};
+        `;
+
+        const btnPrev = document.createElement('button');
+        btnPrev.dataset.action = 'prev';
+        btnPrev.style.cssText = `
+            position:absolute; left:16px; top:50%; transform:translateY(-50%);
+            width:48px; height:48px; border-radius:50%;
+            background:rgba(255,255,255,0.2); border:none;
+            color:white; font-size:2rem; cursor:pointer;
+            display:${archivos.length > 1 ? 'flex' : 'none'};
+            align-items:center; justify-content:center; z-index:100;
+        `;
+        btnPrev.innerHTML = '&#8249;';
+
+        const btnNext = document.createElement('button');
+        btnNext.dataset.action = 'next';
+        btnNext.style.cssText = `
+            position:absolute; right:16px; top:50%; transform:translateY(-50%);
+            width:48px; height:48px; border-radius:50%;
+            background:rgba(255,255,255,0.2); border:none;
+            color:white; font-size:2rem; cursor:pointer;
+            display:${archivos.length > 1 ? 'flex' : 'none'};
+            align-items:center; justify-content:center; z-index:100;
+        `;
+        btnNext.innerHTML = '&#8250;';
+
+        const contenedor = document.createElement('div');
+        contenedor.id = 'mediaContenedor';
+        contenedor.style.cssText = `
+            display:flex; align-items:center; justify-content:center;
+            max-width:90vw; max-height:90vh;
+        `;
+
+        overlay.appendChild(btnCerrar);
+        overlay.appendChild(contador);
+        overlay.appendChild(btnPrev);
+        overlay.appendChild(btnNext);
+        overlay.appendChild(contenedor);
+
+        function renderArchivo() {
+            const videoAnterior = contenedor.querySelector('video');
+            if (videoAnterior) videoAnterior.pause();
+            contenedor.innerHTML = '';
+            const archivo = archivos[currentIndex];
+
+            if (archivo.tipo === 'imagen') {
+                const img = document.createElement('img');
+                img.src = archivo.url;
+                img.alt = archivo.alt || 'Imagen';
+                img.style.cssText = 'max-width:90vw; max-height:85vh; object-fit:contain; border-radius:8px; display:block;';
+                contenedor.appendChild(img);
+            } else if (archivo.tipo === 'video') {
+                const video = document.createElement('video');
+                video.controls = true;
+                video.autoplay = true;
+                video.style.cssText = 'max-width:90vw; max-height:85vh; border-radius:8px; display:block; background:#000;';
+                const source = document.createElement('source');
+                source.src = archivo.url;
+                video.appendChild(source);
+                contenedor.appendChild(video);
+            }
+
+            contador.textContent = `${currentIndex + 1} / ${archivos.length}`;
+            btnPrev.style.opacity = currentIndex === 0 ? '0.3' : '1';
+            btnPrev.style.pointerEvents = currentIndex === 0 ? 'none' : 'auto';
+            btnNext.style.opacity = currentIndex === archivos.length - 1 ? '0.3' : '1';
+            btnNext.style.pointerEvents = currentIndex === archivos.length - 1 ? 'none' : 'auto';
+        }
+
+        overlay.addEventListener('click', function(e) {
+            const action = e.target.closest('[data-action]')?.dataset.action;
+            if (action === 'cerrar') {
+                cerrarMediaModal();
+            } else if (action === 'prev') {
+                if (currentIndex > 0) { currentIndex--; renderArchivo(); }
+            } else if (action === 'next') {
+                if (currentIndex < archivos.length - 1) { currentIndex++; renderArchivo(); }
+            } else if (e.target === overlay) {
+                cerrarMediaModal();
+            }
+        });
+
+        renderArchivo();
+        document.body.appendChild(overlay);
+        document.body.style.overflow = 'hidden';
+    };
+
+    function cerrarMediaModal() {
+        const overlay = document.getElementById('mediaModalOverlay');
+        if (overlay) {
+            overlay.querySelector('video')?.pause();
+            overlay.remove();
+        }
+        document.body.style.overflow = '';
     }
 
     document.addEventListener('keydown', (e) => {
-        const modal = document.querySelector('.modal-media');
-        if (!modal) return;
-        if (e.key === 'Escape') cerrarModal(modal);
-        if (e.key === 'ArrowLeft') { const b = modal.querySelector('.modal-nav-btn.prev'); if(b && !b.disabled) navegarMedia(b,-1); }
-        if (e.key === 'ArrowRight') { const b = modal.querySelector('.modal-nav-btn.next'); if(b && !b.disabled) navegarMedia(b,1); }
+        const overlay = document.getElementById('mediaModalOverlay');
+        if (!overlay) return;
+        if (e.key === 'Escape')     cerrarMediaModal();
+        if (e.key === 'ArrowLeft')  overlay.querySelector('[data-action="prev"]')?.click();
+        if (e.key === 'ArrowRight') overlay.querySelector('[data-action="next"]')?.click();
     });
     </script>
 

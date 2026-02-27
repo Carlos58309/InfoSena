@@ -1423,20 +1423,128 @@
                     {% endif %}
 
                     <!-- Acciones -->
-                    <div class="px-4 py-3 border-t border-gray-100 flex items-center gap-6">
-                        <div class="flex items-center gap-2 text-gray-500 text-sm">
-                            <svg class="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
-                            </svg>
-                            <span class="font-600">{{ publicacion.total_likes }}</span>
+                        <div class="px-4 pb-3">
+                    <!-- Contadores -->
+                    <div class="flex justify-between items-center py-2 text-sm text-gray-500 border-b border-gray-200">
+                        <div class="flex items-center gap-2">
+                            <div class="w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center">
+                                <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"/>
+                                </svg>
+                            </div>
+                            <span id="likes-count-{{ publicacion.id }}">{{ publicacion.likes.count }}</span> personas
                         </div>
-                        <div class="flex items-center gap-2 text-gray-500 text-sm">
-                            <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                        <span id="comentarios-count-{{ publicacion.id }}">{{ publicacion.comentarios.count }} comentarios</span>
+                    </div>
+
+                    <!-- Botones -->
+                    <div class="flex items-center justify-around pt-1">
+
+                        <!-- ME GUSTA -->
+                        <button onclick="reaccionar({{ publicacion.id }})"
+                                id="btn-like-{{ publicacion.id }}"
+                                class="flex items-center gap-2 px-6 py-2 rounded-lg hover:bg-gray-100 transition text-gray-600 font-medium text-sm
+                                       {% if usuario in publicacion.likes.all %}text-blue-600{% endif %}">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3H14zM7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"/>
                             </svg>
-                            <span class="font-600">{{ publicacion.total_comentarios }}</span>
+                            Me gusta
+                        </button>
+
+                        <!-- COMENTAR -->
+                        <button onclick="openModal({{ publicacion.id }})"
+                                class="flex items-center gap-2 px-6 py-2 rounded-lg hover:bg-gray-100 transition text-gray-600 font-medium text-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                            </svg>
+                            Comentar
+                        </button>
+
+                        <!-- COMPARTIR -->
+                        <button onclick="compartir({{ publicacion.id }})"
+                                class="flex items-center gap-2 px-6 py-2 rounded-lg hover:bg-gray-100 transition text-gray-600 font-medium text-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/>
+                            </svg>
+                            Compartir
+                        </button>
+                    </div>
+                </div>
+                <!-- ============================================ -->
+                <!-- MODAL COMENTARIOS (AJAX, sin recarga)       -->
+                <!-- ============================================ -->
+                <div id="modal-{{ publicacion.id }}" class="hidden fixed inset-0 bg-black/50 flex justify-center items-center z-50 p-4">
+                    <div class="bg-white w-full max-w-2xl rounded-2xl overflow-hidden shadow-2xl max-h-[80vh] flex flex-col">
+
+                        <!-- Header modal -->
+                        <div class="p-4 border-b flex justify-between items-center bg-gray-50">
+                            <h3 class="font-bold text-lg">Comentarios de {{ publicacion.autor.nombre }}</h3>
+                            <button onclick="closeModal({{ publicacion.id }})"
+                                    class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-200 transition">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                            </button>
+                        </div>
+
+                        <!-- Lista de comentarios -->
+                        <div class="p-4 space-y-3 overflow-y-auto flex-1" id="lista-comentarios-{{ publicacion.id }}">
+                            {% for comentario in publicacion.comentarios.all %}
+                            <div class="flex items-start gap-3">
+                                {% if comentario.get_autor_foto %}
+                                <img src="{{ comentario.get_autor_foto }}" class="w-10 h-10 rounded-full object-cover flex-shrink-0">
+                                {% else %}
+                                <div class="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center flex-shrink-0 text-xl">👤</div>
+                                {% endif %}
+                                <div class="flex-1">
+                                    <div class="bg-gray-100 rounded-2xl px-4 py-2">
+                                        <p class="font-semibold text-sm text-gray-900">{{ comentario.get_autor_nombre }}</p>
+                                        <p class="text-gray-700 mt-0.5">{{ comentario.contenido }}</p>
+                                    </div>
+                                    <div class="flex items-center gap-4 mt-1 px-2 text-xs text-gray-500">
+                                        <span>{{ comentario.fecha_creacion|timesince }} atrás</span>
+                                        <button class="hover:text-blue-600 font-semibold transition">Me gusta</button>
+                                        <button class="hover:text-blue-600 font-semibold transition">Responder</button>
+                                        {% if user == comentario.autor or user == publicacion.autor.user %}
+                                        <a href="{% url 'publicaciones:eliminar_comentario' comentario.id %}"
+                                           class="text-red-500 hover:underline font-semibold ml-auto">Eliminar</a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% empty %}
+                            <div class="text-center py-8" id="vacio-{{ publicacion.id }}">
+                                <div class="text-5xl mb-3">💬</div>
+                                <p class="text-gray-600 font-semibold">Sé el primero en comentar</p>
+                                <p class="text-gray-400 text-sm mt-1">Comparte tu opinión sobre esta publicación</p>
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                        <!-- Input comentario (AJAX) -->
+                        <div class="flex items-center gap-3 p-4 border-t bg-gray-50">
+                            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                                {% if usuario.foto %}
+                                <img src="{{ usuario.foto.url }}" class="w-10 h-10 rounded-full object-cover">
+                                {% else %}
+                                <span class="text-white text-xl">👤</span>
+                                {% endif %}
+                            </div>
+                            <input
+                                class="input-comentario flex-1 bg-gray-100 rounded-full px-4 py-2 outline-none focus:bg-white focus:ring-2 focus:ring-green-500 transition text-sm"
+                                placeholder="Escribe un comentario..."
+                                data-id="{{ publicacion.id }}"
+                                onkeypress="if(event.key==='Enter') enviarComentario({{ publicacion.id }})">
+                            <button
+                                onclick="enviarComentario({{ publicacion.id }})"
+                                class="bg-green-600 text-white p-2 rounded-full hover:bg-green-700 transition flex-shrink-0">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+                                </svg>
+                            </button>
                         </div>
                     </div>
+                </div>
                 </div>
                 {% endfor %}
 
@@ -1564,7 +1672,214 @@
                 document.getElementById("menuNotificaciones")?.classList.remove("show");
         });
     </script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.home-reload-btn').forEach(button => {
+            button.addEventListener('click', function(e) {
+                const currentPath = window.location.pathname;
+                const isHomePage = currentPath.includes('home') || currentPath.includes('inicio') ||
+                                   currentPath === '/' || currentPath === '/feed/' || currentPath === '/feed/inicio/';
+                if (isHomePage) {
+                    e.preventDefault();
+                    button.style.transition = 'transform 0.1s ease';
+                    button.style.transform = 'scale(0.95)';
+                    mostrarToastRecarga();
+                    setTimeout(() => { button.style.transform = 'scale(1)'; location.reload(); }, 200);
+                }
+            });
+        });
 
+        function mostrarToastRecarga() {
+            const toast = document.createElement('div');
+            toast.className = 'fixed top-24 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-6 py-3 rounded-xl shadow-2xl z-50 font-semibold flex items-center gap-2';
+            toast.innerHTML = `<svg class="animate-spin w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><span>Actualizando...</span>`;
+            document.body.appendChild(toast);
+            setTimeout(() => { toast.style.opacity='0'; toast.style.transform='translate(-50%,-20px)'; setTimeout(()=>toast.remove(),300); }, 3000);
+        }
+    });
+    </script>
+
+    <!-- ============================================ -->
+    <!-- UTILITARIOS GLOBALES (getCookie, mostrarToast) -->
+    <!-- ============================================ -->
+    <script>
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            for (let cookie of document.cookie.split(';')) {
+                cookie = cookie.trim();
+                if (cookie.startsWith(name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    function mostrarToast(mensaje, tipo = 'success') {
+        const colores = { success: 'bg-green-500', error: 'bg-red-500', warning: 'bg-yellow-500', info: 'bg-blue-500' };
+        const toast = document.createElement('div');
+        toast.className = `fixed bottom-6 right-6 ${colores[tipo]} text-white px-6 py-3 rounded-xl shadow-2xl z-50 animate-slide-in`;
+        toast.textContent = mensaje;
+        document.body.appendChild(toast);
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateX(400px)';
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }
+    </script>
+
+    <!-- ============================================ -->
+    <!-- LIKES, COMENTARIOS Y COMPARTIR (AJAX)       -->
+    <!-- ============================================ -->
+    <script>
+    // ── MODAL DE COMENTARIOS ────────────────────────────────────────
+    function openModal(id) {
+        document.getElementById(`modal-${id}`).classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+        const lista = document.getElementById(`lista-comentarios-${id}`);
+        if (lista) lista.scrollTop = lista.scrollHeight;
+    }
+
+    function closeModal(id) {
+        document.getElementById(`modal-${id}`).classList.add('hidden');
+        document.body.style.overflow = 'auto';
+    }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            // Cerrar modales de comentarios
+            document.querySelectorAll('[id^="modal-"]').forEach(modal => {
+                if (!modal.id.includes('mediaModal')) {
+                    modal.classList.add('hidden');
+                    document.body.style.overflow = 'auto';
+                }
+            });
+        }
+    });
+
+    // ── LIKES (POST con CSRF + feedback visual) ────────────────────
+    function reaccionar(id) {
+        fetch(`/publicaciones/like/${id}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            // Actualizar contador
+            const contador = document.getElementById(`likes-count-${id}`);
+            if (contador) contador.innerText = data.likes_count;
+
+            // Actualizar color del botón
+            const btn = document.getElementById(`btn-like-${id}`);
+            if (btn) {
+                if (data.liked) {
+                    btn.classList.add('text-blue-600');
+                    btn.classList.remove('text-gray-600');
+                } else {
+                    btn.classList.add('text-gray-600');
+                    btn.classList.remove('text-blue-600');
+                }
+            }
+        })
+        .catch(err => {
+            console.error('Error:', err);
+            mostrarToast('❌ Error al procesar reacción', 'error');
+        });
+    }
+
+    // ── COMPARTIR ──────────────────────────────────────────────────
+    function compartir(id) {
+        const url = window.location.origin + '/publicaciones/' + id + '/';
+        if (navigator.share) {
+            navigator.share({ title: 'InfoSena', url: url });
+        } else {
+            navigator.clipboard.writeText(url).then(() => {
+                mostrarToast('✅ Enlace copiado al portapapeles', 'success');
+            }).catch(() => {
+                mostrarToast('❌ No se pudo copiar el enlace', 'error');
+            });
+        }
+    }
+
+    // ── ENVIAR COMENTARIO (AJAX, sin recarga) ──────────────────────
+    function enviarComentario(id) {
+        const input = document.querySelector(`.input-comentario[data-id="${id}"]`);
+        const contenido = input.value.trim();
+        if (!contenido) return;
+
+        input.disabled = true;
+
+        const formData = new FormData();
+        formData.append('contenido', contenido);
+        formData.append('csrfmiddlewaretoken', getCookie('csrftoken'));
+
+        fetch(`/publicaciones/comentar/${id}/`, {
+            method: 'POST',
+            body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+            input.disabled = false;
+
+            if (!data.ok) {
+                mostrarToast('❌ ' + (data.error || 'Error al comentar'), 'error');
+                return;
+            }
+
+            const lista = document.getElementById(`lista-comentarios-${id}`);
+
+            // Quitar mensaje de "sé el primero" si existe
+            const vacio = document.getElementById(`vacio-${id}`);
+            if (vacio) vacio.remove();
+
+            // Agregar el nuevo comentario al DOM
+            const div = document.createElement('div');
+            div.className = 'flex items-start gap-3 animate-fade-in';
+            div.innerHTML = `
+                <div class="flex items-start gap-3">
+                    ${data.foto
+                        ? `<img src="${data.foto}" class="w-10 h-10 rounded-full object-cover flex-shrink-0 border-2 border-gray-200">`
+                        : `<div class="w-10 h-10 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center flex-shrink-0 text-white text-sm font-bold">
+                               ${data.autor.charAt(0).toUpperCase()}
+                           </div>`
+                    }
+                    <div class="flex-1">
+                        <div class="bg-gray-100 rounded-2xl px-4 py-2">
+                            <p class="font-semibold text-sm text-gray-900">${data.autor}</p>
+                            <p class="text-gray-700 mt-0.5">${data.contenido}</p>
+                        </div>
+                        <div class="flex items-center gap-4 mt-1 px-2 text-xs text-gray-500">
+                            <span>Justo ahora</span>
+                            <button class="hover:text-blue-600 font-semibold transition">Me gusta</button>
+                            <button class="hover:text-blue-600 font-semibold transition">Responder</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            lista.appendChild(div);
+            lista.scrollTop = lista.scrollHeight;
+            input.value = '';
+
+            // Actualizar contador de comentarios en el feed
+            const totalEl = document.getElementById(`comentarios-count-${id}`);
+            if (totalEl && data.total) {
+                totalEl.innerText = `${data.total} comentarios`;
+            }
+        })
+        .catch(err => {
+            input.disabled = false;
+            console.error(err);
+            mostrarToast('❌ Error al enviar comentario', 'error');
+        });
+    }
+    </script>
     <!-- NOTIFICACIONES EN TIEMPO REAL -->
     <script>
     let notificationInterval;
@@ -1884,79 +2199,156 @@
     <script>
     const publicacionesMedia = {};
 
-    function inicializarMediaPublicacion(publicacionId, archivos) {
-        publicacionesMedia[publicacionId] = archivos;
-    }
+    window.inicializarMediaPublicacion = function(publicacionId, archivos) {
+        publicacionesMedia[String(publicacionId)] = archivos;
+    };
 
-    function abrirMediaModal(publicacionId, index) {
-        const archivos = publicacionesMedia[publicacionId];
-        if (!archivos || !archivos[index]) return;
-        const modal = crearModalMedia(publicacionId, index, archivos.length);
-        document.body.appendChild(modal);
-        document.body.style.overflow = 'hidden';
-        cargarArchivoEnModal(modal, archivos[index]);
-    }
+    window.abrirMediaModal = function(publicacionId, index) {
+        const key = String(publicacionId);
+        const archivos = publicacionesMedia[key];
 
-    function crearModalMedia(publicacionId, indexActual, totalArchivos) {
-        const modal = document.createElement('div');
-        modal.className = 'modal-media';
-        modal.dataset.publicacionId = publicacionId;
-        modal.dataset.currentIndex = indexActual;
-        modal.onclick = (e) => { if (e.target === modal) cerrarModal(modal); };
-        modal.innerHTML = `
-            <button class="modal-close-btn" onclick="cerrarModal(this.parentElement)">×</button>
-            ${totalArchivos > 1 ? `
-            <div class="modal-counter"><span id="modal-counter-text">${indexActual+1} / ${totalArchivos}</span></div>
-            <button class="modal-nav-btn prev" onclick="navegarMedia(this,-1)">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7"/></svg>
-            </button>
-            <button class="modal-nav-btn next" onclick="navegarMedia(this,1)">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"/></svg>
-            </button>` : ''}
-            <div id="modal-content-container"></div>`;
-        return modal;
-    }
-
-    function cargarArchivoEnModal(modal, archivo) {
-        const container = modal.querySelector('#modal-content-container');
-        if (archivo.tipo === 'imagen') {
-            container.innerHTML = `<img src="${archivo.url}" alt="${archivo.alt||'Imagen'}" onclick="event.stopPropagation()" style="max-width:90%;max-height:90vh;object-fit:contain;">`;
-        } else if (archivo.tipo === 'video') {
-            container.innerHTML = `<video controls autoplay onclick="event.stopPropagation()" style="max-width:90%;max-height:90vh;"><source src="${archivo.url}" type="video/mp4"><source src="${archivo.url}" type="video/webm">Tu navegador no soporta videos.</video>`;
+        if (!archivos || archivos.length === 0) {
+            console.warn('No hay archivos para publicacion:', publicacionId);
+            return;
         }
-    }
 
-    function navegarMedia(btn, direccion) {
-        const modal = btn.closest('.modal-media');
-        const archivos = publicacionesMedia[modal.dataset.publicacionId];
-        let idx = parseInt(modal.dataset.currentIndex) + direccion;
-        if (idx < 0 || idx >= archivos.length) return;
-        modal.dataset.currentIndex = idx;
-        const counter = modal.querySelector('#modal-counter-text');
-        if (counter) counter.textContent = `${idx+1} / ${archivos.length}`;
-        actualizarBotonesNavegacion(modal, idx, archivos.length);
-        cargarArchivoEnModal(modal, archivos[idx]);
-    }
+        const existente = document.getElementById('mediaModalOverlay');
+        if (existente) existente.remove();
 
-    function actualizarBotonesNavegacion(modal, idx, total) {
-        const prev = modal.querySelector('.modal-nav-btn.prev');
-        const next = modal.querySelector('.modal-nav-btn.next');
-        if (prev) prev.disabled = idx === 0;
-        if (next) next.disabled = idx === total - 1;
-    }
+        let currentIndex = parseInt(index) || 0;
+        if (currentIndex >= archivos.length) currentIndex = 0;
 
-    function cerrarModal(modal) {
-        modal.querySelectorAll('video').forEach(v => { v.pause(); v.currentTime = 0; });
-        modal.remove();
-        document.body.style.overflow = 'auto';
+        const overlay = document.createElement('div');
+        overlay.id = 'mediaModalOverlay';
+        overlay.style.cssText = `
+            position:fixed; inset:0;
+            background:rgba(0,0,0,0.95);
+            z-index:99999;
+            display:flex; align-items:center; justify-content:center;
+        `;
+
+        const btnCerrar = document.createElement('button');
+        btnCerrar.dataset.action = 'cerrar';
+        btnCerrar.style.cssText = `
+            position:absolute; top:16px; right:16px;
+            width:44px; height:44px; border-radius:50%;
+            background:rgba(255,255,255,0.15); border:none;
+            color:white; font-size:1.6rem; cursor:pointer;
+            display:flex; align-items:center; justify-content:center;
+            z-index:100; line-height:1;
+        `;
+        btnCerrar.textContent = '×';
+
+        const contador = document.createElement('div');
+        contador.id = 'mediaContador';
+        contador.style.cssText = `
+            position:absolute; top:16px; left:50%; transform:translateX(-50%);
+            background:rgba(0,0,0,0.6); color:white;
+            padding:6px 16px; border-radius:20px;
+            font-size:0.85rem; font-weight:600; z-index:100;
+            display: ${archivos.length > 1 ? 'block' : 'none'};
+        `;
+
+        const btnPrev = document.createElement('button');
+        btnPrev.dataset.action = 'prev';
+        btnPrev.style.cssText = `
+            position:absolute; left:16px; top:50%; transform:translateY(-50%);
+            width:48px; height:48px; border-radius:50%;
+            background:rgba(255,255,255,0.2); border:none;
+            color:white; font-size:2rem; cursor:pointer;
+            display:${archivos.length > 1 ? 'flex' : 'none'};
+            align-items:center; justify-content:center; z-index:100;
+        `;
+        btnPrev.innerHTML = '&#8249;';
+
+        const btnNext = document.createElement('button');
+        btnNext.dataset.action = 'next';
+        btnNext.style.cssText = `
+            position:absolute; right:16px; top:50%; transform:translateY(-50%);
+            width:48px; height:48px; border-radius:50%;
+            background:rgba(255,255,255,0.2); border:none;
+            color:white; font-size:2rem; cursor:pointer;
+            display:${archivos.length > 1 ? 'flex' : 'none'};
+            align-items:center; justify-content:center; z-index:100;
+        `;
+        btnNext.innerHTML = '&#8250;';
+
+        const contenedor = document.createElement('div');
+        contenedor.id = 'mediaContenedor';
+        contenedor.style.cssText = `
+            display:flex; align-items:center; justify-content:center;
+            max-width:90vw; max-height:90vh;
+        `;
+
+        overlay.appendChild(btnCerrar);
+        overlay.appendChild(contador);
+        overlay.appendChild(btnPrev);
+        overlay.appendChild(btnNext);
+        overlay.appendChild(contenedor);
+
+        function renderArchivo() {
+            const videoAnterior = contenedor.querySelector('video');
+            if (videoAnterior) videoAnterior.pause();
+            contenedor.innerHTML = '';
+            const archivo = archivos[currentIndex];
+
+            if (archivo.tipo === 'imagen') {
+                const img = document.createElement('img');
+                img.src = archivo.url;
+                img.alt = archivo.alt || 'Imagen';
+                img.style.cssText = 'max-width:90vw; max-height:85vh; object-fit:contain; border-radius:8px; display:block;';
+                contenedor.appendChild(img);
+            } else if (archivo.tipo === 'video') {
+                const video = document.createElement('video');
+                video.controls = true;
+                video.autoplay = true;
+                video.style.cssText = 'max-width:90vw; max-height:85vh; border-radius:8px; display:block; background:#000;';
+                const source = document.createElement('source');
+                source.src = archivo.url;
+                video.appendChild(source);
+                contenedor.appendChild(video);
+            }
+
+            contador.textContent = `${currentIndex + 1} / ${archivos.length}`;
+            btnPrev.style.opacity = currentIndex === 0 ? '0.3' : '1';
+            btnPrev.style.pointerEvents = currentIndex === 0 ? 'none' : 'auto';
+            btnNext.style.opacity = currentIndex === archivos.length - 1 ? '0.3' : '1';
+            btnNext.style.pointerEvents = currentIndex === archivos.length - 1 ? 'none' : 'auto';
+        }
+
+        overlay.addEventListener('click', function(e) {
+            const action = e.target.closest('[data-action]')?.dataset.action;
+            if (action === 'cerrar') {
+                cerrarMediaModal();
+            } else if (action === 'prev') {
+                if (currentIndex > 0) { currentIndex--; renderArchivo(); }
+            } else if (action === 'next') {
+                if (currentIndex < archivos.length - 1) { currentIndex++; renderArchivo(); }
+            } else if (e.target === overlay) {
+                cerrarMediaModal();
+            }
+        });
+
+        renderArchivo();
+        document.body.appendChild(overlay);
+        document.body.style.overflow = 'hidden';
+    };
+
+    function cerrarMediaModal() {
+        const overlay = document.getElementById('mediaModalOverlay');
+        if (overlay) {
+            overlay.querySelector('video')?.pause();
+            overlay.remove();
+        }
+        document.body.style.overflow = '';
     }
 
     document.addEventListener('keydown', (e) => {
-        const modal = document.querySelector('.modal-media');
-        if (!modal) return;
-        if (e.key === 'Escape') cerrarModal(modal);
-        if (e.key === 'ArrowLeft') { const b = modal.querySelector('.modal-nav-btn.prev'); if(b && !b.disabled) navegarMedia(b,-1); }
-        if (e.key === 'ArrowRight') { const b = modal.querySelector('.modal-nav-btn.next'); if(b && !b.disabled) navegarMedia(b,1); }
+        const overlay = document.getElementById('mediaModalOverlay');
+        if (!overlay) return;
+        if (e.key === 'Escape')     cerrarMediaModal();
+        if (e.key === 'ArrowLeft')  overlay.querySelector('[data-action="prev"]')?.click();
+        if (e.key === 'ArrowRight') overlay.querySelector('[data-action="next"]')?.click();
     });
     </script>
 
