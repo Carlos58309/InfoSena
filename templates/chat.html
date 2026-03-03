@@ -76,6 +76,13 @@
         }
         .dropdown-animate { animation: dropIn .15s ease forwards; }
 
+        /* ── attach menu — sube desde abajo ── */
+        @keyframes popUp {
+            from { opacity: 0; transform: translateY(8px) scale(.97); }
+            to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .attach-menu-animate { animation: popUp .15s ease forwards; }
+
         /* ── Chat row ── */
         .chat-row-active { background: var(--green-pale); border-left: 3px solid var(--green-main); }
         .chat-row:hover  { background: #f6faf5; }
@@ -96,219 +103,116 @@
         .modal-overlay { backdrop-filter: blur(4px); background: rgba(0,0,0,.45); }
 
         /* ══════════════════════════════════════════
-           MOBILE BOTTOM NAV — igual a home y amigos
+           MOBILE BOTTOM NAV
            ══════════════════════════════════════════ */
         .mobile-bottom-nav {
             display: none;
             position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
+            bottom: 0; left: 0; right: 0;
             background: white;
             border-top: 1px solid #e5e7eb;
             z-index: 100;
             padding: 0.4rem 0 calc(0.4rem + env(safe-area-inset-bottom));
             box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
         }
-
-        .mobile-bottom-nav-inner {
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-        }
-
+        .mobile-bottom-nav-inner { display: flex; justify-content: space-around; align-items: center; }
         .mob-nav-btn {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 0.15rem;
-            color: #9ca3af;
-            text-decoration: none;
-            font-size: 0.6rem;
-            font-weight: 600;
-            padding: 0.3rem 0.5rem;
-            border-radius: 12px;
-            transition: all 0.2s;
-            position: relative;
-            border: none;
-            background: none;
-            cursor: pointer;
+            display: flex; flex-direction: column; align-items: center; gap: 0.15rem;
+            color: #9ca3af; text-decoration: none; font-size: 0.6rem; font-weight: 600;
+            padding: 0.3rem 0.5rem; border-radius: 12px; transition: all 0.2s;
+            position: relative; border: none; background: none; cursor: pointer;
         }
-
         .mob-nav-btn.active { color: #16a34a; }
-
         .mob-nav-icon {
-            width: 26px;
-            height: 26px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 8px;
-            transition: all 0.2s;
+            width: 26px; height: 26px; display: flex; align-items: center;
+            justify-content: center; border-radius: 8px; transition: all 0.2s;
         }
-
         .mob-nav-btn.active .mob-nav-icon { background: #f0fdf4; }
 
         /* ══════════════════════════════════════════
            MOBILE RESPONSIVE STYLES
            ══════════════════════════════════════════ */
-
-        /* En móvil: layout de columna única */
         @media (max-width: 768px) {
-
-            /* El layout flex normal no aplica — usamos column con posicionamiento */
             .main-layout { position: relative; }
-
-            /* Sidebar = pantalla completa lista chats */
             .sidebar {
                 position: fixed !important;
                 top: 0; left: 0; right: 0; bottom: 0;
-                width: 100% !important;
-                z-index: 10;
-                display: flex;
-                flex-direction: column;
+                width: 100% !important; z-index: 10;
+                display: flex; flex-direction: column;
                 transform: translateX(0);
                 transition: transform .3s cubic-bezier(.4,0,.2,1);
             }
-            .sidebar.slide-out {
-                transform: translateX(-100%);
-            }
-
-            /* Panel de chat = pantalla completa */
+            .sidebar.slide-out { transform: translateX(-100%); }
             .chat-main {
                 position: fixed !important;
                 top: 0; left: 0; right: 0; bottom: 0;
-                z-index: 20;
-                display: flex;
-                flex-direction: column;
+                z-index: 20; display: flex; flex-direction: column;
                 transform: translateX(100%);
                 transition: transform .3s cubic-bezier(.4,0,.2,1);
             }
-            .chat-main.slide-in {
-                transform: translateX(0);
-            }
-
-            /* Panel info contacto = desliza desde la derecha */
+            .chat-main.slide-in { transform: translateX(0); }
             .info-panel-mobile {
                 position: fixed !important;
                 top: 0; left: 0; right: 0; bottom: 0;
-                width: 100% !important;
-                z-index: 30;
+                width: 100% !important; z-index: 30;
                 transform: translateX(100%);
                 transition: transform .3s cubic-bezier(.4,0,.2,1);
-                display: flex !important;
-                flex-direction: column;
+                display: flex !important; flex-direction: column;
             }
-            .info-panel-mobile.slide-in {
-                transform: translateX(0);
-            }
-
-            /* Safe area para notch y barra inferior */
-            .chat-input-bar {
-                padding-bottom: max(12px, env(safe-area-inset-bottom)) !important;
-            }
-            .mobile-header {
-                padding-top: max(12px, env(safe-area-inset-top)) !important;
-            }
-
-            /* Filtros de chats */
-            .chat-filters { display: flex !important; }
-
-            /* Ocultar textos que no caben en móvil */
-            .desktop-only { display: none !important; }
-
-            /* Mostrar barra inferior */
+            .info-panel-mobile.slide-in { transform: translateX(0); }
+            .chat-input-bar { padding-bottom: max(12px, env(safe-area-inset-bottom)) !important; }
+            .mobile-header  { padding-top: max(12px, env(safe-area-inset-top)) !important; }
+            .chat-filters   { display: flex !important; }
+            .desktop-only   { display: none !important; }
             .mobile-bottom-nav { display: block !important; }
-
-            /* Ajustar sidebar para que tenga espacio para nav bar */
-            .sidebar-list { padding-bottom: 70px !important; }
-
-            /* Burbujas más anchas en móvil */
+            .sidebar-list   { padding-bottom: 70px !important; }
             .msg-bubble-wrap { max-width: 80% !important; }
-
-            /* Header del chat en móvil tiene back button */
             .mobile-back-btn { display: flex !important; }
-
-            /* Ocultar panel info en móvil (usa slide) */
             #contactInfoPanel { display: none !important; }
-
             body { padding-bottom: 70px; }
         }
-
-        /* Desktop: ocultar elementos solo para móvil */
         @media (min-width: 769px) {
-            .mobile-only        { display: none !important; }
-            .mobile-bottom-nav  { display: none !important; }
-            .mobile-back-btn    { display: none !important; }
-            .chat-filters       { display: none !important; }
+            .mobile-only       { display: none !important; }
+            .mobile-bottom-nav { display: none !important; }
+            .mobile-back-btn   { display: none !important; }
+            .chat-filters      { display: none !important; }
+            .info-panel-mobile {
+                position: relative !important;
+                transform: none !important;
+                transition: none !important;
+            }
+            .info-panel-mobile.flex {
+                display: flex !important;
+                flex-direction: column !important;
+            }
+        }
+        @media (max-width: 768px) {
+            .info-panel-mobile {
+                position: fixed !important; top: 0 !important; left: 0 !important;
+                right: 0 !important; bottom: 0 !important; width: 100% !important;
+                z-index: 30 !important; transform: translateX(100%) !important;
+                transition: transform .3s cubic-bezier(.4,0,.2,1) !important;
+                background: white !important;
+            }
+            .info-panel-mobile.slide-in { transform: translateX(0) !important; }
+            .info-panel-mobile:not(.slide-in) { display: none !important; }
+            .info-panel-mobile.slide-in { display: flex !important; }
         }
 
-        /* ── FAB nueva conversación (mobile) ── */
+        /* ── FAB ── */
         .fab {
-            position: fixed;
-            bottom: 72px;
-            right: 16px;
-            z-index: 15;
-            width: 56px; height: 56px;
-            background: var(--green-main);
-            border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
+            position: fixed; bottom: 72px; right: 16px; z-index: 15;
+            width: 56px; height: 56px; background: var(--green-main);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
             box-shadow: 0 4px 16px rgba(43,158,21,.45);
             transition: background .2s, transform .15s;
         }
         .fab:active { transform: scale(.93); }
         .fab:hover  { background: var(--green-mid); }
 
-        /* ── Search input green focus ── */
         .search-input:focus { background: rgba(255,255,255,.95); outline: none; box-shadow: 0 0 0 2px var(--green-light); }
 
-        /* ── No chat selected mobile ── */
-        @media (max-width: 768px) {
-            .no-chat-placeholder { display: none !important; }
-        }
-        @media (min-width: 769px) {
-    .info-panel-mobile {
-        position: relative !important;
-        transform: none !important;
-        transition: none !important;
-    }
-    
-    /* Cuando el panel info está abierto en desktop */
-    .info-panel-mobile.flex {
-        display: flex !important;
-        flex-direction: column !important;
-    }
-}
-
-/* Panel info - Mobile: desliza desde derecha */
-@media (max-width: 768px) {
-    .info-panel-mobile {
-        position: fixed !important;
-        top: 0 !important;
-        left: 0 !important;
-        right: 0 !important;
-        bottom: 0 !important;
-        width: 100% !important;
-        z-index: 30 !important;
-        transform: translateX(100%) !important;
-        transition: transform .3s cubic-bezier(.4,0,.2,1) !important;
-        background: white !important;
-    }
-    
-    .info-panel-mobile.slide-in {
-        transform: translateX(0) !important;
-    }
-    
-    /* Ocultar el panel por defecto en móvil */
-    .info-panel-mobile:not(.slide-in) {
-        display: none !important;
-    }
-    
-    .info-panel-mobile.slide-in {
-        display: flex !important;
-    }
-}
-
+        @media (max-width: 768px) { .no-chat-placeholder { display: none !important; } }
     </style>
 </head>
 <body class="bg-gray-100 h-screen overflow-hidden">
@@ -349,6 +253,61 @@
     </div>
 </div>
 
+<!-- ─── Modal previsualización de archivo ───────────────────── -->
+<div id="filePreviewModal"
+     class="hidden fixed inset-0 z-[9996] flex items-end sm:items-center justify-center modal-overlay px-0 sm:px-4">
+    <div class="bg-white w-full sm:max-w-lg sm:rounded-2xl rounded-t-2xl shadow-2xl flex flex-col overflow-hidden pointer-events-auto max-h-[92vh] sm:max-h-[85vh]">
+        <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100 flex-shrink-0">
+            <div class="flex items-center gap-3">
+                <div id="fpFileIcon" class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 bg-[#e8f5e4]"></div>
+                <div class="min-w-0">
+                    <p id="fpFileName" class="font-semibold text-gray-900 text-sm truncate max-w-[220px]"></p>
+                    <p id="fpFileSize" class="text-xs text-gray-400 mt-0.5"></p>
+                </div>
+            </div>
+            <button onclick="cerrarModalArchivo()" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400 transition flex-shrink-0">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+        <div class="flex-1 overflow-hidden flex items-center justify-center bg-gray-50 min-h-[160px] max-h-[340px]">
+            <img id="fpImgPreview" class="hidden max-w-full max-h-[340px] object-contain" alt="previsualización">
+            <video id="fpVideoPreview" class="hidden max-w-full max-h-[340px]" controls></video>
+            <div id="fpDocPreview" class="hidden flex-col items-center justify-center gap-3 py-10 px-6 text-center">
+                <div id="fpDocIcon" class="w-16 h-16 rounded-2xl flex items-center justify-center bg-[#e8f5e4]"></div>
+                <p id="fpDocName" class="text-sm font-medium text-gray-700 break-all"></p>
+                <p class="text-xs text-gray-400">El archivo se enviará tal cual</p>
+            </div>
+        </div>
+        <div class="px-5 py-3 border-t border-gray-100 flex-shrink-0">
+            <div class="flex items-center gap-3 bg-gray-100 rounded-2xl px-4 py-2.5">
+                <svg class="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                </svg>
+                <input id="fpCaption" type="text" placeholder="Añade un comentario (opcional)…"
+                       class="flex-1 bg-transparent text-sm text-gray-800 placeholder-gray-400 outline-none">
+            </div>
+        </div>
+        <div class="flex gap-3 px-5 pb-5 pt-2 flex-shrink-0">
+            <button onclick="cerrarModalArchivo()" class="flex-1 py-2.5 text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-xl transition">Cancelar</button>
+            <button id="fpSendBtn" onclick="enviarArchivoSeleccionado()"
+                    class="flex-1 py-2.5 text-sm font-semibold text-white bg-[#2b9e15] hover:bg-[#1a6b09] rounded-xl transition flex items-center justify-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+                </svg>
+                Enviar
+            </button>
+        </div>
+        <div id="fpProgress" class="hidden px-5 pb-4 flex-shrink-0">
+            <div class="h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                <div id="fpProgressBar" class="h-full bg-[#2b9e15] rounded-full transition-all duration-300" style="width:0%"></div>
+            </div>
+            <p id="fpProgressText" class="text-xs text-gray-500 mt-1.5 text-center">Subiendo…</p>
+        </div>
+    </div>
+</div>
+
 <!-- ══════════════════════════════════════════════════════════ -->
 <!--  MAIN LAYOUT                                               -->
 <!-- ══════════════════════════════════════════════════════════ -->
@@ -371,15 +330,12 @@
                     <h2 class="text-[17px] font-semibold text-white tracking-tight">InfoSena Chats</h2>
                 </div>
                 <div class="flex items-center gap-1">
-                    <!-- Crear grupo -->
-                    <button onclick="window.location.href='{% url 'chat:crear_grupo' %}'"
-                            title="Nuevo grupo"
+                    <button onclick="window.location.href='{% url 'chat:crear_grupo' %}'" title="Nuevo grupo"
                             class="w-9 h-9 flex items-center justify-center bg-white/15 hover:bg-white/25 text-white rounded-full transition">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
                         </svg>
                     </button>
-                    <!-- Menú usuario -->
                     <div class="relative">
                         <button id="userMenuBtn"
                                 class="w-9 h-9 flex items-center justify-center bg-white/15 hover:bg-white/25 text-white rounded-full transition">
@@ -389,15 +345,13 @@
                         </button>
                         <div id="userMenuDropdown"
                              class="hidden dropdown-animate absolute right-0 mt-2 w-52 bg-white rounded-xl shadow-xl z-50 overflow-hidden border border-gray-100 py-1">
-                            <a href="{% url 'sesion:home' %}"
-                               class="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition">
+                            <a href="{% url 'sesion:home' %}" class="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition">
                                 <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
                                 </svg>
                                 Volver al inicio
                             </a>
-                            <a href="{% url 'sesion:amigos' %}"
-                               class="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition">
+                            <a href="{% url 'sesion:amigos' %}" class="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition">
                                 <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
                                 </svg>
@@ -416,7 +370,6 @@
                 </div>
             </div>
 
-            <!-- Buscador -->
             <div class="relative">
                 <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/60 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
@@ -425,24 +378,10 @@
                        class="search-input w-full pl-9 pr-4 py-2 bg-white/20 text-white placeholder-white/60 rounded-xl text-sm transition">
             </div>
 
-            <!-- Filtros (visible en móvil Y desktop) -->
             <div class="chat-filters hidden gap-2 mt-3 overflow-x-auto pb-1" style="scrollbar-width:none">
-                <button data-filter="todos"
-                        class="filter-btn flex-shrink-0 bg-[#2b9e15] text-white text-xs font-semibold px-4 py-1.5 rounded-full transition-all">
-                    Todos
-                </button>
-                <button data-filter="noleidos"
-                        class="filter-btn flex-shrink-0 border border-white/40 text-white/80 text-xs font-medium px-4 py-1.5 rounded-full transition-all hover:bg-white/20">
-                    No leídos
-                </button>
-                <button data-filter="favoritos"
-                        class="filter-btn flex-shrink-0 border border-white/40 text-white/80 text-xs font-medium px-4 py-1.5 rounded-full transition-all hover:bg-white/20">
-                    Favoritos
-                </button>
-                <button data-filter="grupos"
-                        class="filter-btn flex-shrink-0 border border-white/40 text-white/80 text-xs font-medium px-4 py-1.5 rounded-full transition-all hover:bg-white/20">
-                    Grupos
-                </button>
+                <button data-filter="todos" class="filter-btn flex-shrink-0 bg-[#2b9e15] text-white text-xs font-semibold px-4 py-1.5 rounded-full transition-all">Todos</button>
+                <button data-filter="noleidos" class="filter-btn flex-shrink-0 border border-white/40 text-white/80 text-xs font-medium px-4 py-1.5 rounded-full transition-all hover:bg-white/20">No leídos</button>
+                <button data-filter="grupos" class="filter-btn flex-shrink-0 border border-white/40 text-white/80 text-xs font-medium px-4 py-1.5 rounded-full transition-all hover:bg-white/20">Grupos</button>
             </div>
         </div>
 
@@ -454,14 +393,10 @@
                data-chat-name="{{ item.nombre }}"
                data-no-leidos="{{ item.mensajes_no_leidos|default:0 }}"
                data-es-grupo="{{ item.chat.es_grupo|yesno:'true,false' }}"
-               class="chat-row flex items-center gap-3 px-4 py-3 border-b border-gray-50 transition cursor-pointer
-                      {% if item.activo %}chat-row-active{% endif %}">
-
-                <!-- Avatar -->
+               class="chat-row flex items-center gap-3 px-4 py-3 border-b border-gray-50 transition cursor-pointer {% if item.activo %}chat-row-active{% endif %}">
                 <div class="relative flex-shrink-0">
                     {% if item.foto %}
-                    <img src="{{ item.foto }}" alt="{{ item.nombre }}"
-                         class="w-12 h-12 rounded-full object-cover ring-2 ring-white shadow-sm">
+                    <img src="{{ item.foto }}" alt="{{ item.nombre }}" class="w-12 h-12 rounded-full object-cover ring-2 ring-white shadow-sm">
                     {% else %}
                     <div class="w-12 h-12 rounded-full bg-gradient-to-br from-[#2b9e15] to-[#56e03a] flex items-center justify-center text-white font-bold text-base shadow-sm">
                         {{ item.nombre|first|upper }}
@@ -473,8 +408,6 @@
                     </span>
                     {% endif %}
                 </div>
-
-                <!-- Info -->
                 <div class="flex-1 min-w-0">
                     <div class="flex items-center justify-between">
                         <span class="font-semibold text-gray-900 text-[14px] truncate">{{ item.nombre }}</span>
@@ -505,15 +438,13 @@
                 </div>
                 <p class="font-semibold text-gray-700 mb-1">Sin conversaciones</p>
                 <p class="text-xs text-gray-400 mb-4">Conecta con tus amigos para chatear</p>
-                <a href="{% url 'sesion:amigos' %}"
-                   class="text-xs font-semibold text-white bg-[#2b9e15] hover:bg-[#1a6b09] px-5 py-2 rounded-full transition">
+                <a href="{% url 'sesion:amigos' %}" class="text-xs font-semibold text-white bg-[#2b9e15] hover:bg-[#1a6b09] px-5 py-2 rounded-full transition">
                     Buscar amigos
                 </a>
             </div>
             {% endfor %}
         </div>
 
-        <!-- Barra de navegación inferior — idéntica a home.html y amigos.html, con Chat activo -->
         <nav class="mobile-bottom-nav">
             <div class="mobile-bottom-nav-inner">
                 <a href="{% url 'sesion:home' %}" class="mob-nav-btn">
@@ -524,7 +455,6 @@
                     </div>
                     Inicio
                 </a>
-                <!-- Chat: ACTIVO (estamos aquí) -->
                 <button class="mob-nav-btn active">
                     <div class="mob-nav-icon">
                         <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -573,22 +503,17 @@
 
         <!-- Header del chat -->
         <div class="bg-white border-b border-gray-200 px-3 py-2.5 flex items-center justify-between shadow-sm flex-shrink-0 mobile-header">
-
             <div class="flex items-center gap-2 flex-1 min-w-0">
-                <!-- Botón volver (solo móvil) -->
                 <button onclick="volverAlListado()"
                         class="mobile-back-btn hidden w-9 h-9 items-center justify-center text-[#2b9e15] hover:bg-gray-100 rounded-full transition flex-shrink-0">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/>
                     </svg>
                 </button>
-
-                <!-- Foto + nombre (clickeable para abrir info) -->
                 <button onclick="toggleContactInfo()"
                         class="flex items-center gap-2.5 flex-1 min-w-0 hover:bg-gray-50 px-2 py-1 rounded-xl transition -ml-2 text-left">
                     {% if chat_foto %}
-                    <img src="{{ chat_foto }}" alt="{{ chat_nombre }}"
-                         class="w-10 h-10 rounded-full object-cover flex-shrink-0 shadow-sm">
+                    <img src="{{ chat_foto }}" alt="{{ chat_nombre }}" class="w-10 h-10 rounded-full object-cover flex-shrink-0 shadow-sm">
                     {% else %}
                     <div class="w-10 h-10 rounded-full bg-gradient-to-br from-[#2b9e15] to-[#56e03a] flex items-center justify-center text-white font-bold flex-shrink-0 shadow-sm">
                         {{ chat_nombre|first|upper }}
@@ -608,8 +533,6 @@
                     </div>
                 </button>
             </div>
-
-            <!-- Acciones derecha -->
             <div class="flex items-center gap-0.5 flex-shrink-0">
                 <button onclick="openSearchModal()" title="Buscar"
                         class="w-9 h-9 flex items-center justify-center hover:bg-gray-100 rounded-full transition text-gray-500">
@@ -617,7 +540,6 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                     </svg>
                 </button>
-                <!-- Menú 3 puntos -->
                 <div class="relative">
                     <button id="chatOptionsBtn"
                             class="w-9 h-9 flex items-center justify-center hover:bg-gray-100 rounded-full transition text-gray-500">
@@ -627,49 +549,34 @@
                     </button>
                     <div id="chatOptionsDropdown"
                          class="hidden dropdown-animate absolute right-0 mt-2 w-60 bg-white rounded-xl shadow-xl z-50 overflow-hidden border border-gray-100 py-1">
-                        <button onclick="toggleContactInfo(); closeAllDropdowns();"
-                                class="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition text-left">
+                        <button onclick="toggleContactInfo(); closeAllDropdowns();" class="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition text-left">
                             <span class="w-8 h-8 bg-[#e8f5e4] rounded-lg flex items-center justify-center flex-shrink-0">
-                                <svg class="w-4 h-4 text-[#2b9e15]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                </svg>
+                                <svg class="w-4 h-4 text-[#2b9e15]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                             </span>
                             Info del contacto
                         </button>
-                        <button onclick="activarSeleccion(); closeAllDropdowns();"
-                                class="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition text-left">
+                        <button onclick="activarSeleccion(); closeAllDropdowns();" class="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition text-left">
                             <span class="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0">
-                                <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
-                                </svg>
+                                <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
                             </span>
                             Seleccionar mensajes
                         </button>
-                        <button onclick="silenciarChat(); closeAllDropdowns();"
-                                class="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition text-left">
+                        <button onclick="silenciarChat(); closeAllDropdowns();" class="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition text-left">
                             <span class="w-8 h-8 bg-yellow-50 rounded-lg flex items-center justify-center flex-shrink-0">
-                                <svg class="w-4 h-4 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15zM17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"/>
-                                </svg>
+                                <svg class="w-4 h-4 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15zM17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"/></svg>
                             </span>
                             <span id="silenciarLabel">Silenciar notificaciones</span>
                         </button>
-                        <button onclick="vaciarMensajes(); closeAllDropdowns();"
-                                class="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition text-left">
+                        <button onclick="vaciarMensajes(); closeAllDropdowns();" class="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition text-left">
                             <span class="w-8 h-8 bg-orange-50 rounded-lg flex items-center justify-center flex-shrink-0">
-                                <svg class="w-4 h-4 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                </svg>
+                                <svg class="w-4 h-4 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                             </span>
                             Vaciar mensajes
                         </button>
                         <div class="mx-3 border-t border-gray-100 my-1"></div>
-                        <button onclick="eliminarChat(); closeAllDropdowns();"
-                                class="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition text-left">
+                        <button onclick="eliminarChat(); closeAllDropdowns();" class="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition text-left">
                             <span class="w-8 h-8 bg-red-50 rounded-lg flex items-center justify-center flex-shrink-0">
-                                <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                                </svg>
+                                <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                             </span>
                             Eliminar chat
                         </button>
@@ -682,16 +589,12 @@
         <div id="selectionBar" class="hidden bg-[#0d3604] text-white px-4 py-2.5 flex items-center justify-between flex-shrink-0">
             <div class="flex items-center gap-3">
                 <button onclick="cancelarSeleccion()" class="hover:bg-white/10 p-1.5 rounded-full transition">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                    </svg>
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
                 <span id="selectionCount" class="text-sm font-medium">0 seleccionados</span>
             </div>
             <button onclick="eliminarSeleccionados()" class="text-red-300 hover:text-red-200 text-sm font-medium flex items-center gap-1.5 transition">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                </svg>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                 Eliminar
             </button>
         </div>
@@ -706,6 +609,29 @@
                         {% if is_group and mensaje.autor.id != usuario.id %}
                         <p class="text-xs font-semibold mb-1 ml-3" style="color:#1a6b09">{{ mensaje.autor.nombre }}</p>
                         {% endif %}
+                        {% if mensaje.tipo_archivo == 'imagen' %}
+                        <a href="{{ mensaje.archivo.url }}" target="_blank" rel="noopener" class="block rounded-xl overflow-hidden shadow-sm max-w-[220px]">
+                            <img src="{{ mensaje.archivo.url }}" alt="imagen" class="w-full object-cover max-h-[280px] {% if mensaje.autor.id == usuario.id %}rounded-tl-xl rounded-br-xl rounded-bl-xl rounded-tr-none{% else %}rounded-tr-xl rounded-bl-xl rounded-br-xl rounded-tl-none{% endif %}">
+                            {% if mensaje.contenido %}<p class="text-xs text-gray-700 px-3 pt-1.5 pb-2 bg-white">{{ mensaje.contenido }}</p>{% endif %}
+                        </a>
+                        {% elif mensaje.tipo_archivo == 'video' %}
+                        <div class="rounded-xl overflow-hidden shadow-sm max-w-[260px] {% if mensaje.autor.id == usuario.id %}bubble-sent{% else %}bubble-recv{% endif %} p-1">
+                            <video src="{{ mensaje.archivo.url }}" controls class="w-full rounded-lg max-h-[220px]"></video>
+                            {% if mensaje.contenido %}<p class="text-xs text-gray-700 px-2 pt-1 pb-1">{{ mensaje.contenido }}</p>{% endif %}
+                        </div>
+                        {% elif mensaje.tipo_archivo == 'documento' %}
+                        <div class="{% if mensaje.autor.id == usuario.id %}bubble-sent{% else %}bubble-recv{% endif %} px-3.5 py-2.5 shadow-sm">
+                            <a href="{{ mensaje.archivo.url }}" target="_blank" rel="noopener" class="flex items-center gap-3 group/doc">
+                                <div class="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center flex-shrink-0 group-hover/doc:bg-blue-100 transition">
+                                    <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                                </div>
+                                <div class="min-w-0">
+                                    <p class="text-sm font-medium text-gray-900 truncate max-w-[160px]">{{ mensaje.contenido }}</p>
+                                </div>
+                                <svg class="w-4 h-4 text-gray-400 flex-shrink-0 ml-1 group-hover/doc:text-[#2b9e15] transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                            </a>
+                        </div>
+                        {% else %}
                         <div class="{% if mensaje.autor.id == usuario.id %}bubble-sent{% else %}bubble-recv{% endif %} px-3.5 py-2 shadow-sm">
                             <p class="text-[14px] text-gray-900 leading-snug break-words">{{ mensaje.contenido }}</p>
                             <div class="flex items-center justify-end gap-1 mt-0.5">
@@ -717,21 +643,79 @@
                                 {% endif %}
                             </div>
                         </div>
+                        {% endif %}
                     </div>
                 </div>
                 {% endfor %}
             </div>
         </div>
 
-        <!-- Input de mensaje -->
+        <!-- ══════════════════════════════════════════════════════
+             INPUT DE MENSAJE — attachBtn FUERA del <form>
+        ══════════════════════════════════════════════════════ -->
         <div class="bg-white border-t border-gray-200 px-3 py-2.5 flex-shrink-0 chat-input-bar">
             <div class="flex items-end gap-2 max-w-3xl mx-auto">
-                <button title="Adjuntar"
-                        class="w-10 h-10 flex items-center justify-center text-gray-400 hover:text-[#2b9e15] hover:bg-[#e8f5e4] rounded-full transition flex-shrink-0 mb-0.5">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/>
-                    </svg>
-                </button>
+
+                <!-- ✅ CORRECCIÓN: attachWrapper está FUERA del form -->
+                <div class="relative flex-shrink-0 mb-0.5" id="attachWrapper">
+
+                    <!-- Inputs de archivo ocultos (uno por tipo para mejor compatibilidad móvil) -->
+                    <input id="fileInputImagen"    type="file" class="hidden" accept="image/jpeg,image/png,image/gif,image/webp">
+                    <input id="fileInputVideo"     type="file" class="hidden" accept="video/mp4,video/webm,video/ogg,video/quicktime">
+                    <input id="fileInputDocumento" type="file" class="hidden"
+                           accept="application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,text/plain">
+
+                    <!-- Botón clip -->
+                    <button id="attachBtn" type="button" title="Adjuntar"
+                            class="w-10 h-10 flex items-center justify-center text-gray-400 hover:text-[#2b9e15] hover:bg-[#e8f5e4] rounded-full transition">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/>
+                        </svg>
+                    </button>
+
+                    <!-- Menú desplegable de tipos -->
+                    <div id="attachMenu"
+                         class="hidden attach-menu-animate absolute bottom-12 left-0 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden z-50 w-52">
+                        <button type="button" onclick="triggerFile('imagen')"
+                                class="w-full flex items-center gap-3 px-4 py-3 hover:bg-[#f6faf5] transition text-left">
+                            <span class="w-9 h-9 bg-[#e8f5e4] rounded-xl flex items-center justify-center flex-shrink-0">
+                                <svg class="w-5 h-5 text-[#2b9e15]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                </svg>
+                            </span>
+                            <div>
+                                <p class="text-sm font-semibold text-gray-800">Imagen</p>
+                                <p class="text-[11px] text-gray-400">JPG, PNG, GIF, WEBP</p>
+                            </div>
+                        </button>
+                        <button type="button" onclick="triggerFile('video')"
+                                class="w-full flex items-center gap-3 px-4 py-3 hover:bg-purple-50 transition text-left">
+                            <span class="w-9 h-9 bg-purple-50 rounded-xl flex items-center justify-center flex-shrink-0">
+                                <svg class="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.069A1 1 0 0121 8.876v6.248a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                                </svg>
+                            </span>
+                            <div>
+                                <p class="text-sm font-semibold text-gray-800">Video</p>
+                                <p class="text-[11px] text-gray-400">MP4, WEBM, MOV</p>
+                            </div>
+                        </button>
+                        <button type="button" onclick="triggerFile('documento')"
+                                class="w-full flex items-center gap-3 px-4 py-3 hover:bg-blue-50 transition text-left">
+                            <span class="w-9 h-9 bg-blue-50 rounded-xl flex items-center justify-center flex-shrink-0">
+                                <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                                </svg>
+                            </span>
+                            <div>
+                                <p class="text-sm font-semibold text-gray-800">Documento</p>
+                                <p class="text-[11px] text-gray-400">PDF, Word, Excel…</p>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ✅ Form SOLO contiene textarea + botón enviar -->
                 <form id="messageForm" class="flex-1 flex items-end gap-2">
                     {% csrf_token %}
                     <textarea id="messageInput" name="contenido" rows="1"
@@ -744,11 +728,11 @@
                         </svg>
                     </button>
                 </form>
+
             </div>
         </div>
 
         {% else %}
-        <!-- Sin chat seleccionado (solo visible en desktop) -->
         <div class="no-chat-placeholder flex-1 flex flex-col items-center justify-center chat-bg">
             <div class="text-center max-w-xs">
                 <div class="w-24 h-24 bg-white rounded-3xl shadow-xl flex items-center justify-center mx-auto mb-6">
@@ -776,66 +760,45 @@
     {% if chat %}
     <div id="contactInfoPanel"
          class="info-panel-mobile hidden w-[320px] flex-shrink-0 bg-white border-l border-gray-200 overflow-y-auto shadow-sm">
-
-        <!-- Header -->
         <div class="sidebar-header p-4 flex items-center gap-3 flex-shrink-0 mobile-header">
-            <button onclick="toggleContactInfo()"
-                    class="w-8 h-8 flex items-center justify-center text-white hover:bg-white/15 rounded-full transition flex-shrink-0">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                </svg>
+            <button onclick="toggleContactInfo()" class="w-8 h-8 flex items-center justify-center text-white hover:bg-white/15 rounded-full transition flex-shrink-0">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
             </button>
-            <h3 class="text-[15px] font-semibold text-white">
-                {% if is_group %}Info del grupo{% else %}Info del contacto{% endif %}
-            </h3>
+            <h3 class="text-[15px] font-semibold text-white">{% if is_group %}Info del grupo{% else %}Info del contacto{% endif %}</h3>
         </div>
-
-        <!-- Avatar -->
         <div class="flex flex-col items-center py-8 bg-white border-b border-gray-100">
             {% if chat_foto %}
-            <img src="{{ chat_foto }}" alt="{{ chat_nombre }}"
-                 class="w-24 h-24 rounded-full object-cover shadow-lg mb-3">
+            <img src="{{ chat_foto }}" alt="{{ chat_nombre }}" class="w-24 h-24 rounded-full object-cover shadow-lg mb-3">
             {% else %}
             <div class="w-24 h-24 rounded-full bg-gradient-to-br from-[#2b9e15] to-[#56e03a] flex items-center justify-center text-white text-4xl font-bold shadow-lg mb-3">
                 {{ chat_nombre|first|upper }}
             </div>
             {% endif %}
             <h3 class="font-bold text-gray-900 text-lg">{{ chat_nombre }}</h3>
-            <p class="text-xs text-gray-400 mt-1">
-                {% if is_group %}Grupo · {{ chat.participantes.count }} participantes{% else %}Miembro activo{% endif %}
-            </p>
+            <p class="text-xs text-gray-400 mt-1">{% if is_group %}Grupo · {{ chat.participantes.count }} participantes{% else %}Miembro activo{% endif %}</p>
         </div>
-
-        <!-- Acciones rápidas -->
         <div class="grid grid-cols-3 gap-3 p-4 border-b border-gray-100">
-            <button onclick="silenciarChat()" class="flex flex-col items-center gap-1.5 p-3 bg-gray-50 hover:bg-[#e8f5e4] rounded-xl transition group">
-                <svg class="w-5 h-5 text-gray-500 group-hover:text-[#2b9e15]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15zM17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"/>
-                </svg>
+            <button 
+            data-chat-id="{{ chat.id }}"
+            onclick="silenciarChat(this)"
+            class="flex flex-col items-center gap-1.5 p-3 bg-gray-50 hover:bg-[#e8f5e4] rounded-xl transition group">
+                <svg class="w-5 h-5 text-gray-500 group-hover:text-[#2b9e15]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15zM17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"/></svg>
                 <span class="text-[10px] text-gray-500 group-hover:text-[#2b9e15] font-medium">Silenciar</span>
             </button>
             <button onclick="openSearchModal()" class="flex flex-col items-center gap-1.5 p-3 bg-gray-50 hover:bg-[#e8f5e4] rounded-xl transition group">
-                <svg class="w-5 h-5 text-gray-500 group-hover:text-[#2b9e15]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                </svg>
+                <svg class="w-5 h-5 text-gray-500 group-hover:text-[#2b9e15]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                 <span class="text-[10px] text-gray-500 group-hover:text-[#2b9e15] font-medium">Buscar</span>
             </button>
             <button onclick="vaciarMensajes()" class="flex flex-col items-center gap-1.5 p-3 bg-gray-50 hover:bg-red-50 rounded-xl transition group">
-                <svg class="w-5 h-5 text-gray-500 group-hover:text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                </svg>
+                <svg class="w-5 h-5 text-gray-500 group-hover:text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                 <span class="text-[10px] text-gray-500 group-hover:text-red-500 font-medium">Vaciar</span>
             </button>
         </div>
-
-        <!-- Info del contacto -->
         {% if not is_group and otro_usuario %}
         <div class="p-4 border-b border-gray-100">
             <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Información</p>
             <div class="flex items-start gap-3 mb-3">
-                <svg class="w-4 h-4 text-[#2b9e15] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"/>
-                </svg>
+                <svg class="w-4 h-4 text-[#2b9e15] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"/></svg>
                 <div>
                     <p class="text-[11px] text-gray-400">Correo</p>
                     <p class="text-sm text-gray-800">{{ otro_usuario.correo|default:"No disponible" }}</p>
@@ -843,9 +806,7 @@
             </div>
             {% if otro_usuario.biografia %}
             <div class="flex items-start gap-3">
-                <svg class="w-4 h-4 text-[#2b9e15] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                </svg>
+                <svg class="w-4 h-4 text-[#2b9e15] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                 <div>
                     <p class="text-[11px] text-gray-400">Acerca de</p>
                     <p class="text-sm text-gray-800">{{ otro_usuario.biografia }}</p>
@@ -854,16 +815,13 @@
             {% endif %}
         </div>
         {% endif %}
-
-        <!-- Participantes del grupo -->
         {% if is_group %}
         <div class="p-4">
             <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">{{ chat.participantes.count }} participantes</p>
             {% for participante in chat.participantes.all %}
             <div class="flex items-center gap-3 py-2.5 border-b border-gray-50 last:border-0">
                 {% if participante.foto %}
-                <img src="{{ participante.foto.url }}" alt="{{ participante.nombre }}"
-                     class="w-9 h-9 rounded-full object-cover flex-shrink-0">
+                <img src="{{ participante.foto.url }}" alt="{{ participante.nombre }}" class="w-9 h-9 rounded-full object-cover flex-shrink-0">
                 {% else %}
                 <div class="w-9 h-9 rounded-full bg-gradient-to-br from-gray-300 to-gray-400 flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
                     {{ participante.nombre|first|upper }}
@@ -881,14 +839,10 @@
             {% endfor %}
         </div>
         {% endif %}
-
-        <!-- Eliminar chat -->
         <div class="p-4 mt-auto">
             <button onclick="eliminarChat()"
                     class="w-full flex items-center justify-center gap-2 text-red-600 hover:bg-red-50 border border-red-200 rounded-xl py-2.5 text-sm font-medium transition">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                </svg>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                 Eliminar chat
             </button>
         </div>
@@ -902,20 +856,11 @@
 <!--  JAVASCRIPT                                                -->
 <!-- ══════════════════════════════════════════════════════════ -->
 <script>
-// ══════════════════════════════════════════════════════════════
-//  WEBSOCKET + MENSAJERÍA - VERSIÓN CORREGIDA
-//  - Evita envío duplicado de mensajes
-//  - Mejor manejo de estados
-// ══════════════════════════════════════════════════════════════
-
-// ── Variables globales ────────────────────────────────────────
 const isMobile = () => window.innerWidth <= 768;
 
-// ── Navegación móvil ──────────────────────────────────────────
 function abrirChat(url) {
     if (isMobile()) {
-        const sidebar = document.getElementById('chatSidebar');
-        sidebar.classList.add('slide-out');
+        document.getElementById('chatSidebar').classList.add('slide-out');
         window.location.href = url;
     } else {
         window.location.href = url;
@@ -923,14 +868,10 @@ function abrirChat(url) {
 }
 
 function volverAlListado() {
-    if (window.history.length > 1) {
-        window.history.back();
-    } else {
-        window.location.href = "{% url 'chat:lista_chats' %}";
-    }
+    if (window.history.length > 1) window.history.back();
+    else window.location.href = "{% url 'chat:lista_chats' %}";
 }
 
-// ── Al cargar página ──────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
     {% if chat %}
     if (isMobile()) {
@@ -938,10 +879,7 @@ document.addEventListener('DOMContentLoaded', () => {
         chatMain.classList.add('slide-in');
         chatMain.style.transition = 'none';
         setTimeout(() => { chatMain.style.transition = ''; }, 50);
-
-        const sidebar = document.getElementById('chatSidebar');
-        sidebar.style.display = 'none';
-
+        document.getElementById('chatSidebar').style.display = 'none';
         document.querySelectorAll('.mobile-back-btn').forEach(b => b.style.display = 'flex');
     }
     scrollToBottom();
@@ -949,7 +887,7 @@ document.addEventListener('DOMContentLoaded', () => {
     {% endif %}
 });
 
-// ── Toast system ──────────────────────────────────────────────
+// ── Toast ─────────────────────────────────────────────────────
 function showToast(msg, type = 'error') {
     const colors = { error:'bg-red-500', success:'bg-[#2b9e15]', warning:'bg-yellow-500', info:'bg-blue-500' };
     const icons  = { error:'✕', success:'✓', warning:'⚠', info:'ℹ' };
@@ -963,14 +901,15 @@ function showToast(msg, type = 'error') {
     }, 4000);
 }
 
-// ── Modal system ──────────────────────────────────────────────
+// ── Modal ─────────────────────────────────────────────────────
 let _modalCb = null;
 function showModal(title, body, label='Confirmar', danger=false, onConfirm=null) {
     document.getElementById('modalTitle').textContent = title;
     document.getElementById('modalBody').textContent  = body;
     const btn = document.getElementById('modalConfirmBtn');
     btn.textContent = label;
-    btn.className   = `px-4 py-2 text-sm font-semibold text-white rounded-xl transition ${danger ? 'bg-red-500 hover:bg-red-600' : 'bg-[#2b9e15] hover:bg-[#1a6b09]'}`;
+    btn.className = `px-4 py-2 text-sm font-semibold text-white rounded-xl transition ${danger?'bg-red-500 hover:bg-red-600':'bg-[#2b9e15] hover:bg-[#1a6b09]'}`;
+    btn.classList.remove('hidden');
     _modalCb = onConfirm;
     btn.onclick = () => { closeModal(); _modalCb?.(); };
     document.getElementById('confirmModal').classList.remove('hidden');
@@ -979,7 +918,9 @@ function closeModal() { document.getElementById('confirmModal').classList.add('h
 
 // ── Dropdowns ─────────────────────────────────────────────────
 function closeAllDropdowns() {
-    ['userMenuDropdown','chatOptionsDropdown'].forEach(id => document.getElementById(id)?.classList.add('hidden'));
+    ['userMenuDropdown','chatOptionsDropdown','attachMenu'].forEach(id =>
+        document.getElementById(id)?.classList.add('hidden')
+    );
 }
 document.getElementById('userMenuBtn')?.addEventListener('click', e => {
     e.stopPropagation();
@@ -993,7 +934,7 @@ document.getElementById('chatOptionsBtn')?.addEventListener('click', e => {
 });
 document.addEventListener('click', closeAllDropdowns);
 
-// ── Búsqueda en sidebar ───────────────────────────────────────
+// ── Búsqueda sidebar ──────────────────────────────────────────
 document.getElementById('searchChats')?.addEventListener('input', e => {
     const q = e.target.value.toLowerCase();
     document.querySelectorAll('[data-chat-name]').forEach(row => {
@@ -1001,131 +942,225 @@ document.getElementById('searchChats')?.addEventListener('input', e => {
     });
 });
 
-// ── Panel de info del contacto ────────────────────────────────
+// ── Panel info contacto ───────────────────────────────────────
 let _infoPanelOpen = false;
 function toggleContactInfo() {
     const panel = document.getElementById('contactInfoPanel');
     if (!panel) return;
     _infoPanelOpen = !_infoPanelOpen;
-
     if (isMobile()) {
         panel.classList.remove('hidden');
         panel.style.display = 'flex';
         setTimeout(() => panel.classList.toggle('slide-in', _infoPanelOpen), 10);
-        if (!_infoPanelOpen) {
-            setTimeout(() => { panel.style.display = 'none'; }, 300);
-        }
+        if (!_infoPanelOpen) setTimeout(() => { panel.style.display = 'none'; }, 300);
     } else {
         panel.classList.toggle('hidden', !_infoPanelOpen);
         panel.classList.toggle('flex', _infoPanelOpen);
     }
 }
 
-// ── Funciones del chat ────────────────────────────────────────
+// ── Cerrar sesión ─────────────────────────────────────────────
 function confirmarCerrarSesion() {
     showModal('Cerrar sesión', '¿Estás seguro de que quieres cerrar sesión?', 'Cerrar sesión', true, () => {
         window.location.href = "{% url 'sesion:login' %}";
     });
 }
 
-let _silenciado = false;
+// ── Silenciar ─────────────────────────────────────────────────
+let _silenciado = {% if silenciado %}true{% else %}false{% endif %};
+
 function silenciarChat() {
-    _silenciado = !_silenciado;
-    const label = document.getElementById('silenciarLabel');
-    if (label) label.textContent = _silenciado ? 'Activar notificaciones' : 'Silenciar notificaciones';
-    showToast(_silenciado ? '🔕 Chat silenciado' : '🔔 Notificaciones activadas', 'info');
+    fetch(`/chat/api/silenciar/{% if chat %}{{ chat.id }}{% endif %}/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
+        body: JSON.stringify({ silenciado: !_silenciado })
+    })
+    .then(r => r.json())
+    .then(d => {
+        if (d.success) {
+            _silenciado = d.silenciado;
+            const label = document.getElementById('silenciarLabel');
+            if (label) label.textContent = _silenciado ? 'Activar notificaciones' : 'Silenciar notificaciones';
+            showToast(d.message, 'info');
+        } else {
+            showToast(d.error || 'Error al silenciar', 'error');
+        }
+    })
+    .catch(() => showToast('Error de conexión', 'error'));
 }
 
+// ── Vaciar mensajes ───────────────────────────────────────────
 function vaciarMensajes() {
-    showModal('Vaciar mensajes', '¿Eliminar todos los mensajes? Esta acción no se puede deshacer.', 'Vaciar', true, () => {
-        {% if chat %}
-        fetch("{% url 'chat:vaciar_mensajes' chat.id %}", {
-            method: 'POST', headers: { 'X-CSRFToken': '{{ csrf_token }}' }
-        })
-        .then(r => r.json())
-        .then(d => {
-            if (d.success) { 
-                document.getElementById('messagesList').innerHTML = ''; 
-                showToast('Mensajes eliminados','success'); 
-            } else {
-                showToast('Error al vaciar mensajes','error');
-            }
-        })
-        .catch(() => showToast('Error de conexión','error'));
-        {% endif %}
-    });
+    showModal(
+        'Vaciar chat',
+        'Los mensajes desaparecerán solo para ti. Los demás participantes seguirán viéndolos.',
+        'Vaciar para mí', true,
+        () => {
+            fetch(`/chat/api/vaciar/{% if chat %}{{ chat.id }}{% endif %}/`, {
+                method: 'POST',
+                headers: { 'X-CSRFToken': '{{ csrf_token }}' }
+            })
+            .then(r => r.json())
+            .then(d => {
+                if (d.success) {
+                    document.getElementById('messagesList').innerHTML = '';
+                    showToast('Chat vaciado para ti', 'success');
+                } else {
+                    showToast('Error al vaciar el chat', 'error');
+                }
+            })
+            .catch(() => showToast('Error de conexión', 'error'));
+        }
+    );
 }
 
+// ── Eliminar chat ─────────────────────────────────────────────
 function eliminarChat() {
     showModal('Eliminar chat', '¿Eliminar esta conversación? No podrás recuperarla.', 'Eliminar', true, () => {
         {% if chat %}
         fetch("{% url 'chat:eliminar_chat' chat.id %}", {
-            method: 'POST', headers: { 'X-CSRFToken': '{{ csrf_token }}' }
+            method: 'POST',
+            headers: { 'X-CSRFToken': '{{ csrf_token }}' }
         })
         .then(r => r.json())
         .then(d => {
-            if (d.success) { 
-                showToast('Chat eliminado','success'); 
-                setTimeout(() => window.location.href = "{% url 'chat:lista_chats' %}", 800); 
+            if (d.success) {
+                showToast('Chat eliminado', 'success');
+                setTimeout(() => window.location.href = "{% url 'chat:lista_chats' %}", 800);
             } else {
-                showToast('Error al eliminar el chat','error');
+                showToast('Error al eliminar el chat', 'error');
             }
         })
-        .catch(() => showToast('Error de conexión','error'));
+        .catch(() => showToast('Error de conexión', 'error'));
         {% endif %}
     });
 }
 
-// ── Selección de mensajes ─────────────────────────────────────
-let _selMode = false, _selected = new Set();
+// ── Selección y eliminación de mensajes ───────────────────────
+let _selMode = false;
+let _selected = new Set();
+
 function activarSeleccion() {
-    _selMode = true; 
+    _selMode = true;
     _selected.clear();
     document.getElementById('selectionBar').classList.remove('hidden');
-    document.getElementById('selectionCount').textContent = '0 seleccionados';
-    document.querySelectorAll('#messagesList > div').forEach(row => {
+    actualizarContadorSeleccion();
+    document.querySelectorAll('#messagesList > div[data-msg-id]').forEach(row => {
         row.style.cursor = 'pointer';
         row.addEventListener('click', toggleSelMsg);
     });
-    showToast('Toca los mensajes para seleccionarlos','info');
+    showToast('Toca los mensajes para seleccionarlos', 'info');
 }
 
 function cancelarSeleccion() {
-    _selMode = false; 
+    _selMode = false;
     _selected.clear();
     document.getElementById('selectionBar').classList.add('hidden');
-    document.querySelectorAll('#messagesList > div').forEach(row => {
-        row.style.cursor = ''; 
-        row.classList.remove('bg-[#e8f5e4]');
+    document.querySelectorAll('#messagesList > div[data-msg-id]').forEach(row => {
+        row.style.cursor = '';
+        row.classList.remove('bg-[#e8f5e4]', 'ring-2', 'ring-[#2b9e15]');
         row.removeEventListener('click', toggleSelMsg);
     });
 }
 
 function toggleSelMsg() {
     const id = this.dataset.msgId;
-    if (_selected.has(id)) { 
-        _selected.delete(id); 
-        this.classList.remove('bg-[#e8f5e4]'); 
-    } else { 
-        _selected.add(id); 
-        this.classList.add('bg-[#e8f5e4]'); 
+    if (_selected.has(id)) {
+        _selected.delete(id);
+        this.classList.remove('bg-[#e8f5e4]', 'ring-2', 'ring-[#2b9e15]');
+    } else {
+        _selected.add(id);
+        this.classList.add('bg-[#e8f5e4]', 'ring-2', 'ring-[#2b9e15]');
     }
-    document.getElementById('selectionCount').textContent = `${_selected.size} seleccionado${_selected.size !== 1 ? 's' : ''}`;
+    actualizarContadorSeleccion();
+}
+
+function actualizarContadorSeleccion() {
+    const n = _selected.size;
+    document.getElementById('selectionCount').textContent =
+        `${n} mensaje${n !== 1 ? 's' : ''} seleccionado${n !== 1 ? 's' : ''}`;
 }
 
 function eliminarSeleccionados() {
-    if (!_selected.size) { 
-        showToast('No hay mensajes seleccionados','warning'); 
-        return; 
-    }
-    showModal('Eliminar mensajes', `¿Eliminar ${_selected.size} mensaje(s)?`, 'Eliminar', true, () => {
-        _selected.forEach(id => document.querySelector(`[data-msg-id="${id}"]`)?.remove());
-        cancelarSeleccion(); 
-        showToast('Mensajes eliminados','success');
+    if (!_selected.size) { showToast('No hay mensajes seleccionados', 'warning'); return; }
+
+    const ids = [..._selected];
+    const propiosRecientes = ids.filter(id => {
+        const el = document.querySelector(`[data-msg-id="${id}"]`);
+        return el && el.dataset.puedeEliminarParaTodos === 'true';
     });
+
+    if (propiosRecientes.length > 0) {
+        _mostrarModalEliminarConOpciones(ids, propiosRecientes);
+    } else {
+        showModal(
+            'Eliminar mensajes',
+            `¿Eliminar ${ids.length} mensaje(s) para ti? Los demás seguirán viéndolos.`,
+            'Eliminar para mí', true,
+            () => _ejecutarEliminar(ids, false)
+        );
+    }
 }
 
-// ── Búsqueda en chat ──────────────────────────────────────────
+function _mostrarModalEliminarConOpciones(ids, propiosRecientes) {
+    document.getElementById('modalTitle').textContent = 'Eliminar mensajes';
+    document.getElementById('modalBody').innerHTML = `
+        <p class="text-gray-600 text-sm mb-4">
+            ${ids.length} mensaje(s) seleccionado(s).
+            ${propiosRecientes.length} son tuyos y recientes (&lt; 24h).
+        </p>
+        <div class="flex flex-col gap-2">
+            <button id="btnParaTodos"
+                class="w-full py-2.5 text-sm font-semibold text-white bg-red-500 hover:bg-red-600 rounded-xl transition">
+                Eliminar para todos (${propiosRecientes.length} mensaje${propiosRecientes.length !== 1 ? 's' : ''})
+            </button>
+            <button id="btnSoloParaMi"
+                class="w-full py-2.5 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl transition">
+                Eliminar solo para mí (${ids.length})
+            </button>
+        </div>`;
+
+    const btnConfirm = document.getElementById('modalConfirmBtn');
+    btnConfirm.classList.add('hidden');
+    document.getElementById('confirmModal').classList.remove('hidden');
+
+    document.getElementById('btnParaTodos').onclick = () => {
+        closeModal();
+        _ejecutarEliminar(ids, true);
+    };
+    document.getElementById('btnSoloParaMi').onclick = () => {
+        closeModal();
+        _ejecutarEliminar(ids, false);
+    };
+}
+
+function _ejecutarEliminar(ids, paraTodos) {
+    fetch(`/chat/api/eliminar-mensajes/{% if chat %}{{ chat.id }}{% endif %}/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
+        body: JSON.stringify({ mensaje_ids: ids.map(Number), para_todos: paraTodos })
+    })
+    .then(r => r.json())
+    .then(d => {
+        if (d.success) {
+            ids.forEach(id => document.querySelector(`[data-msg-id="${id}"]`)?.remove());
+            cancelarSeleccion();
+            showToast(
+                paraTodos
+                    ? `Eliminados: ${d.eliminados_para_todos} para todos, ${d.eliminados_para_mi} solo para ti`
+                    : `${d.eliminados_para_mi} mensaje(s) eliminado(s) para ti`,
+                'success'
+            );
+            if (d.advertencia) setTimeout(() => showToast(d.advertencia, 'warning'), 500);
+        } else {
+            showToast(d.error || 'Error al eliminar', 'error');
+        }
+    })
+    .catch(() => showToast('Error de conexión', 'error'));
+}
+
+// ── Búsqueda de mensajes ──────────────────────────────────────
+// openSearchModal: abre el modal — llamada desde el botón de la lupa
 function openSearchModal() {
     document.getElementById('searchMsgModal').classList.remove('hidden');
     setTimeout(() => document.getElementById('searchMsgInput').focus(), 50);
@@ -1134,198 +1169,240 @@ function openSearchModal() {
 function closeSearchModal() {
     document.getElementById('searchMsgModal').classList.add('hidden');
     document.getElementById('searchMsgInput').value = '';
-    document.getElementById('searchMsgResults').innerHTML = 'Escribe para buscar mensajes…';
-    document.querySelectorAll('#messagesList > div').forEach(r => r.style.background = '');
+    document.getElementById('searchMsgResults').innerHTML =
+        '<p class="text-gray-400 text-center py-6">Escribe para buscar mensajes…</p>';
+    (window._searchResultIds || []).forEach(id => {
+        const el = document.querySelector(`[data-msg-id="${id}"]`);
+        if (el) el.style.background = '';
+    });
+    window._searchResultIds = [];
 }
 
-document.getElementById('searchMsgInput')?.addEventListener('input', function() {
-    const q = this.value.trim().toLowerCase();
+document.getElementById('searchMsgInput')?.addEventListener('input', function () {
+    const q = this.value.trim();
     const resultsEl = document.getElementById('searchMsgResults');
-    document.querySelectorAll('#messagesList > div').forEach(r => r.style.background = '');
-    
-    if (!q) { 
-        resultsEl.innerHTML = 'Escribe para buscar mensajes…'; 
-        return; 
+
+    // Limpiar resaltados previos
+    (window._searchResultIds || []).forEach(id => {
+        const el = document.querySelector(`[data-msg-id="${id}"]`);
+        if (el) el.style.background = '';
+    });
+
+    if (!q) {
+        resultsEl.innerHTML = '<p class="text-gray-400 text-center py-6">Escribe para buscar mensajes…</p>';
+        return;
     }
-    
-    const matches = [...document.querySelectorAll('#messagesList > div')].filter(r => 
-        r.textContent.toLowerCase().includes(q)
-    );
-    
-    if (!matches.length) { 
-        resultsEl.innerHTML = '<p class="text-gray-400 text-center py-6">Sin resultados</p>'; 
-        return; 
-    }
-    
-    resultsEl.innerHTML = matches.map((r,i) => {
-        const txt = (r.querySelector('p')?.textContent||'').slice(0,60);
-        return `<button class="w-full text-left px-3 py-2.5 rounded-lg hover:bg-gray-50 transition border-b border-gray-50" onclick="scrollToMatch(${i})">
-            <p class="text-sm text-gray-800">${escapeHtml(txt)}${txt.length>=60?'…':''}</p></button>`;
-    }).join('');
-    
-    matches.forEach(r => r.style.background = 'rgba(43,158,21,.10)');
-    window._searchMatches = matches;
+    if (q.length < 2) return;
+
+    {% if chat %}
+    fetch(`/chat/api/buscar/{{ chat.id }}/?q=${encodeURIComponent(q)}`)
+        .then(r => r.json())
+        .then(d => {
+            if (!d.success || !d.resultados.length) {
+                resultsEl.innerHTML = '<p class="text-gray-400 text-center py-6">Sin resultados</p>';
+                return;
+            }
+            resultsEl.innerHTML = d.resultados.map(r => {
+                const preview = r.contenido.length > 70 ? r.contenido.slice(0, 70) + '…' : r.contenido;
+                const quien = r.es_mio ? 'Tú' : escapeHtml(r.autor);
+                return `
+                <button class="w-full text-left px-3 py-3 rounded-xl hover:bg-gray-50 transition border-b border-gray-50 last:border-0"
+                        onclick="irAlMensaje(${r.id})">
+                    <div class="flex items-center justify-between mb-0.5">
+                        <span class="text-xs font-semibold ${r.es_mio ? 'text-[#2b9e15]' : 'text-gray-500'}">${quien}</span>
+                        <span class="text-[10px] text-gray-400">${r.enviado}</span>
+                    </div>
+                    <p class="text-sm text-gray-800 leading-snug">${resaltarQuery(escapeHtml(preview), escapeHtml(q))}</p>
+                </button>`;
+            }).join('');
+
+            // Resaltar en el área de mensajes
+            window._searchResultIds = d.resultados.map(r => r.id);
+            window._searchResultIds.forEach(id => {
+                const el = document.querySelector(`[data-msg-id="${id}"]`);
+                if (el) el.style.background = 'rgba(43,158,21,0.10)';
+            });
+        })
+        .catch(() => {
+            resultsEl.innerHTML = '<p class="text-red-400 text-center py-6">Error al buscar</p>';
+        });
+    {% endif %}
 });
 
-function scrollToMatch(i) {
-    window._searchMatches?.[i]?.scrollIntoView({ behavior:'smooth', block:'center' });
+function resaltarQuery(texto, query) {
+    const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+    return texto.replace(regex, '<mark class="bg-yellow-200 rounded px-0.5">$1</mark>');
 }
+
+function irAlMensaje(msgId) {
+    const el = document.querySelector(`[data-msg-id="${msgId}"]`);
+    if (el) {
+        closeSearchModal();
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        el.style.transition = 'background 0.3s';
+        el.style.background = 'rgba(43,158,21,0.30)';
+        setTimeout(() => { el.style.background = ''; }, 1800);
+    } else {
+        closeSearchModal();
+        showToast('Mensaje no encontrado en pantalla', 'warning');
+    }
+}
+
+// ── Cerrar modal búsqueda al hacer clic fuera ─────────────────
+document.getElementById('searchMsgModal')?.addEventListener('click', function(e) {
+    if (e.target === this) closeSearchModal();
+});
 
 // ── Textarea auto-resize ──────────────────────────────────────
 const msgInput = document.getElementById('messageInput');
 if (msgInput) {
-    msgInput.addEventListener('input', function() {
+    msgInput.addEventListener('input', function () {
         this.style.height = 'auto';
         this.style.height = Math.min(this.scrollHeight, 120) + 'px';
     });
-    
+    // FIX DOBLE ENVÍO: Enter solo llama submit directamente, sin dispatchEvent
     msgInput.addEventListener('keydown', e => {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
-            document.getElementById('messageForm').dispatchEvent(new Event('submit'));
+            _enviarMensajeDesdeForm();
         }
     });
 }
 
 // ── Utils ─────────────────────────────────────────────────────
-function escapeHtml(t) { 
-    return t.replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'})[m]); 
+function escapeHtml(t) {
+    return String(t).replace(/[&<>"']/g, m =>
+        ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#039;' })[m]
+    );
 }
-
 function scrollToBottom() {
     const c = document.getElementById('messagesContainer');
     if (c) c.scrollTop = c.scrollHeight;
 }
 
 // ══════════════════════════════════════════════════════════════
-//  WEBSOCKET + MENSAJERÍA - CON PREVENCIÓN DE DUPLICADOS
+//  WEBSOCKET + MENSAJERÍA
 // ══════════════════════════════════════════════════════════════
 {% if chat %}
-const chatId    = {{ chat.id }};
-const usuarioId = {{ usuario.id }};
-const isGroup   = {{ is_group|yesno:"true,false" }};
-const messageForm = document.getElementById('messageForm');
+const chatId     = {{ chat.id }};
+const usuarioId  = {{ usuario.id }};
+const isGroup    = {{ is_group|yesno:"true,false" }};
+const messageForm     = document.getElementById('messageForm');
 const typingIndicator = document.getElementById('typingIndicator');
-const statusText = document.getElementById('statusText');
-const messagesList = document.getElementById('messagesList');
+const statusText      = document.getElementById('statusText');
+const messagesList    = document.getElementById('messagesList');
 
-let chatSocket = null;
-let typingTimer = null;
-let reconnectAttempts = 0;
+let chatSocket = null, typingTimer = null, reconnectAttempts = 0;
 const MAX_RECONNECT = 5;
-
-// ⭐ VARIABLE PARA EVITAR ENVÍO DUPLICADO
 let enviandoMensaje = false;
 
 function initWebSocket() {
     const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
     chatSocket = new WebSocket(`${proto}//${location.host}/ws/chat/${chatId}/?usuario_id=${usuarioId}`);
-    
-    chatSocket.onopen = () => { 
-        console.log('✅ WebSocket conectado');
-        reconnectAttempts = 0; 
-    };
-    
-    chatSocket.onmessage = e => handleWsMsg(JSON.parse(e.data));
-    
-    chatSocket.onerror = e => {
-        console.error('❌ Error en WebSocket:', e);
-    };
-    
-    chatSocket.onclose = () => {
-        console.log('🔌 WebSocket cerrado');
-        if (reconnectAttempts++ < MAX_RECONNECT) {
-            console.log(`🔄 Reintentando conexión (${reconnectAttempts}/${MAX_RECONNECT})...`);
-            setTimeout(initWebSocket, 3000);
-        } else {
-            console.log('❌ No se pudo reconectar, usando fallback HTTP');
-            usarFallbackHTTP();
-        }
+    chatSocket.onopen    = () => { reconnectAttempts = 0; };
+    chatSocket.onmessage = e  => handleWsMsg(JSON.parse(e.data));
+    chatSocket.onerror   = e  => console.error('WebSocket error:', e);
+    chatSocket.onclose   = () => {
+        if (reconnectAttempts++ < MAX_RECONNECT) setTimeout(initWebSocket, 3000);
+        else usarFallbackHTTP();
     };
 }
 
 function handleWsMsg(data) {
     if (data.type === 'new_message') {
+        // FIX DOBLE ENVÍO: ignorar mensajes propios que ya se agregaron optimistamente
+        if (data.mensaje.autor_id === usuarioId) return;
         appendMsg(data.mensaje);
     } else if (data.type === 'typing') {
         mostrarTyping(data.is_typing);
     } else if (data.type === 'error') {
         showToast(data.message || 'Mensaje bloqueado', 'error');
-        // ⭐ Reactivar envío después de error
         enviandoMensaje = false;
     }
 }
 
-// ⭐ FORM SUBMIT CON PREVENCIÓN DE DUPLICADOS
+// Función central de envío — usada tanto por el form submit como por el keydown
+function _enviarMensajeDesdeForm() {
+    if (enviandoMensaje) return;
+    const contenido = msgInput.value.trim();
+    if (!contenido) return;
+
+    enviandoMensaje = true;
+
+    if (chatSocket?.readyState === WebSocket.OPEN) {
+        // 1. Agregar el mensaje al DOM inmediatamente (optimistic UI)
+        const msgOptimista = {
+            id: `tmp_${Date.now()}`,   // ID temporal hasta que llegue el real
+            autor_id: usuarioId,
+            autor_nombre: '',
+            contenido: contenido,
+            enviado: new Date().toISOString(),
+            puede_eliminar_para_todos: true,
+        };
+        appendMsg(msgOptimista);
+
+        // 2. Enviar por WebSocket
+        chatSocket.send(JSON.stringify({ action: 'send_message', contenido }));
+        msgInput.value = '';
+        msgInput.style.height = 'auto';
+
+        // Liberar flag tras un breve tiempo de guarda
+        setTimeout(() => { enviandoMensaje = false; }, 800);
+    } else {
+        // Sin WS: enviar por HTTP y agregar al DOM cuando llegue la respuesta
+        enviarHTTP(contenido);
+    }
+}
+
+// Submit del form (clic en botón enviar)
 if (messageForm) {
     messageForm.addEventListener('submit', e => {
         e.preventDefault();
-        
-        // ⭐ PREVENIR ENVÍO DUPLICADO
-        if (enviandoMensaje) {
-            console.log('⚠️ Ya se está enviando un mensaje, ignorando...');
-            return;
-        }
-        
-        const contenido = msgInput.value.trim();
-        if (!contenido) return;
-        
-        // ⭐ MARCAR COMO ENVIANDO
-        enviandoMensaje = true;
-        console.log('📤 Enviando mensaje:', contenido);
-        
-        if (chatSocket?.readyState === WebSocket.OPEN) {
-            chatSocket.send(JSON.stringify({ 
-                action: 'send_message', 
-                contenido 
-            }));
-            
-            // Limpiar input y resetear altura
-            msgInput.value = ''; 
-            msgInput.style.height = 'auto';
-            
-            // ⭐ Reactivar después de un tiempo de seguridad
-            setTimeout(() => {
-                enviandoMensaje = false;
-            }, 1000);
-            
-        } else {
-            enviarHTTP(contenido);
-        }
+        _enviarMensajeDesdeForm();
     });
 }
 
+// Indicador de escritura
 if (msgInput) {
     msgInput.addEventListener('input', () => {
         if (chatSocket?.readyState !== WebSocket.OPEN) return;
         clearTimeout(typingTimer);
-        chatSocket.send(JSON.stringify({ action:'typing', is_typing:true }));
-        typingTimer = setTimeout(() => {
-            chatSocket.send(JSON.stringify({ action:'typing', is_typing:false }));
-        }, 2000);
+        chatSocket.send(JSON.stringify({ action: 'typing', is_typing: true }));
+        typingTimer = setTimeout(() =>
+            chatSocket.send(JSON.stringify({ action: 'typing', is_typing: false })), 2000);
     });
 }
 
 function appendMsg(msg) {
+    // Evitar duplicados: si ya existe un elemento con ese data-msg-id, no agregar
+    if (msg.id && document.querySelector(`[data-msg-id="${msg.id}"]`)) return;
+
     const esMio = msg.autor_id === usuarioId;
     const div = document.createElement('div');
     div.className = `flex ${esMio ? 'justify-end' : 'justify-start'} group`;
     div.dataset.msgId = msg.id;
+    div.dataset.puedeEliminarParaTodos = msg.puede_eliminar_para_todos ? 'true' : 'false';
+
     div.innerHTML = `
         <div class="msg-bubble-wrap max-w-[62%]">
-            ${!esMio && isGroup ? `<p class="text-xs font-semibold mb-1 ml-3" style="color:#1a6b09">${escapeHtml(msg.autor_nombre)}</p>` : ''}
+            ${!esMio && isGroup
+                ? `<p class="text-xs font-semibold mb-1 ml-3" style="color:#1a6b09">${escapeHtml(msg.autor_nombre)}</p>`
+                : ''}
             <div class="${esMio ? 'bubble-sent' : 'bubble-recv'} px-3.5 py-2 shadow-sm">
                 <p class="text-[14px] text-gray-900 leading-snug break-words">${escapeHtml(msg.contenido)}</p>
                 <div class="flex items-center justify-end gap-1 mt-0.5">
-                    <span class="text-[11px] text-gray-400">${new Date(msg.enviado).toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'})}</span>
-                    ${esMio ? `<svg class="w-3.5 h-3.5 text-gray-400" fill="currentColor" viewBox="0 0 16 16"><path d="M12.354 4.354a.5.5 0 0 0-.708-.708L5 10.293 1.854 7.146a.5.5 0 1 0-.708.708l3.5 3.5a.5.5 0 0 0 .708 0l7-7zm-4.208 7-.896-.897.707-.707.543.543 6.646-6.647a.5.5 0 0 1 .708.708l-7 7a.5.5 0 0 1-.708 0z"/></svg>` : ''}
+                    <span class="text-[11px] text-gray-400">
+                        ${new Date(msg.enviado).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                    ${esMio ? `<svg class="w-3.5 h-3.5 text-gray-400" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M12.354 4.354a.5.5 0 0 0-.708-.708L5 10.293 1.854 7.146a.5.5 0 1 0-.708.708l3.5 3.5a.5.5 0 0 0 .708 0l7-7zm-4.208 7-.896-.897.707-.707.543.543 6.646-6.647a.5.5 0 0 1 .708.708l-7 7a.5.5 0 0 1-.708 0z"/>
+                    </svg>` : ''}
                 </div>
             </div>
         </div>`;
+
     messagesList.appendChild(div);
     scrollToBottom();
-    
-    // ⭐ Reactivar envío cuando se recibe confirmación
     enviandoMensaje = false;
 }
 
@@ -1337,61 +1414,292 @@ function mostrarTyping(on) {
 function enviarHTTP(contenido) {
     fetch("{% url 'chat:api_enviar_mensaje' chat.id %}", {
         method: 'POST',
-        headers: { 
-            'Content-Type':'application/json', 
-            'X-CSRFToken':'{{ csrf_token }}' 
-        },
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
         body: JSON.stringify({ contenido })
     })
     .then(r => r.json())
     .then(d => {
-        if (d.success) { 
-            appendMsg(d.mensaje); 
-            msgInput.value=''; 
-            msgInput.style.height='auto'; 
+        if (d.success) {
+            appendMsg(d.mensaje);
+            msgInput.value = '';
+            msgInput.style.height = 'auto';
         } else {
-            showToast(d.error || 'Mensaje bloqueado','error');
+            showToast(d.error || 'Mensaje bloqueado', 'error');
         }
-        // ⭐ Reactivar envío
         enviandoMensaje = false;
     })
-    .catch(err => {
-        console.error('Error al enviar mensaje:', err);
-        showToast('Error al enviar el mensaje','error');
-        // ⭐ Reactivar envío
+    .catch(() => {
+        showToast('Error al enviar el mensaje', 'error');
         enviandoMensaje = false;
     });
 }
 
 let _lastId = {{ mensajes.last.id|default:0 }};
 let _poll = null;
-
 function usarFallbackHTTP() {
     _poll = setInterval(() => {
         fetch(`{% url 'chat:api_obtener_mensajes' chat.id %}?ultimo_id=${_lastId}`)
             .then(r => r.json())
             .then(d => {
-                d.mensajes?.forEach(m => { 
-                    appendMsg(m); 
-                    _lastId = Math.max(_lastId, m.id); 
+                d.mensajes?.forEach(m => {
+                    appendMsg(m);
+                    _lastId = Math.max(_lastId, m.id);
                 });
             })
-            .catch(err => {
-                console.error('Error en polling:', err);
-            });
+            .catch(() => {});
     }, 3000);
 }
 
-window.addEventListener('beforeunload', () => { 
-    chatSocket?.close(); 
-    if (_poll) clearInterval(_poll); 
+window.addEventListener('beforeunload', () => {
+    chatSocket?.close();
+    if (_poll) clearInterval(_poll);
 });
+
+// ══════════════════════════════════════════════════════════════
+//  ADJUNTAR ARCHIVOS
+// ══════════════════════════════════════════════════════════════
+const MAX_SIZE_BYTES = 25 * 1024 * 1024;
+const TIPOS_MIME_IMAGEN    = ['image/jpeg','image/png','image/gif','image/webp'];
+const TIPOS_MIME_VIDEO     = ['video/mp4','video/webm','video/ogg','video/quicktime'];
+const TIPOS_MIME_DOCUMENTO = [
+    'application/pdf','application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/vnd.ms-excel',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    'application/vnd.ms-powerpoint',
+    'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+    'text/plain',
+];
+const TODOS_TIPOS = [...TIPOS_MIME_IMAGEN, ...TIPOS_MIME_VIDEO, ...TIPOS_MIME_DOCUMENTO];
+
+const ICONS = {
+    imagen:    `<svg class="w-5 h-5 text-[#2b9e15]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>`,
+    video:     `<svg class="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.069A1 1 0 0121 8.876v6.248a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>`,
+    documento: `<svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>`,
+};
+const BG_ICONS = { imagen:'bg-[#e8f5e4]', video:'bg-purple-50', documento:'bg-blue-50' };
+
+let _archivoSeleccionado = null;
+
+function formatBytes(b) {
+    if (b < 1024) return b + ' B';
+    if (b < 1048576) return (b / 1024).toFixed(1) + ' KB';
+    return (b / 1048576).toFixed(1) + ' MB';
+}
+function detectarTipo(mime) {
+    if (TIPOS_MIME_IMAGEN.includes(mime)) return 'imagen';
+    if (TIPOS_MIME_VIDEO.includes(mime))  return 'video';
+    return 'documento';
+}
+
+document.getElementById('attachBtn')?.addEventListener('click', e => {
+    e.stopPropagation();
+    const menu = document.getElementById('attachMenu');
+    menu.classList.toggle('hidden');
+    if (!menu.classList.contains('hidden')) {
+        menu.classList.remove('attach-menu-animate');
+        void menu.offsetWidth;
+        menu.classList.add('attach-menu-animate');
+    }
+});
+
+function triggerFile(tipo) {
+    document.getElementById('attachMenu').classList.add('hidden');
+    const ids = { imagen:'fileInputImagen', video:'fileInputVideo', documento:'fileInputDocumento' };
+    document.getElementById(ids[tipo])?.click();
+}
+
+function manejarArchivoSeleccionado(file) {
+    if (!file) return;
+    if (!TODOS_TIPOS.includes(file.type)) {
+        showToast('Tipo de archivo no permitido.', 'error'); return;
+    }
+    if (file.size > MAX_SIZE_BYTES) {
+        showToast(`Archivo demasiado grande (máx. 25 MB).`, 'error'); return;
+    }
+    _archivoSeleccionado = file;
+    mostrarPreviewModal(file);
+}
+
+['fileInputImagen','fileInputVideo','fileInputDocumento'].forEach(id => {
+    document.getElementById(id)?.addEventListener('change', function () {
+        manejarArchivoSeleccionado(this.files[0]);
+        this.value = '';
+    });
+});
+
+function mostrarPreviewModal(file) {
+    const tipo = detectarTipo(file.type);
+    document.getElementById('fpFileName').textContent = file.name;
+    document.getElementById('fpFileSize').textContent = formatBytes(file.size);
+    const iconEl = document.getElementById('fpFileIcon');
+    iconEl.innerHTML = ICONS[tipo];
+    iconEl.className = `w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${BG_ICONS[tipo]}`;
+    ['fpImgPreview','fpVideoPreview','fpDocPreview'].forEach(id =>
+        document.getElementById(id)?.classList.add('hidden')
+    );
+    const url = URL.createObjectURL(file);
+    if (tipo === 'imagen') {
+        const img = document.getElementById('fpImgPreview');
+        img.src = url; img.classList.remove('hidden');
+    } else if (tipo === 'video') {
+        const vid = document.getElementById('fpVideoPreview');
+        vid.src = url; vid.classList.remove('hidden');
+    } else {
+        const docDiv = document.getElementById('fpDocPreview');
+        document.getElementById('fpDocIcon').innerHTML = ICONS.documento;
+        document.getElementById('fpDocIcon').className = `w-16 h-16 rounded-2xl flex items-center justify-center ${BG_ICONS.documento}`;
+        document.getElementById('fpDocName').textContent = file.name;
+        docDiv.classList.remove('hidden'); docDiv.classList.add('flex');
+    }
+    document.getElementById('fpCaption').value = '';
+    document.getElementById('fpProgress').classList.add('hidden');
+    document.getElementById('fpProgressBar').style.width = '0%';
+    document.getElementById('fpSendBtn').disabled = false;
+    document.getElementById('filePreviewModal').classList.remove('hidden');
+    setTimeout(() => document.getElementById('fpCaption').focus(), 100);
+}
+
+function cerrarModalArchivo() {
+    document.getElementById('filePreviewModal').classList.add('hidden');
+    const img = document.getElementById('fpImgPreview');
+    const vid = document.getElementById('fpVideoPreview');
+    if (img.src?.startsWith('blob:')) URL.revokeObjectURL(img.src);
+    if (vid.src?.startsWith('blob:')) URL.revokeObjectURL(vid.src);
+    img.src = ''; vid.src = '';
+    _archivoSeleccionado = null;
+}
+
+function enviarArchivoSeleccionado() {
+    if (!_archivoSeleccionado) return;
+    const sendBtn      = document.getElementById('fpSendBtn');
+    const progressWrap = document.getElementById('fpProgress');
+    const progressBar  = document.getElementById('fpProgressBar');
+    const progressText = document.getElementById('fpProgressText');
+    const caption      = document.getElementById('fpCaption').value.trim();
+    sendBtn.disabled = true;
+    progressWrap.classList.remove('hidden');
+    const formData = new FormData();
+    formData.append('archivo', _archivoSeleccionado);
+    if (caption) formData.append('caption', caption);
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', `/chat/api/subir-archivo/${chatId}/`);
+    xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}');
+    xhr.upload.addEventListener('progress', e => {
+        if (!e.lengthComputable) return;
+        const pct = Math.round((e.loaded / e.total) * 100);
+        progressBar.style.width = pct + '%';
+        progressText.textContent = `Subiendo… ${pct}%`;
+    });
+    xhr.addEventListener('load', () => {
+        let data;
+        try { data = JSON.parse(xhr.responseText); } catch { data = {}; }
+        if (xhr.status === 200 && data.success) {
+            progressBar.style.width = '100%';
+            progressText.textContent = '¡Listo!';
+            appendMsgArchivo(data.mensaje);
+            setTimeout(cerrarModalArchivo, 300);
+            showToast('Archivo enviado con éxito', 'success');
+        } else {
+            progressWrap.classList.add('hidden');
+            sendBtn.disabled = false;
+            showToast(data.error || 'Error al subir el archivo', 'error');
+        }
+    });
+    xhr.addEventListener('error', () => {
+        progressWrap.classList.add('hidden');
+        sendBtn.disabled = false;
+        showToast('Error de red al subir el archivo', 'error');
+    });
+    xhr.send(formData);
+}
+
+function appendMsgArchivo(msg) {
+    if (document.querySelector(`[data-msg-id="${msg.id}"]`)) return;
+    const esMio = msg.autor_id === usuarioId;
+    const div = document.createElement('div');
+    div.className = `flex ${esMio ? 'justify-end' : 'justify-start'} group`;
+    div.dataset.msgId = msg.id;
+    const hora = new Date(msg.enviado).toLocaleTimeString('es-ES', { hour:'2-digit', minute:'2-digit' });
+    let contenidoHTML = '';
+    if (msg.tipo_archivo === 'imagen') {
+        contenidoHTML = `<a href="${msg.url_archivo}" target="_blank" rel="noopener" class="block rounded-xl overflow-hidden shadow-sm max-w-[220px]">
+            <img src="${msg.url_archivo}" alt="${escapeHtml(msg.nombre_archivo)}" class="w-full object-cover max-h-[280px]">
+            ${msg.contenido ? `<p class="text-xs text-gray-700 px-3 pt-1.5 pb-2 bg-white">${escapeHtml(msg.contenido)}</p>` : ''}
+        </a>`;
+    } else if (msg.tipo_archivo === 'video') {
+        contenidoHTML = `<div class="rounded-xl overflow-hidden shadow-sm max-w-[260px] ${esMio ? 'bubble-sent' : 'bubble-recv'} p-1">
+            <video src="${msg.url_archivo}" controls class="w-full rounded-lg max-h-[220px]"></video>
+            ${msg.contenido ? `<p class="text-xs text-gray-700 px-2 pt-1 pb-1">${escapeHtml(msg.contenido)}</p>` : ''}
+        </div>`;
+    } else {
+        const ext = msg.nombre_archivo.split('.').pop().toUpperCase();
+        contenidoHTML = `<div class="${esMio ? 'bubble-sent' : 'bubble-recv'} px-3.5 py-2.5 shadow-sm">
+            <a href="${msg.url_archivo}" target="_blank" rel="noopener" class="flex items-center gap-3 group/doc">
+                <div class="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                </div>
+                <div class="min-w-0">
+                    <p class="text-sm font-medium text-gray-900 truncate max-w-[160px]">${escapeHtml(msg.nombre_archivo)}</p>
+                    <p class="text-[11px] text-gray-400 mt-0.5">${ext} · ${formatBytes(msg.tamanio)}</p>
+                </div>
+            </a>
+        </div>`;
+    }
+    const tickHtml = esMio
+        ? `<div class="flex items-center justify-end gap-1 mt-0.5 px-1"><span class="text-[11px] text-gray-400">${hora}</span></div>`
+        : `<div class="flex items-center justify-start gap-1 mt-0.5 px-1"><span class="text-[11px] text-gray-400">${hora}</span></div>`;
+    div.innerHTML = `<div class="msg-bubble-wrap max-w-[62%]">
+        ${!esMio && isGroup ? `<p class="text-xs font-semibold mb-1 ml-3" style="color:#1a6b09">${escapeHtml(msg.autor_nombre)}</p>` : ''}
+        ${contenidoHTML}${tickHtml}
+    </div>`;
+    messagesList.appendChild(div);
+    scrollToBottom();
+}
+
+document.getElementById('filePreviewModal')?.addEventListener('click', function (e) {
+    if (e.target === this) cerrarModalArchivo();
+});
+
+// Pegar imagen desde portapapeles
+document.addEventListener('paste', e => {
+    if (!document.getElementById('messageForm')) return;
+    const imageItem = Array.from(e.clipboardData?.items || []).find(i => i.type.startsWith('image/'));
+    if (!imageItem) return;
+    const file = imageItem.getAsFile();
+    if (!file) return;
+    const ext = file.type.split('/')[1] || 'png';
+    const namedFile = new File([file], `imagen_${Date.now()}.${ext}`, { type: file.type });
+    if (namedFile.size > MAX_SIZE_BYTES) { showToast('Imagen demasiado grande (máx. 25 MB)', 'error'); return; }
+    _archivoSeleccionado = namedFile;
+    mostrarPreviewModal(namedFile);
+});
+
+// Drag & drop
+const dropZone = document.getElementById('messagesContainer');
+if (dropZone) {
+    dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('ring-2','ring-[#2b9e15]','ring-inset'); });
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('ring-2','ring-[#2b9e15]','ring-inset'));
+    dropZone.addEventListener('drop', e => {
+        e.preventDefault();
+        dropZone.classList.remove('ring-2','ring-[#2b9e15]','ring-inset');
+        const file = e.dataTransfer.files[0];
+        if (!file) return;
+        if (!TODOS_TIPOS.includes(file.type)) { showToast('Tipo de archivo no permitido', 'error'); return; }
+        if (file.size > MAX_SIZE_BYTES) { showToast('Archivo demasiado grande (máx. 25 MB)', 'error'); return; }
+        _archivoSeleccionado = file;
+        mostrarPreviewModal(file);
+    });
+}
+
 {% endif %}
 
-// ── Filtros de chats ──────────────────────────────────────────
-(function() {
+// ══════════════════════════════════════════════════════════════
+//  FILTROS DE CHATS (sidebar) — sin Favoritos
+// ══════════════════════════════════════════════════════════════
+(function () {
     const filterBtns = document.querySelectorAll('.filter-btn');
-    const chatRows = document.querySelectorAll('[data-chat-name]');
+    const chatRows   = document.querySelectorAll('[data-chat-name]');
 
     function setActiveFilter(btn) {
         filterBtns.forEach(b => {
@@ -1405,67 +1713,59 @@ window.addEventListener('beforeunload', () => {
     function applyFilter(filter) {
         let visible = 0;
         chatRows.forEach(row => {
-            let show = false;
+            let show;
             if (filter === 'todos') {
                 show = true;
             } else if (filter === 'noleidos') {
-                show = parseInt(row.dataset.noLeidos || '0') > 0;
-            } else if (filter === 'favoritos') {
-                show = row.dataset.favorito === 'true';
+                // data-no-leidos viene del template como string, puede ser "0" o "3"
+                show = parseInt(row.dataset.noLeidos || '0', 10) > 0;
             } else if (filter === 'grupos') {
                 show = row.dataset.esGrupo === 'true';
+            } else {
+                show = true;
             }
             row.style.display = show ? 'flex' : 'none';
             if (show) visible++;
         });
 
-        const noChatsMsg = document.getElementById('noFilterResult');
-        if (noChatsMsg) noChatsMsg.remove();
-        
+        document.getElementById('noFilterResult')?.remove();
+
         if (visible === 0 && filter !== 'todos') {
-            const msgs = { 
-                noleidos:'No tienes mensajes sin leer', 
-                favoritos:'Aún no tienes chats favoritos', 
-                grupos:'No tienes grupos de chat' 
+            const msgs = {
+                noleidos: 'No tienes mensajes sin leer',
+                grupos:   'No tienes grupos de chat'
             };
             const el = document.createElement('div');
             el.id = 'noFilterResult';
             el.className = 'flex flex-col items-center justify-center py-12 px-6 text-center';
-            el.innerHTML = `<div class="w-12 h-12 bg-[#e8f5e4] rounded-xl flex items-center justify-center mb-3">
-                <svg class="w-6 h-6 text-[#2b9e15]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                </svg>
-            </div>
-            <p class="text-sm text-gray-500">${msgs[filter] || 'Sin resultados'}</p>`;
+            el.innerHTML = `
+                <div class="w-12 h-12 bg-[#e8f5e4] rounded-xl flex items-center justify-center mb-3">
+                    <svg class="w-6 h-6 text-[#2b9e15]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                            d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+                <p class="text-sm text-gray-500">${msgs[filter] || 'Sin resultados'}</p>`;
             document.querySelector('.sidebar-list')?.appendChild(el);
         }
+    }
 
-        if (filter !== 'todos') {
-            const labels = { noleidos:'📬 No leídos', favoritos:'⭐ Favoritos', grupos:'👥 Grupos' };
-            showToast(`Filtro: ${labels[filter] || filter}`, 'info');
+    filterBtns.forEach(btn => btn.addEventListener('click', () => {
+        setActiveFilter(btn);
+        applyFilter(btn.dataset.filter);
+    }));
+
+    // Búsqueda en sidebar respeta el filtro activo
+    document.getElementById('searchChats')?.addEventListener('input', e => {
+        const q = e.target.value.toLowerCase();
+        chatRows.forEach(row => {
+            row.style.display = row.dataset.chatName.toLowerCase().includes(q) ? 'flex' : 'none';
+        });
+        if (!q) {
+            const activeBtn = document.querySelector('.filter-btn.bg-\\[\\#2b9e15\\]');
+            if (activeBtn) applyFilter(activeBtn.dataset.filter);
         }
-    }
-
-    filterBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            setActiveFilter(btn);
-            applyFilter(btn.dataset.filter);
-        });
     });
-
-    const searchInput = document.getElementById('searchChats');
-    if (searchInput) {
-        searchInput.addEventListener('input', e => {
-            const q = e.target.value.toLowerCase();
-            chatRows.forEach(row => {
-                row.style.display = row.dataset.chatName.toLowerCase().includes(q) ? 'flex' : 'none';
-            });
-            if (!q) {
-                const activeBtn = document.querySelector('.filter-btn.bg-\\[\\#2b9e15\\]');
-                if (activeBtn) applyFilter(activeBtn.dataset.filter);
-            }
-        });
-    }
 })();
 </script>
 </body>

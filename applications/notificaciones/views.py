@@ -1,28 +1,35 @@
 # applications/notificaciones/views.py
 
 from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
+from django.views.decorators.http import require_POST
 from .models import Notificacion
 from applications.usuarios.models import Usuario
 
-@login_required
-def obtener_notificaciones(request):
-    """API para obtener notificaciones no leídas (para el header)"""
+
+def _get_usuario(request):
+    """Helper reutilizable para obtener el usuario actual."""
     try:
-        # Obtener usuario actual
         from applications.sesion.views import obtener_usuario_actual
-        usuario_actual, _ = obtener_usuario_actual(request)
-        
+        return obtener_usuario_actual(request)
+    except Exception:
+        return None, None
+
+
+# ─────────────────────────────────────────────────────────────
+#  API: OBTENER NOTIFICACIONES (header)
+# ─────────────────────────────────────────────────────────────
+def obtener_notificaciones(request):
+    try:
+        usuario_actual, _ = _get_usuario(request)
         if not usuario_actual:
             return JsonResponse({'notificaciones': [], 'count': 0})
-        
-        # Obtener notificaciones no leídas
+
         notificaciones = Notificacion.objects.filter(
             destinatario=usuario_actual,
             leida=False
-        )[:10]  # Máximo 10 notificaciones
-        
+        ).select_related('emisor').order_by('-fecha_creacion')[:10]
+
         data = {
             'count': notificaciones.count(),
             'notificaciones': [
@@ -31,6 +38,7 @@ def obtener_notificaciones(request):
                     'tipo': n.tipo,
                     'mensaje': n.mensaje,
                     'emisor_nombre': n.emisor.nombre,
+                    'emisor_id': n.emisor.id,
                     'emisor_foto': n.emisor.foto.url if n.emisor.foto else None,
                     'fecha': n.fecha_creacion.strftime('%Y-%m-%d %H:%M'),
                     'publicacion_id': n.publicacion.id if n.publicacion else None,
@@ -38,70 +46,129 @@ def obtener_notificaciones(request):
                 for n in notificaciones
             ]
         }
-        
         return JsonResponse(data)
+
     except Exception as e:
         print(f"Error obteniendo notificaciones: {e}")
         return JsonResponse({'notificaciones': [], 'count': 0})
 
 
-@login_required
+# ─────────────────────────────────────────────────────────────
+#  API: MARCAR LEÍDA
+# ─────────────────────────────────────────────────────────────
 def marcar_leida(request, notificacion_id):
-    """Marca una notificación como leída"""
     try:
-        from applications.sesion.views import obtener_usuario_actual
-        usuario_actual, _ = obtener_usuario_actual(request)
-        
+        usuario_actual, _ = _get_usuario(request)
         notificacion = Notificacion.objects.get(
             id=notificacion_id,
             destinatario=usuario_actual
         )
         notificacion.marcar_como_leida()
-        
         return JsonResponse({'success': True})
-    except:
+    except Exception:
         return JsonResponse({'success': False})
 
 
-@login_required
+# ─────────────────────────────────────────────────────────────
+#  API: MARCAR TODAS LEÍDAS
+# ─────────────────────────────────────────────────────────────
 def marcar_todas_leidas(request):
-    """Marca todas las notificaciones como leídas"""
     try:
-        from applications.sesion.views import obtener_usuario_actual
-        usuario_actual, _ = obtener_usuario_actual(request)
-        
+        usuario_actual, _ = _get_usuario(request)
         Notificacion.objects.filter(
             destinatario=usuario_actual,
             leida=False
         ).update(leida=True)
-        
         return JsonResponse({'success': True})
-    except:
+    except Exception:
         return JsonResponse({'success': False})
 
 
-@login_required
+# ─────────────────────────────────────────────────────────────
+#  VISTA: LISTA COMPLETA DE NOTIFICACIONES
+# ─────────────────────────────────────────────────────────────
 def lista_notificaciones(request):
-    """Vista completa de todas las notificaciones"""
-    from applications.sesion.views import obtener_usuario_actual
-    usuario_actual, datos_usuario = obtener_usuario_actual(request)
-    
+    usuario_actual, datos_usuario = _get_usuario(request)
+
     if not usuario_actual:
         return redirect('sesion:home')
-    
-    
-    # Obtener todas las notificaciones
+
     notificaciones = Notificacion.objects.filter(
         destinatario=usuario_actual
-    )
-    
-    # Marcar todas como leídas
+    ).select_related('emisor').order_by('-fecha_creacion')
+
     notificaciones.filter(leida=False).update(leida=True)
-    
+
     context = {
         'notificaciones': notificaciones,
         'usuario': datos_usuario,
         'tipo_perfil': request.session.get('tipo_usuario'),
     }
-    
     return render(request, 'notificaciones.html', context)
+
+
+# ─────────────────────────────────────────────────────────────
+#  API: SILENCIAR / ACTIVAR USUARIO EN CHAT
+# ─────────────────────────────────────────────────────────────
+@require_POST
+def toggle_silenciar_usuario(request):
+    """
+    Silencia o activa las notificaciones de mensajes de un usuario específico.
+    Body JSON: { "emisor_id": <int> }
+    Respuesta: { "success": true, "silenciado": true/false, "mensaje": "..." }
+    """
+    import json
+    try:
+        usuario_actual, _ = _get_usuario(request)
+        if not usuario_actual:
+            return JsonResponse({'success': False, 'error': 'No autenticado'}, status=403)
+
+        data = json.loads(request.body)
+        emisor_id = data.get('emisor_id')
+
+        if not emisor_id:
+            return JsonResponse({'success': False, 'error': 'emisor_id requerido'}, status=400)
+
+        emisor = Usuario.objects.get(id=emisor_id)
+
+        from .models import ChatSilenciado
+        ahora_silenciado = ChatSilenciado.toggle(usuario=usuario_actual, emisor=emisor)
+
+        return JsonResponse({
+            'success': True,
+            'silenciado': ahora_silenciado,
+            'mensaje': f"🔕 {emisor.nombre} silenciado" if ahora_silenciado else f"🔔 {emisor.nombre} activado",
+        })
+
+    except Usuario.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Usuario no encontrado'}, status=404)
+    except Exception as e:
+        print(f"Error en toggle_silenciar_usuario: {e}")
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+
+@require_POST
+def verificar_silenciado(request):
+    """
+    Verifica si el usuario actual tiene silenciado a otro.
+    Body JSON: { "emisor_id": <int> }
+    Respuesta: { "silenciado": true/false }
+    Útil para que el frontend muestre el estado correcto del botón.
+    """
+    import json
+    try:
+        usuario_actual, _ = _get_usuario(request)
+        if not usuario_actual:
+            return JsonResponse({'silenciado': False})
+
+        data = json.loads(request.body)
+        emisor_id = data.get('emisor_id')
+        emisor = Usuario.objects.get(id=emisor_id)
+
+        from .models import ChatSilenciado
+        silenciado = ChatSilenciado.esta_silenciado(usuario=usuario_actual, emisor=emisor)
+
+        return JsonResponse({'silenciado': silenciado})
+
+    except Exception:
+        return JsonResponse({'silenciado': False})

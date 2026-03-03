@@ -10,16 +10,24 @@ from .models import Notificacion
 
 
 def _usuario_desde_documento(numero_documento):
-    """
-    Helper: devuelve el objeto Usuario a partir de un numero_documento.
-    Retorna None si no se encuentra.
-    """
     try:
         return Usuario.objects.get(documento=numero_documento)
     except Usuario.DoesNotExist:
         return None
     except Usuario.MultipleObjectsReturned:
         return Usuario.objects.filter(documento=numero_documento).first()
+
+
+def _esta_silenciado(destinatario, emisor):
+    """
+    Verifica si el destinatario tiene silenciado al emisor.
+    Importación diferida para evitar circular imports.
+    """
+    try:
+        from .models import ChatSilenciado
+        return ChatSilenciado.esta_silenciado(usuario=destinatario, emisor=emisor)
+    except Exception:
+        return False
 
 
 # ============================================================
@@ -58,22 +66,17 @@ def notificar_amistad_aceptada(sender, instance, created, **kwargs):
 
 # ============================================================
 # NUEVA PUBLICACIÓN
-# El autor de la publicación es un objeto Bienestar/Instructor/Aprendiz
-# (GenericForeignKey en Publicacion.autor), necesitamos convertirlo a Usuario
-# para poder guardar la notificación, ya que Notificacion.emisor es FK a Usuario.
 # ============================================================
 @receiver(post_save, sender=Publicacion)
 def notificar_nueva_publicacion(sender, instance, created, **kwargs):
     if not created:
         return
     try:
-        # Convertir autor (Bienestar/Instructor/Aprendiz) → Usuario
         usuario_emisor = _usuario_desde_documento(instance.autor.numero_documento)
         if not usuario_emisor:
             print(f"⚠️ No se encontró Usuario para el autor de la publicación: {instance.autor}")
             return
 
-        # Obtener amigos del usuario emisor
         amigos = Amistad.obtener_amigos(usuario_emisor)
 
         categorias_emoji = {
@@ -85,7 +88,6 @@ def notificar_nueva_publicacion(sender, instance, created, **kwargs):
 
         notificaciones = []
         for amigo in amigos:
-            # Evitar notificarse a sí mismo
             if amigo.id == usuario_emisor.id:
                 continue
             notificaciones.append(Notificacion(
@@ -108,34 +110,26 @@ def notificar_nueva_publicacion(sender, instance, created, **kwargs):
 
 # ============================================================
 # NUEVO COMENTARIO
-# Comentario usa GenericForeignKey (content_type + object_id)
-# en lugar de un FK directo. object_id = numero_documento del autor.
 # ============================================================
 @receiver(post_save, sender=Comentario)
 def notificar_comentario(sender, instance, created, **kwargs):
     if not created:
         return
     try:
-        # Obtener el autor del comentario desde GenericForeignKey
-        # instance.content_object devuelve el Aprendiz/Instructor/Bienestar
-        autor_perfil = instance.content_object  # objeto real del autor del comentario
+        autor_perfil = instance.content_object
         if not autor_perfil:
             print("⚠️ No se pudo obtener el autor del comentario")
             return
 
         usuario_emisor = _usuario_desde_documento(autor_perfil.numero_documento)
         if not usuario_emisor:
-            print(f"⚠️ No se encontró Usuario para el autor del comentario")
             return
 
-        # Autor de la publicación (también puede ser Bienestar, etc.)
         autor_publicacion_perfil = instance.publicacion.autor
         usuario_destinatario = _usuario_desde_documento(autor_publicacion_perfil.numero_documento)
         if not usuario_destinatario:
-            print(f"⚠️ No se encontró Usuario para el autor de la publicación")
             return
 
-        # No notificar si la persona se comenta a sí misma
         if usuario_emisor.id == usuario_destinatario.id:
             return
 
@@ -148,7 +142,6 @@ def notificar_comentario(sender, instance, created, **kwargs):
             mensaje=f"💬 {autor_perfil.nombre} comentó en tu publicación: \"{contenido_corto}\"",
             publicacion=instance.publicacion
         )
-        print(f"✅ Notificación de comentario creada: {autor_perfil.nombre} → {autor_publicacion_perfil.nombre}")
 
     except Exception as e:
         import traceback
@@ -158,32 +151,25 @@ def notificar_comentario(sender, instance, created, **kwargs):
 
 # ============================================================
 # NUEVO LIKE
-# Like también usa GenericForeignKey (content_type + object_id)
 # ============================================================
 @receiver(post_save, sender=Like)
 def notificar_like(sender, instance, created, **kwargs):
     if not created:
         return
     try:
-        # Obtener el perfil del usuario que dio like desde GenericForeignKey
-        usuario_like_perfil = instance.content_object  # Aprendiz/Instructor/Bienestar
+        usuario_like_perfil = instance.content_object
         if not usuario_like_perfil:
-            print("⚠️ No se pudo obtener el usuario que dio like")
             return
 
         usuario_emisor = _usuario_desde_documento(usuario_like_perfil.numero_documento)
         if not usuario_emisor:
-            print(f"⚠️ No se encontró Usuario para quien dio like")
             return
 
-        # Autor de la publicación
         autor_publicacion_perfil = instance.publicacion.autor
         usuario_destinatario = _usuario_desde_documento(autor_publicacion_perfil.numero_documento)
         if not usuario_destinatario:
-            print(f"⚠️ No se encontró Usuario para el autor de la publicación")
             return
 
-        # No notificar si la persona da like a su propia publicación
         if usuario_emisor.id == usuario_destinatario.id:
             return
 
@@ -196,7 +182,6 @@ def notificar_like(sender, instance, created, **kwargs):
             mensaje=f"❤️ A {usuario_like_perfil.nombre} le gustó tu publicación: \"{titulo_corto}\"",
             publicacion=instance.publicacion
         )
-        print(f"✅ Notificación de like creada: {usuario_like_perfil.nombre} → {autor_publicacion_perfil.nombre}")
 
     except Exception as e:
         import traceback
@@ -206,8 +191,8 @@ def notificar_like(sender, instance, created, **kwargs):
 
 # ============================================================
 # NUEVO MENSAJE DE CHAT
-# Cuando alguien envía un mensaje, notificar a todos los demás
-# participantes del chat (excepto al autor).
+# Respeta la configuración de silenciar: si el destinatario
+# tiene silenciado al autor, no se crea la notificación.
 # ============================================================
 @receiver(post_save, sender=Mensaje)
 def notificar_nuevo_mensaje(sender, instance, created, **kwargs):
@@ -217,20 +202,25 @@ def notificar_nuevo_mensaje(sender, instance, created, **kwargs):
         chat = instance.chat
         autor = instance.autor  # Ya es un objeto Usuario
 
-        # Obtener todos los participantes excepto el autor
         destinatarios = chat.participantes.exclude(id=autor.id)
 
         contenido_corto = instance.contenido[:60] + '...' if len(instance.contenido) > 60 else instance.contenido
 
-        # Nombre del chat: si es grupal usar el nombre del grupo, si no usar el nombre del autor
         if chat.is_group:
-            nombre_chat = chat.nombre if hasattr(chat, 'nombre') and chat.nombre else "un grupo"
+            nombre_chat = chat.nombre_grupo or "un grupo"
             mensaje_notif = f"💬 {autor.nombre} en {nombre_chat}: \"{contenido_corto}\""
         else:
             mensaje_notif = f"💬 {autor.nombre} te envió un mensaje: \"{contenido_corto}\""
 
         notificaciones = []
+        silenciados_omitidos = 0
+
         for destinatario in destinatarios:
+            # ── Verificar si este destinatario tiene silenciado al autor ──
+            if _esta_silenciado(destinatario=destinatario, emisor=autor):
+                silenciados_omitidos += 1
+                continue  # No crear notificación para este destinatario
+
             notificaciones.append(Notificacion(
                 destinatario=destinatario,
                 emisor=autor,
@@ -240,7 +230,9 @@ def notificar_nuevo_mensaje(sender, instance, created, **kwargs):
 
         if notificaciones:
             Notificacion.objects.bulk_create(notificaciones)
-            print(f"✅ {len(notificaciones)} notificaciones de mensaje creadas para el chat {chat.id}")
+            print(f"✅ {len(notificaciones)} notificaciones de mensaje creadas (omitidos silenciados: {silenciados_omitidos})")
+        elif silenciados_omitidos:
+            print(f"🔕 Mensaje enviado pero todos los destinatarios tienen silenciado al autor")
 
     except Exception as e:
         import traceback

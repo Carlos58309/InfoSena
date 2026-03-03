@@ -39,7 +39,7 @@ def obtener_usuario_actual(request):
         return None
 
 
-@login_required
+
 @require_http_methods(["GET"])
 def buscar_usuarios(request):
     """
@@ -91,7 +91,7 @@ def buscar_usuarios(request):
     return JsonResponse({'resultados': resultados})
 
 
-@login_required
+
 @require_http_methods(["GET"])
 def obtener_historial(request):
     """
@@ -139,7 +139,7 @@ def obtener_historial(request):
     return JsonResponse({'historial': resultados})
 
 
-@login_required
+
 @require_http_methods(["POST"])
 def guardar_en_historial(request):
     """
@@ -175,7 +175,7 @@ def guardar_en_historial(request):
         return JsonResponse({'error': str(e)}, status=500)
 
 
-@login_required
+
 @require_http_methods(["POST"])
 def eliminar_del_historial(request):
     """
@@ -205,7 +205,7 @@ def eliminar_del_historial(request):
         return JsonResponse({'error': str(e)}, status=500)
 
 
-@login_required
+
 @require_http_methods(["POST"])
 def limpiar_historial(request):
     """
@@ -220,7 +220,7 @@ def limpiar_historial(request):
         return JsonResponse({'error': str(e)}, status=500)
 
 
-@login_required
+
 @require_http_methods(["GET"])
 def obtener_documento_usuario(request, usuario_id):
     """

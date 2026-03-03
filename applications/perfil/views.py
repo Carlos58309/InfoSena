@@ -18,7 +18,7 @@ from applications.amistades.models import Amistad
 # ========================================
 # VISTA: PERFIL PROPIO
 # ========================================
-@login_required
+
 def perfiles(request):
     """Ver el perfil propio del usuario"""
     if 'usuario_id' not in request.session or 'tipo_usuario' not in request.session:
@@ -108,7 +108,7 @@ def perfiles(request):
 
 
 # Alias para compatibilidad
-@login_required
+
 def perfil(request):
     """Alias de perfiles() para mantener compatibilidad"""
     return perfiles(request)
@@ -117,7 +117,7 @@ def perfil(request):
 # ========================================
 # VISTA: DASHBOARD
 # ========================================
-@login_required
+
 def dashboard_view(request):
     """Dashboard del usuario"""
     if 'usuario_id' not in request.session or 'tipo_usuario' not in request.session:
@@ -151,7 +151,7 @@ def dashboard_view(request):
 # ========================================
 # VISTA: EDITAR PERFIL
 # ========================================
-@login_required
+
 def editar_perfil(request):
     """Editar el perfil del usuario"""
     if 'usuario_id' not in request.session or 'tipo_usuario' not in request.session:
@@ -219,7 +219,7 @@ def editar_perfil(request):
 # ========================================
 # VISTA: ELIMINAR PERFIL
 # ========================================
-@login_required
+
 def eliminar_perfil(request):
     """Eliminar la cuenta del usuario"""
     if request.method == 'POST':
@@ -252,7 +252,7 @@ def eliminar_perfil(request):
 # ========================================
 # VISTA: VER PERFIL DE CUALQUIER USUARIO
 # ========================================
-@login_required
+
 def ver_perfil(request, documento):
     """
     Ver perfil de cualquier usuario

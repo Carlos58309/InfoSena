@@ -52,7 +52,7 @@ def obtener_usuario_actual(request):
         return usuario_actual
 
 
-@login_required
+
 def enviar_solicitud(request, usuario_id):
     """Envía una solicitud de amistad"""
     
@@ -92,7 +92,7 @@ def enviar_solicitud(request, usuario_id):
     return redirect('sesion:amigos')
 
 
-@login_required
+
 def cancelar_solicitud(request, usuario_id):
     """Cancela una solicitud de amistad enviada"""
     
@@ -122,7 +122,7 @@ def cancelar_solicitud(request, usuario_id):
     return redirect('sesion:amigos')
 
 
-@login_required
+
 def aceptar_solicitud(request, solicitud_id):
     """Acepta una solicitud de amistad"""
     
@@ -153,7 +153,7 @@ def aceptar_solicitud(request, solicitud_id):
     return redirect('sesion:amigos')
 
 
-@login_required
+
 def rechazar_solicitud(request, solicitud_id):
     """Rechaza y elimina una solicitud de amistad"""
     
@@ -181,7 +181,7 @@ def rechazar_solicitud(request, solicitud_id):
     return redirect('sesion:amigos')
 
 
-@login_required
+
 def eliminar_amigo(request, usuario_id):
     """Elimina una amistad"""
     

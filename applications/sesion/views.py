@@ -106,7 +106,7 @@ def login_view(request):
     return render(request, "login.html")
 
 
-@login_required
+
 def dashboard_view(request):
     if 'usuario_id' not in request.session or 'tipo_usuario' not in request.session:
         return redirect('sesion:login')
@@ -308,7 +308,7 @@ def obtener_sugerencias_inteligentes(usuario_actual, tipo_perfil_actual, limite=
 # ==========================================
 # ⭐ VISTA HOME CORREGIDA
 # ==========================================
-@login_required
+
 def home_view(request):
     """Vista principal con publicaciones y datos de amistades"""
     
@@ -412,7 +412,7 @@ def home_view(request):
 # ==========================================
 # VISTA AMIGOS
 # ==========================================
-@login_required
+
 def amigos_view(request):
     """Vista de amigos con sugerencias"""
     

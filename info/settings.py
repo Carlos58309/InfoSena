@@ -171,7 +171,7 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 
 EMAIL_HOST_USER = "perezpolancocarlosmario@gmail.com"  # cámbialo
-EMAIL_HOST_PASSWORD = "qwoyxgwfdszxnfmb"  # NO la contraseña normal
+EMAIL_HOST_PASSWORD = "zdotpwzoijuwwsts"  # NO la contraseña normal
 
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
@@ -179,16 +179,17 @@ ADMIN_EMAIL = EMAIL_HOST_USER
 
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 PERSPECTIVE_API_KEY = 'AIzaSyClFIfrYfiMOtH3nDTgBtYNSxS08en0fH4'
+PERSPECTIVE_DEBUG = True
 # Modelo de moderación
 OPENAI_MODERATION_MODEL = 'omni-moderation-latest'
 
 PERSPECTIVE_THRESHOLDS = {
-    'TOXICITY': 0.7,          # Toxicidad general (recomendado: 0.6-0.8)
-    'SEVERE_TOXICITY': 0.6,   # Toxicidad severa (recomendado: 0.5-0.7)
-    'INSULT': 0.7,            # Insultos directos (recomendado: 0.6-0.8)
-    'PROFANITY': 0.7,         # Groserías/palabrotas (recomendado: 0.6-0.8)
-    'THREAT': 0.6,            # Amenazas (recomendado: 0.5-0.7)
-    'IDENTITY_ATTACK': 0.7,   # Ataques por identidad (recomendado: 0.6-0.8)
+    'TOXICITY': 0.5,          # Toxicidad general (recomendado: 0.6-0.8)
+    'SEVERE_TOXICITY': 0.4,   # Toxicidad severa (recomendado: 0.5-0.7)
+    'INSULT': 0.5,            # Insultos directos (recomendado: 0.6-0.8)
+    'PROFANITY': 0.5,         # Groserías/palabrotas (recomendado: 0.6-0.8)
+    'THREAT': 0.4,            # Amenazas (recomendado: 0.5-0.7)
+    'IDENTITY_ATTACK': 0.5,   # Ataques por identidad (recomendado: 0.6-0.8)
 }
 
 # Configuración de moderación
@@ -215,8 +216,10 @@ MODERACION_CATEGORIAS_BLOQUEADAS = [
 MODERACION_PALABRAS_PROHIBIDAS = [
     'puta', 'puto', 'mierda', 'verga', 'pendejo',
     'gonorrea', 'hijueputa', 'malparido', 'marica',
-    'maricon', 'cabron', 'imbecil', 'estupido', 'idiota',
-    'culero', 'pendeja', 'perra', 'zorra'
+    'maricon', 'cabron', 'imbecil', 'estupido', 'pito',
+    'pene', 'tetas', 'cuca', 'vagina', 'culo', 'tetranutra',
+    'cacorro', 'sapo', 'zunga', 'valija', 'pirobo', 'pingo',
+    'pato', 'pata', 'mamerto', 'lanpara', 'guisa', 'guaricha'
 ]
 
 # Caché (opcional pero recomendado)
