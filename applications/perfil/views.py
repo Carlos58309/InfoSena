@@ -244,7 +244,7 @@ def eliminar_perfil(request):
         logout(request)
         datos_usuario.delete()
         messages.success(request, "Cuenta eliminada correctamente")
-        return redirect('home')
+        return redirect('sesion:home')
 
     return render(request, 'eliminar_perfil.html')
 

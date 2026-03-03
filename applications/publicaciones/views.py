@@ -6,6 +6,8 @@ from django.contrib import messages
 from .models import Publicacion, Like, Comentario, ArchivoPublicacion
 from applications.registro.models import Bienestar, Aprendiz, Instructor
 from django.contrib.contenttypes.models import ContentType
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
 
 def get_usuario_actual(session):
     usuario_id = session.get('usuario_id')
@@ -493,31 +495,29 @@ def comentar(request, publicacion_id):
 
 
 
+@require_POST
 def eliminar_comentario(request, comentario_id):
-    """
-    Eliminar un comentario (solo el autor o el autor de la publicación)
-    """
-    comentario = get_object_or_404(Comentario, id=comentario_id)
-    publicacion = comentario.publicacion
+    """Elimina un comentario SOLO si el usuario logueado es el autor."""
     
     # Verificar sesión
     if 'usuario_id' not in request.session:
-        messages.error(request, "No autorizado")
-        return redirect('sesion:login')
-    
-    usuario_id = request.session['usuario_id']
-    
+        return JsonResponse({'ok': False, 'error': 'No autenticado'}, status=401)
+
+    usuario, ct = get_usuario_actual(request.session)
+    if not usuario:
+        return JsonResponse({'ok': False, 'error': 'Usuario no encontrado'}, status=404)
+
     try:
-        datos_bienestar = Bienestar.objects.get(numero_documento=usuario_id)
-        
-        # Verificar permisos: autor del comentario o autor de la publicación
-        if datos_bienestar == comentario.autor or datos_bienestar == publicacion.autor:
-            comentario.delete()
-            messages.success(request, "Comentario eliminado")
-        else:
-            messages.error(request, "No tienes permiso para eliminar este comentario")
+        comentario = Comentario.objects.get(id=comentario_id)
+    except Comentario.DoesNotExist:
+        return JsonResponse({'ok': False, 'error': 'Comentario no encontrado'}, status=404)
+
+    # ✅ Verificar que el que pide eliminar es el autor
+    if str(comentario.object_id) != str(usuario.numero_documento):
+        return JsonResponse({'ok': False, 'error': 'No tienes permiso para eliminar este comentario'}, status=403)
+
+    publicacion_id = comentario.publicacion.id
+    comentario.delete()
     
-    except Bienestar.DoesNotExist:
-        messages.error(request, "Usuario no encontrado")
-    
-    return redirect(request.META.get('HTTP_REFERER', 'perfil:perfiles'))
+    total = Comentario.objects.filter(publicacion_id=publicacion_id).count()
+    return JsonResponse({'ok': True, 'total': total})

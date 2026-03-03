@@ -21,5 +21,5 @@ urlpatterns = [
     
     # Comentarios
     path('comentar/<int:publicacion_id>/', views.comentar, name='comentar'),
-    path('comentario/eliminar/<int:comentario_id>/', views.eliminar_comentario, name='eliminar_comentario'),
+    path('comentario/<int:comentario_id>/eliminar/', views.eliminar_comentario, name='eliminar_comentario'),
 ]
