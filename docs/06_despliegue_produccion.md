@@ -299,53 +299,145 @@ git push origin main
 3. Busca tu repositorio **"infosena"** y selecciónalo
 4. Railway detectará automáticamente que es un proyecto Python
 
-### 4.3. Agregar MySQL
 
-1. En tu proyecto de Railway, click en **"+ New"** → **"Database"** → **"MySQL"**
-2. Railway creará una instancia de MySQL automáticamente
-3. Click en el servicio MySQL → pestaña **"Variables"**
-4. Copia los valores:
+### 4.3. Agregar MySQL (Railway)
 
-| Variable Railway | ¿Qué es? |
-|---|---|
-| `MYSQL_HOST` | Host del servidor MySQL |
-| `MYSQL_PORT` | Puerto (generalmente 3306) |
-| `MYSQL_DATABASE` | Nombre de la base de datos |
-| `MYSQL_USER` | Usuario |
-| `MYSQL_PASSWORD` | Contraseña |
-| `MYSQL_URL` | URL de conexión completa |
+Railway facilita la integración de MySQL generando automáticamente las variables de entorno necesarias. Sigue estos pasos:
 
-### 4.4. Agregar Redis
+#### Paso 1: Agregar el plugin de MySQL
+1. Entra a tu proyecto en Railway (web).
+2. Haz clic en “Add Plugin” o “Agregar plugin”.
+3. Selecciona “MySQL”.
+4. Espera a que Railway cree la base de datos.
 
-1. Click en **"+ New"** → **"Database"** → **"Redis"**
-2. Railway creará una instancia de Redis
-3. Copia la variable `REDIS_URL`
+#### Paso 2: Ubica las variables de entorno
+Railway agregará variables como estas (los valores serán diferentes en tu proyecto):
+
+```
+MYSQLDATABASE=railway
+MYSQLHOST=mysql.railway.internal
+MYSQLPORT=3306
+MYSQLUSER=root
+MYSQLPASSWORD=contraseña_generada
+```
+
+#### Paso 3: Configura tu archivo `.env` (opcional para pruebas locales)
+Agrega estas líneas a tu `.env` local:
+
+```
+DB_NAME=railway
+DB_USER=root
+DB_PASSWORD=contraseña_generada
+DB_HOST=mysql.railway.internal
+DB_PORT=3306
+```
+
+#### Paso 4: Configura `settings.py` en Django
+Asegúrate de que tu archivo `settings.py` use las variables de entorno:
+
+```python
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': os.getenv('DB_NAME'),
+        'USER': os.getenv('DB_USER'),
+        'PASSWORD': os.getenv('DB_PASSWORD'),
+        'HOST': os.getenv('DB_HOST'),
+        'PORT': os.getenv('DB_PORT'),
+    }
+}
+```
+
+#### Nota
+- En Railway, no necesitas modificar nada: las variables ya están disponibles para tu app.
+- Si usas otro nombre de variable, asegúrate de mapearlo correctamente en tu `.env` y en `settings.py`.
+- Railway permite referenciar variables de otros servicios, por ejemplo: `${{MySQL.MYSQL_HOST}}`.
+
+---
+Esto garantiza que tu Django usará la base de datos MySQL de Railway tanto en producción como en pruebas locales (si copias las variables a tu `.env`).
+
+
+### 4.4. Agregar Redis (Railway)
+
+Redis es necesario para el chat y tareas en tiempo real. Railway permite agregarlo fácilmente:
+
+#### Paso 1: Agregar el plugin de Redis
+1. Entra a tu proyecto en Railway (web).
+2. Haz clic en “Add Plugin” o “+ New” → “Database” → “Redis”.
+3. Espera a que Railway cree la base de datos Redis.
+
+#### Paso 2: Obtén la URL de conexión
+1. Haz clic en el servicio Redis recién creado.
+2. Ve a la pestaña “Variables”.
+3. Copia el valor de la variable `REDIS_URL` (ejemplo: `redis://default:contraseña@redis.railway.internal:6379`).
+
+#### Paso 3: Configura tu archivo `.env`
+- **En producción (Railway):**
+    - Pega la URL copiada en tu `.env` de Railway:
+        ```
+        REDIS_URL=redis://default:contraseña@redis.railway.internal:6379
+        ```
+        (Reemplaza por el valor real que te da Railway.)
+- **En local:**
+    - Si tienes Redis instalado en tu PC, usa:
+        ```
+        REDIS_URL=redis://127.0.0.1:6379
+        ```
+    - Si no usas Redis localmente, puedes dejarlo vacío o comentar la línea.
+
+---
+Esto asegura que tu Django usará Redis correctamente tanto en Railway como en desarrollo local.
+
 
 ### 4.5. Configurar variables de entorno
 
-1. Click en tu servicio web (el que tiene el código)
+1. Haz clic en tu servicio web (el que tiene el código)
 2. Ve a la pestaña **"Variables"**
-3. Agrega las siguientes variables:
+3. Puedes agregar las variables una por una, o usar el **Raw Editor** para pegarlas todas de una vez (opcional y recomendado):
 
-| Variable | Valor |
-|---|---|
-| `SECRET_KEY` | (genera una nueva con el comando del paso 3.2) |
-| `DEBUG` | `False` |
-| `ALLOWED_HOSTS` | `tu-app.up.railway.app,infosena.site` |
-| `DB_NAME` | (copia de `MYSQL_DATABASE`) |
-| `DB_USER` | (copia de `MYSQL_USER`) |
-| `DB_PASSWORD` | (copia de `MYSQL_PASSWORD`) |
-| `DB_HOST` | (copia de `MYSQL_HOST`) |
-| `DB_PORT` | (copia de `MYSQL_PORT`) |
-| `REDIS_HOST` | (host de la URL de Redis) |
-| `REDIS_PORT` | (puerto de la URL de Redis) |
-| `EMAIL_HOST_USER` | tu correo Gmail |
-| `EMAIL_HOST_PASSWORD` | contraseña de app Gmail |
-| `PERSPECTIVE_API_KEY` | tu API Key de Perspective |
-| `OPENAI_API_KEY` | tu API Key de OpenAI (opcional) |
-| `PORT` | `8000` |
+#### Opción rápida: Raw Editor
 
-> **Alternativa más sencilla:** Railway permite referenciar variables de otros servicios. Puedes usar `${{MySQL.MYSQL_HOST}}` como valor para `DB_HOST`.
+1. Haz clic en **Raw Editor** (arriba a la derecha en la pestaña Variables).
+2. Borra lo que haya (si quieres empezar limpio) y pega este bloque (ajusta los valores según tu proyecto):
+
+```env
+SECRET_KEY=django-insecure-h2*$b!#5upbewe)h)c0s074)!675xs#zj4sj$sx3yd*bn55k!1
+DEBUG=False
+
+# ¡IMPORTANTE!
+# Debes agregar exactamente el dominio generado por Railway a ALLOWED_HOSTS para evitar errores 400 (DisallowedHost).
+# Ejemplo:
+ALLOWED_HOSTS=web-production-6b79c.up.railway.app,infosena.site
+
+# Si tu dominio cambia, actualiza este valor. Puedes ver el dominio en la parte superior de tu servicio web en Railway.
+
+# Base de datos (Railway)
+DB_NAME=railway
+DB_USER=root
+DB_PASSWORD=rtHncHhNyLzxAqSKEQdIPEEkxVVIuEky
+DB_HOST=mysql.railway.internal
+DB_PORT=3306
+
+# Redis (Railway)
+REDIS_URL=redis://default:iRvoiOLLexvDuoshytwNheoIlwbudVPf@redis.railway.internal:6379
+
+# Email
+EMAIL_HOST_USER=perezpolancocarlosmario@gmail.com
+EMAIL_HOST_PASSWORD=zdotpwzoijuwwsts
+
+# APIs
+OPENAI_API_KEY=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
+PERSPECTIVE_API_KEY=AIzaSyClFIfrYfiMOtH3nDTgBtYNSxS08en0fH4
+
+PORT=8000
+```
+
+> **Nota:** Cambia los valores de las claves y contraseñas por los de tu proyecto. El valor de `ALLOWED_HOSTS` debe incluir el dominio de Railway y cualquier dominio personalizado que uses.
+
+---
+También puedes seguir agregando variables una por una si lo prefieres.
+
+> **Tip:** Railway permite referenciar variables de otros servicios. Puedes usar `${{MySQL.MYSQL_HOST}}` como valor para `DB_HOST`.
 
 ### 4.6. Configurar el build y deploy
 
