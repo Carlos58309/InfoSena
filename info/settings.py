@@ -13,8 +13,13 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 import os
+from dotenv import load_dotenv
 import pymysql
 pymysql.install_as_MySQLdb()
+
+# Cargar variables de entorno desde .env
+load_dotenv()
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent  # QUÉDATE CON ESTA
 
@@ -30,12 +35,12 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'  # Ahora funciona porque BASE_DIR es Path
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-h2*$b!#5upbewe)h)c0s074)!675xs#zj4sj$sx3yd*bn55k!1'
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-h2*$b!#5upbewe)h)c0s074)!675xs#zj4sj$sx3yd*bn55k!1')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG', 'True').lower() in ('true', '1', 'yes')
 
-ALLOWED_HOSTS = ["*", "infosena.site"]
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '*,infosena.site').split(',')
 
 
 # Application definition
@@ -65,6 +70,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -99,11 +105,11 @@ ASGI_APPLICATION = 'info.asgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'infosena_db',
-        'USER': 'root',
-        'PASSWORD': 'root',
-        'HOST': 'localhost',
-        'PORT': '3306',
+        'NAME': os.getenv('DB_NAME', 'infosena_db'),
+        'USER': os.getenv('DB_USER', 'root'),
+        'PASSWORD': os.getenv('DB_PASSWORD', ''),
+        'HOST': os.getenv('DB_HOST', 'localhost'),
+        'PORT': os.getenv('DB_PORT', '3306'),
         'OPTIONS': {
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"
         }
@@ -134,7 +140,7 @@ CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            "hosts": [('127.0.0.1', 6379)],
+            "hosts": [os.getenv('REDIS_URL', 'redis://127.0.0.1:6379')],
         },
     },
 }
@@ -170,15 +176,15 @@ EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 
-EMAIL_HOST_USER = "perezpolancocarlosmario@gmail.com"  # cámbialo
-EMAIL_HOST_PASSWORD = "zdotpwzoijuwwsts"  # NO la contraseña normal
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', 'perezpolancocarlosmario@gmail.com')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', 'zdotpwzoijuwwsts')
 
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 ADMIN_EMAIL = EMAIL_HOST_USER
 
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
-PERSPECTIVE_API_KEY = 'AIzaSyClFIfrYfiMOtH3nDTgBtYNSxS08en0fH4'
+PERSPECTIVE_API_KEY = os.getenv('PERSPECTIVE_API_KEY', 'AIzaSyClFIfrYfiMOtH3nDTgBtYNSxS08en0fH4')
 PERSPECTIVE_DEBUG = True
 # Modelo de moderación
 OPENAI_MODERATION_MODEL = 'omni-moderation-latest'
