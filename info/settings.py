@@ -46,6 +46,28 @@ if '127.0.0.1' not in ALLOWED_HOSTS:
 if '' in ALLOWED_HOSTS:
     ALLOWED_HOSTS.remove('')
 
+# Necesario para que Django detecte HTTPS detrás del proxy de Railway
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+# CSRF trusted origins para producción
+CSRF_TRUSTED_ORIGINS = [
+    'https://*.up.railway.app',
+    'https://web-production-6b79c.up.railway.app',
+]
+_csrf_extra = os.getenv('CSRF_TRUSTED_ORIGINS', '')
+if _csrf_extra:
+    for _origin in _csrf_extra.split(','):
+        _origin = _origin.strip()
+        if _origin and _origin not in CSRF_TRUSTED_ORIGINS:
+            CSRF_TRUSTED_ORIGINS.append(_origin)
+for _host in ALLOWED_HOSTS:
+    _host = _host.strip()
+    if _host and _host not in ('127.0.0.1', 'localhost'):
+        for _scheme in ('https://', 'http://'):
+            _o = f'{_scheme}{_host}'
+            if _o not in CSRF_TRUSTED_ORIGINS:
+                CSRF_TRUSTED_ORIGINS.append(_o)
+
 
 # Application definitionwww
 
