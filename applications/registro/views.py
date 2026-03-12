@@ -21,10 +21,18 @@ def generar_codigo():
 
 
 def enviar_codigo_verificacion(email, nombre, codigo):
-    """Envía el código de verificación por correo al usuario"""
-    asunto = '🔐 Código de Verificación - INFOSENA'
-    
-    mensaje = f"""
+    """Envía el código de verificación por correo al usuario usando Resend"""
+    import resend
+    from django.conf import settings
+
+    resend.api_key = settings.RESEND_API_KEY
+
+    try:
+        resend.Emails.send({
+            "from": f"InfoSENA <{settings.DEFAULT_FROM_EMAIL}>",
+            "to": [email],
+            "subject": "🔐 Código de Verificación - INFOSENA",
+            "text": f"""
 Hola {nombre},
 
 ¡Bienvenido a INFOSENA! 🎓
@@ -37,16 +45,8 @@ Si no solicitaste este registro, ignora este correo.
 
 Saludos,
 Equipo INFOSENA
-    """
-    
-    try:
-        send_mail(
-            asunto,
-            mensaje,
-            settings.DEFAULT_FROM_EMAIL,
-            [email],
-            fail_silently=False,
-        )
+            """,
+        })
         return True
     except Exception as e:
         print(f"Error al enviar correo: {str(e)}")
@@ -54,10 +54,18 @@ Equipo INFOSENA
 
 
 def enviar_notificacion_admin(nombre, email, rol, tipo_doc, num_doc, codigo_admin):
-    """Envía notificación al admin para aprobar instructor/bienestar"""
-    asunto = f'⚠️ Nueva Solicitud de Registro - {rol.upper()}'
-    
-    mensaje = f"""
+    """Envía notificación al admin para aprobar instructor/bienestar usando Resend"""
+    import resend
+    from django.conf import settings
+
+    resend.api_key = settings.RESEND_API_KEY
+
+    try:
+        resend.Emails.send({
+            "from": f"InfoSENA <{settings.DEFAULT_FROM_EMAIL}>",
+            "to": [settings.ADMIN_EMAIL],
+            "subject": f"⚠️ Nueva Solicitud de Registro - {rol.upper()}",
+            "text": f"""
 NUEVA SOLICITUD DE REGISTRO COMO {rol.upper()}
 
 Datos del solicitante:
@@ -71,23 +79,15 @@ Rol solicitado: {rol.upper()}
 CÓDIGO DE APROBACIÓN: {codigo_admin}
 
 ⚠️ IMPORTANTE: Este usuario necesita aprobación administrativa.
-El usuario ya verificó su correo electrónico, pero necesita que ingreses 
+El usuario ya verificó su correo electrónico, pero necesita que ingreses
 el código de aprobación para activar su cuenta.
 
 Este código expira en 24 horas.
 
 ---
 Sistema INFOSENA
-    """
-    
-    try:
-        send_mail(
-            asunto,
-            mensaje,
-            settings.DEFAULT_FROM_EMAIL,
-            [settings.ADMIN_EMAIL],
-            fail_silently=False,
-        )
+            """,
+        })
         return True
     except Exception as e:
         print(f"Error al enviar notificación admin: {str(e)}")
@@ -691,10 +691,18 @@ def aprobar_cuenta_view(request):
 
 
 def enviar_notificacion_aprobacion(email, nombre, rol):
-    """Envía email al usuario notificando que su cuenta fue aprobada"""
-    asunto = f'🎉 Cuenta Aprobada - INFOSENA'
-    
-    mensaje = f"""
+    """Envía email al usuario notificando que su cuenta fue aprobada usando Resend"""
+    import resend
+    from django.conf import settings
+
+    resend.api_key = settings.RESEND_API_KEY
+
+    try:
+        resend.Emails.send({
+            "from": f"InfoSENA <{settings.DEFAULT_FROM_EMAIL}>",
+            "to": [email],
+            "subject": "🎉 Cuenta Aprobada - INFOSENA",
+            "text": f"""
 Hola {nombre},
 
 ¡Excelentes noticias! 🎉
@@ -707,16 +715,8 @@ Ya puedes iniciar sesión en la plataforma con tu número de documento y contras
 
 Saludos,
 Equipo INFOSENA
-    """
-    
-    try:
-        send_mail(
-            asunto,
-            mensaje,
-            settings.DEFAULT_FROM_EMAIL,
-            [email],
-            fail_silently=False,
-        )
+            """,
+        })
         return True
     except Exception as e:
         print(f"Error al enviar notificación de aprobación: {str(e)}")

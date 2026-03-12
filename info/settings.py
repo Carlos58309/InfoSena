@@ -195,17 +195,17 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # CONFIGURACIÓN DE CORREO (RECUPERAR CONTRASEÑA)
 # ------------------------------------------
 
-EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-EMAIL_HOST = "smtp.gmail.com"
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
+#EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+#EMAIL_HOST = "smtp.gmail.com"
+#EMAIL_PORT = 587
+#EMAIL_USE_TLS = True
+#EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', 'perezpolancocarlosmario@gmail.com')
+#EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', 'zdotpwzoijuwwsts')
 
-EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', 'perezpolancocarlosmario@gmail.com')
-EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', 'zdotpwzoijuwwsts')
 
-DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
-
-ADMIN_EMAIL = EMAIL_HOST_USER
+RESEND_API_KEY = os.getenv('RESEND_API_KEY')
+DEFAULT_FROM_EMAIL = os.getenv('EMAIL_HOST_USER', 'onboarding@resend.dev')
+ADMIN_EMAIL = os.getenv('EMAIL_HOST_USER', 'onboarding@resend.dev')
 
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 PERSPECTIVE_API_KEY = os.getenv('PERSPECTIVE_API_KEY', 'AIzaSyClFIfrYfiMOtH3nDTgBtYNSxS08en0fH4')
