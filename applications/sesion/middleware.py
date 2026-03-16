@@ -13,6 +13,7 @@ class NoCacheMiddleware:
     RUTAS_PUBLICAS = [
         '/sesion/login/',
         '/sesion/logout/',
+        '/sesion/verificar-sesion/',
         '/sesion/solicitar-correo/',
         '/sesion/verificar-codigo/',
         '/sesion/nueva-contrasena/',

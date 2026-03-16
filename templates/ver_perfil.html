@@ -108,6 +108,46 @@
         @media (max-width: 900px) { .header-search { max-width: 200px; } }
     </style>
 </head>
+
+<!-- ==========================================
+     SEGURIDAD: Anti-caché y protección sesión
+     Pegar antes del </body> en TODOS los templates
+     EXCEPTO: login.html, index.html, registrar.html
+     ========================================== -->
+<script>
+(function() {
+    // 1. Evitar que el navegador guarde esta página en caché
+    // Esto impide que el botón "atrás" muestre páginas de sesiones anteriores
+    if (window.history.replaceState) {
+        window.history.replaceState(null, null, window.location.href);
+    }
+
+    // 2. Al volver con el botón atrás (pageshow), verificar sesión con el servidor
+    window.addEventListener('pageshow', function(event) {
+        // event.persisted = true significa que el navegador sacó la página del caché
+        if (event.persisted) {
+            // Hacer una petición silenciosa para verificar si la sesión sigue activa
+            fetch('/sesion/verificar-sesion/', {
+                method: 'GET',
+                credentials: 'same-origin'
+            })
+            .then(function(response) {
+                return response.json();
+            })
+            .then(function(data) {
+                if (!data.autenticado) {
+                    // Sesión inválida: forzar redirección al login
+                    window.location.replace('/sesion/login/');
+                }
+            })
+            .catch(function() {
+                // Si falla la petición, redirigir al login por seguridad
+                window.location.replace('/sesion/login/');
+            });
+        }
+    });
+})();
+</script>
 <body>
 
     {% if messages %}

@@ -17,6 +17,7 @@ from .models import CodigoRecuperacion
 from django.contrib.auth import authenticate, login
 from django.db import transaction, connection
 from applications.sesion.decorators import sesion_requerida
+from django.http import JsonResponse
 
 def login_view(request):
     if request.method == "POST":
@@ -526,6 +527,16 @@ def logout_view(request):
     
     return response
 
+def verificar_sesion(request):
+    """
+    Endpoint que el frontend consulta para saber si la sesión sigue activa.
+    Usado por el script anti-caché del botón atrás.
+    """
+    autenticado = bool(
+        request.session.get('usuario_id') and
+        request.session.get('tipo_usuario')
+    )
+    return JsonResponse({'autenticado': autenticado})
 
 def home(request):
     return render(request, 'index.html')

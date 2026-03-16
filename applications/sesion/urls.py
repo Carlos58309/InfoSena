@@ -7,6 +7,7 @@ app_name = "sesion"
 urlpatterns = [
     path("login/", login_view, name="login"),
     path("logout/", logout_view, name="logout"),
+    path("verificar-sesion/", verificar_sesion, name="verificar_sesion"),
     path("home/", home_view, name="home"),
     path("amigos/", amigos_view, name="amigos"),
     path("solicitar-correo/", solicitar_correo, name="solicitar_correo"),
