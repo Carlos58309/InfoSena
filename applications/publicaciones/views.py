@@ -8,6 +8,7 @@ from applications.registro.models import Bienestar, Aprendiz, Instructor
 from django.contrib.contenttypes.models import ContentType
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
+from applications.sesion.decorators import sesion_requerida
 
 def get_usuario_actual(session):
     usuario_id = session.get('usuario_id')
@@ -32,6 +33,8 @@ def get_usuario_actual(session):
     except Exception as e:
         print(f"❌ get_usuario_actual error: {e}")
         return None, None
+
+@sesion_requerida
 def crear_publicacion(request):
     """
     Vista para crear publicaciones - VERSIÓN FINAL CORREGIDA
@@ -270,7 +273,7 @@ def ver_publicacion(request, publicacion_id):
     return render(request, 'ver_publicacion.html', context)
 
 
-
+@sesion_requerida
 def mis_publicaciones(request):
     """
     Vista para ver las publicaciones del usuario de bienestar logueado
@@ -304,7 +307,7 @@ def mis_publicaciones(request):
     return render(request, 'mis_publicaciones.html', context)
 
 
-
+@sesion_requerida
 def eliminar_publicacion(request, publicacion_id):
     """
     Vista para eliminar una publicación - Solo el autor puede eliminar
@@ -363,6 +366,7 @@ def get_usuario_actual(session):
     except Exception:
         return None, None
 
+@sesion_requerida
 def toggle_like(request, publicacion_id):
     if 'usuario_id' not in request.session:
         return JsonResponse({'error': 'No autenticado'}, status=401)
@@ -443,7 +447,7 @@ def detalle_publicacion(request, id):
     return render(request, 'detalle_publicacion.html', context)
 
 
-
+@sesion_requerida
 def comentar(request, publicacion_id):
     if request.method == 'POST':
         if 'usuario_id' not in request.session:
@@ -494,7 +498,7 @@ def comentar(request, publicacion_id):
     return JsonResponse({'error': 'Método no permitido'}, status=405)
 
 
-
+@sesion_requerida
 @require_POST
 def eliminar_comentario(request, comentario_id):
     """Elimina un comentario SOLO si el usuario logueado es el autor."""

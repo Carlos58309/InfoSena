@@ -1,3 +1,4 @@
+# sesion/views.py
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from .utils import token_generator
@@ -15,7 +16,7 @@ from django.utils import timezone
 from .models import CodigoRecuperacion
 from django.contrib.auth import authenticate, login
 from django.db import transaction, connection
-
+from applications.sesion.decorators import sesion_requerida
 
 def login_view(request):
     if request.method == "POST":
@@ -106,7 +107,7 @@ def login_view(request):
     return render(request, "login.html")
 
 
-
+@sesion_requerida
 def dashboard_view(request):
     if 'usuario_id' not in request.session or 'tipo_usuario' not in request.session:
         return redirect('sesion:login')
@@ -308,7 +309,7 @@ def obtener_sugerencias_inteligentes(usuario_actual, tipo_perfil_actual, limite=
 # ==========================================
 # ⭐ VISTA HOME CORREGIDA
 # ==========================================
-
+@sesion_requerida
 def home_view(request):
     """Vista principal con publicaciones y datos de amistades"""
     
@@ -412,7 +413,7 @@ def home_view(request):
 # ==========================================
 # VISTA AMIGOS
 # ==========================================
-
+@sesion_requerida
 def amigos_view(request):
     """Vista de amigos con sugerencias"""
     

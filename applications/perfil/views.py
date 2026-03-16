@@ -13,12 +13,12 @@ from django.conf import settings
 from django.core.files.storage import default_storage
 from applications.publicaciones.models import Publicacion
 from applications.amistades.models import Amistad
-
+from applications.sesion.decorators import sesion_requerida
 
 # ========================================
 # VISTA: PERFIL PROPIO
 # ========================================
-
+@sesion_requerida
 def perfiles(request):
     """Ver el perfil propio del usuario"""
     if 'usuario_id' not in request.session or 'tipo_usuario' not in request.session:
@@ -117,7 +117,7 @@ def perfil(request):
 # ========================================
 # VISTA: DASHBOARD
 # ========================================
-
+@sesion_requerida
 def dashboard_view(request):
     """Dashboard del usuario"""
     if 'usuario_id' not in request.session or 'tipo_usuario' not in request.session:
@@ -151,7 +151,7 @@ def dashboard_view(request):
 # ========================================
 # VISTA: EDITAR PERFIL
 # ========================================
-
+@sesion_requerida
 def editar_perfil(request):
     """Editar el perfil del usuario"""
     if 'usuario_id' not in request.session or 'tipo_usuario' not in request.session:
@@ -219,7 +219,7 @@ def editar_perfil(request):
 # ========================================
 # VISTA: ELIMINAR PERFIL
 # ========================================
-
+@sesion_requerida
 def eliminar_perfil(request):
     """Eliminar la cuenta del usuario"""
     if request.method == 'POST':
@@ -252,7 +252,7 @@ def eliminar_perfil(request):
 # ========================================
 # VISTA: VER PERFIL DE CUALQUIER USUARIO
 # ========================================
-
+@sesion_requerida
 def ver_perfil(request, documento):
     """
     Ver perfil de cualquier usuario

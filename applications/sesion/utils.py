@@ -1,3 +1,4 @@
+# sesion/urls.py
 from django.utils.crypto import salted_hmac
 
 class SimpleTokenGenerator:

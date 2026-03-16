@@ -1,3 +1,4 @@
+# registro/views.py
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.hashers import make_password
@@ -9,7 +10,7 @@ from datetime import timedelta
 from django.utils import timezone
 from django.core.mail import send_mail
 from django.conf import settings
-
+from applications.sesion.decorators import sesion_requerida
 
 # ========================================
 # FUNCIONES AUXILIARES
@@ -587,7 +588,7 @@ def esperando_aprobacion_view(request):
 # ========================================
 # VISTA: PANEL DE APROBACIÓN ADMIN
 # ========================================
-
+@sesion_requerida
 def panel_aprobacion_view(request):
     """Panel para que el admin vea y apruebe cuentas pendientes"""
     

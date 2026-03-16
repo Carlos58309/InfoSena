@@ -19,7 +19,7 @@ import json
 import uuid
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
-
+from applications.sesion.decorators import sesion_requerida
 logger = logging.getLogger(__name__)
 
 moderador = ModeracionService()
@@ -86,7 +86,7 @@ def obtener_usuario_actual(request):
 #  VISTAS PRINCIPALES
 # ══════════════════════════════════════════════════════════════
 
-
+@sesion_requerida
 def lista_chats(request):
     usuario_actual = obtener_usuario_actual(request)
     if not usuario_actual:
@@ -126,7 +126,7 @@ def lista_chats(request):
     return render(request, "chat.html", context)
 
 
-
+@sesion_requerida
 def chat_room(request, chat_id):
     usuario_actual = obtener_usuario_actual(request)
     if not usuario_actual:
@@ -191,7 +191,7 @@ def chat_room(request, chat_id):
     return render(request, "chat.html", context)
 
 
-
+@sesion_requerida
 def iniciar_chat(request, usuario_id):
     usuario_actual = obtener_usuario_actual(request)
     if not usuario_actual:
@@ -207,7 +207,7 @@ def iniciar_chat(request, usuario_id):
     return redirect("chat:chat_room", chat_id=chat.id)
 
 
-
+@sesion_requerida
 @moderar_mensaje_chat
 def enviar_mensaje(request, chat_id):
     if request.method != "POST":
@@ -242,7 +242,7 @@ def enviar_mensaje(request, chat_id):
 
     return redirect("chat:chat_room", chat_id=chat_id)
 
-
+@sesion_requerida
 def crear_grupo(request):
     usuario_actual = obtener_usuario_actual(request)
     if not usuario_actual:
@@ -297,7 +297,7 @@ def crear_grupo(request):
 # ══════════════════════════════════════════════════════════════
 #  API AJAX — MENSAJES
 # ══════════════════════════════════════════════════════════════
-
+@sesion_requerida
 def api_obtener_mensajes(request, chat_id):
     usuario_actual = obtener_usuario_actual(request)
     if not usuario_actual:
@@ -326,7 +326,7 @@ def api_obtener_mensajes(request, chat_id):
 
     return JsonResponse({"mensajes": data, "total": len(data)})
 
-
+@sesion_requerida
 def api_enviar_mensaje(request, chat_id):
     if request.method != "POST":
         return JsonResponse({"error": "Método no permitido"}, status=405)

@@ -8,7 +8,7 @@ from django.db.models import Q
 from .models import Amistad
 from applications.usuarios.models import Usuario
 from applications.registro.models import Aprendiz, Instructor, Bienestar
-
+from applications.sesion.decorators import sesion_requerida
 
 def obtener_usuario_actual(request):
     """
@@ -52,7 +52,7 @@ def obtener_usuario_actual(request):
         return usuario_actual
 
 
-
+@sesion_requerida
 def enviar_solicitud(request, usuario_id):
     """Envía una solicitud de amistad"""
     
@@ -92,7 +92,7 @@ def enviar_solicitud(request, usuario_id):
     return redirect('sesion:amigos')
 
 
-
+@sesion_requerida
 def cancelar_solicitud(request, usuario_id):
     """Cancela una solicitud de amistad enviada"""
     
@@ -122,7 +122,7 @@ def cancelar_solicitud(request, usuario_id):
     return redirect('sesion:amigos')
 
 
-
+@sesion_requerida
 def aceptar_solicitud(request, solicitud_id):
     """Acepta una solicitud de amistad"""
     
@@ -153,7 +153,7 @@ def aceptar_solicitud(request, solicitud_id):
     return redirect('sesion:amigos')
 
 
-
+@sesion_requerida
 def rechazar_solicitud(request, solicitud_id):
     """Rechaza y elimina una solicitud de amistad"""
     
@@ -181,7 +181,7 @@ def rechazar_solicitud(request, solicitud_id):
     return redirect('sesion:amigos')
 
 
-
+@sesion_requerida
 def eliminar_amigo(request, usuario_id):
     """Elimina una amistad"""
     

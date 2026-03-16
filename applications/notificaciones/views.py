@@ -5,7 +5,7 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from .models import Notificacion
 from applications.usuarios.models import Usuario
-
+from applications.sesion.decorators import sesion_requerida
 
 def _get_usuario(request):
     """Helper reutilizable para obtener el usuario actual."""
@@ -19,6 +19,7 @@ def _get_usuario(request):
 # ─────────────────────────────────────────────────────────────
 #  API: OBTENER NOTIFICACIONES (header)
 # ─────────────────────────────────────────────────────────────
+@sesion_requerida
 def obtener_notificaciones(request):
     try:
         usuario_actual, _ = _get_usuario(request)
@@ -56,6 +57,7 @@ def obtener_notificaciones(request):
 # ─────────────────────────────────────────────────────────────
 #  API: MARCAR LEÍDA
 # ─────────────────────────────────────────────────────────────
+@sesion_requerida
 def marcar_leida(request, notificacion_id):
     try:
         usuario_actual, _ = _get_usuario(request)
@@ -72,6 +74,7 @@ def marcar_leida(request, notificacion_id):
 # ─────────────────────────────────────────────────────────────
 #  API: MARCAR TODAS LEÍDAS
 # ─────────────────────────────────────────────────────────────
+@sesion_requerida
 def marcar_todas_leidas(request):
     try:
         usuario_actual, _ = _get_usuario(request)
@@ -87,6 +90,7 @@ def marcar_todas_leidas(request):
 # ─────────────────────────────────────────────────────────────
 #  VISTA: LISTA COMPLETA DE NOTIFICACIONES
 # ─────────────────────────────────────────────────────────────
+@sesion_requerida
 def lista_notificaciones(request):
     usuario_actual, datos_usuario = _get_usuario(request)
 
@@ -110,6 +114,7 @@ def lista_notificaciones(request):
 # ─────────────────────────────────────────────────────────────
 #  API: SILENCIAR / ACTIVAR USUARIO EN CHAT
 # ─────────────────────────────────────────────────────────────
+@sesion_requerida
 @require_POST
 def toggle_silenciar_usuario(request):
     """
@@ -146,7 +151,7 @@ def toggle_silenciar_usuario(request):
         print(f"Error en toggle_silenciar_usuario: {e}")
         return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
-
+@sesion_requerida
 @require_POST
 def verificar_silenciado(request):
     """
