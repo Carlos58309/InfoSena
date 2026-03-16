@@ -206,7 +206,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 RESEND_API_KEY = os.getenv('RESEND_API_KEY')
 DEFAULT_FROM_EMAIL = os.getenv('EMAIL_HOST_USER', 'onboarding@resend.dev')
-ADMIN_EMAIL = os.getenv('EMAIL_HOST_USER', 'onboarding@resend.dev')
+ADMIN_EMAIL = os.getenv('ADMIN_EMAIL', 'perezpolancocarlosmario@gmail.com')
 
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 PERSPECTIVE_API_KEY = os.getenv('PERSPECTIVE_API_KEY', 'AIzaSyClFIfrYfiMOtH3nDTgBtYNSxS08en0fH4')
