@@ -1051,7 +1051,7 @@ function toggleContactInfo() {
 // ── Cerrar sesión ─────────────────────────────────────────────
 function confirmarCerrarSesion() {
     showModal('Cerrar sesión', '¿Estás seguro de que quieres cerrar sesión?', 'Cerrar sesión', true, () => {
-        window.location.href = "{% url 'sesion:login' %}";
+        window.location.href = "{% url 'sesion:logout' %}";
     });
 }
 

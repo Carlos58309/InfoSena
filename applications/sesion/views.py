@@ -512,7 +512,19 @@ def solicitar_correo(request):
     return render(request, "solicitar_correo.html")
 
 
-
+def logout_view(request):
+    """Cierra la sesión completamente y previene acceso con botón atrás"""
+    # Limpiar completamente la sesión del servidor
+    request.session.flush()  # Elimina la sesión y crea una nueva vacía
+    
+    response = redirect('sesion:login')
+    
+    # Forzar al navegador a NO guardar en caché esta respuesta
+    response['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    response['Pragma'] = 'no-cache'
+    response['Expires'] = '0'
+    
+    return response
 
 
 def home(request):
