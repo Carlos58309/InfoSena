@@ -17,4 +17,3 @@ whitenoise==6.8.2
 Pillow==11.1.0
 resend
 cloudinary
-django-cloudinary-storage

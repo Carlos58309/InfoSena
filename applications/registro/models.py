@@ -1,7 +1,7 @@
 # registro/models
 from django.db import models
-
-
+from applications.usuarios.cloudinary_storage import CloudinaryStorage
+cloudinary_storage = CloudinaryStorage()
 # ==========================
 #  MODELO: Aprendiz
 # ==========================
@@ -15,7 +15,11 @@ class Aprendiz(models.Model):
     jornada = models.CharField(max_length=50)
     ficha = models.CharField(max_length=50)
     contrasena = models.CharField(max_length=255)
-    foto = models.ImageField(upload_to='perfiles/aprendices/', null=True, blank=True)
+    foto = models.ImageField(
+        storage=cloudinary_storage,
+        upload_to='fotos_perfil/',
+        null=True, blank=True
+    )
     
     # NUEVOS CAMPOS PARA VERIFICACIÓN
     verificado = models.BooleanField(default=False)
@@ -40,7 +44,11 @@ class Instructor(models.Model):
     tipo_documento = models.CharField(max_length=20)
     centro_formativo = models.CharField(max_length=100)
     contrasena = models.CharField(max_length=255)
-    foto = models.ImageField(upload_to='perfiles/instructores/', null=True, blank=True)
+    foto = models.ImageField(
+        storage=cloudinary_storage,
+        upload_to='fotos_perfil/',
+        null=True, blank=True
+    )
     
     # NUEVOS CAMPOS PARA VERIFICACIÓN
     verificado = models.BooleanField(default=False)
@@ -68,7 +76,11 @@ class Bienestar(models.Model):
     centro_formativo = models.CharField(max_length=150, default="Centro desconocido")
     region = models.CharField(max_length=100)
     contrasena = models.CharField(max_length=255)
-    foto = models.ImageField(upload_to='perfiles/bienestar/', null=True, blank=True)
+    foto = models.ImageField(
+        storage=cloudinary_storage,
+        upload_to='fotos_perfil/',
+        null=True, blank=True
+    )
     
     # NUEVOS CAMPOS PARA VERIFICACIÓN
     verificado = models.BooleanField(default=False)
