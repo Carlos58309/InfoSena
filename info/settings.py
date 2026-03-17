@@ -16,7 +16,7 @@ import os
 from dotenv import load_dotenv
 import pymysql
 pymysql.install_as_MySQLdb()
-
+import cloudinary
 # Cargar variables de entorno desde .env
 load_dotenv()
 
@@ -78,6 +78,7 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'cloudinary_storage', 
     'django.contrib.staticfiles',
 
     'applications.registro.apps.IndexConfig',
@@ -92,7 +93,17 @@ INSTALLED_APPS = [
     'applications.notificaciones',
     'applications.busqueda',
     'channels',
+    'cloudinary', 
 ]
+
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': os.getenv('CLOUDINARY_CLOUD_NAME'),
+    'API_KEY':    os.getenv('CLOUDINARY_API_KEY'),
+    'API_SECRET': os.getenv('CLOUDINARY_API_SECRET'),
+}
+
+# Decirle a Django que use Cloudinary para todos los archivos media
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
