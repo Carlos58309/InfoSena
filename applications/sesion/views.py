@@ -475,7 +475,6 @@ def chat_view(request):
     return render(request, "chat.html")
 
 def solicitar_correo(request):
-
     if request.method == "POST":
         email = request.POST.get("email")
 
@@ -494,21 +493,36 @@ def solicitar_correo(request):
                 codigo=codigo
             )
 
-            # Enviar correo
-            send_mail(
-                "Código de recuperación",
-                f"Tu código de verificación es: {codigo}",
-                settings.EMAIL_HOST_USER,
-                [email],
-                fail_silently=False,
-            )
+            # ✅ Enviar con Resend en lugar de send_mail
+            import resend
+            resend.api_key = settings.RESEND_API_KEY
+
+            resend.Emails.send({
+                "from": f"InfoSENA <{settings.DEFAULT_FROM_EMAIL}>",
+                "to": [email],
+                "subject": "🔐 Código de Recuperación - INFOSENA",
+                "text": f"""
+Hola,
+
+Recibimos una solicitud para restablecer tu contraseña en INFOSENA.
+
+Tu código de verificación es: {codigo}
+
+Si no solicitaste este cambio, ignora este correo.
+
+Saludos,
+Equipo INFOSENA
+                """,
+            })
 
             request.session["usuario_recuperacion"] = usuario.id
-
             return redirect("sesion:verificar_codigo")
 
         except Usuario.DoesNotExist:
             messages.error(request, "El correo no está registrado.")
+        except Exception as e:
+            print(f"Error al enviar correo de recuperación: {e}")
+            messages.error(request, "Error al enviar el correo. Intenta nuevamente.")
 
     return render(request, "solicitar_correo.html")
 
