@@ -116,32 +116,44 @@ def notificar_comentario(sender, instance, created, **kwargs):
     if not created:
         return
     try:
-        autor_perfil = instance.content_object
-        if not autor_perfil:
-            print("⚠️ No se pudo obtener el autor del comentario")
+        # El autor del comentario: content_type + object_id (numero_documento)
+        modelo_autor = instance.content_type.model_class()
+        try:
+            perfil_comentarista = modelo_autor.objects.get(numero_documento=instance.object_id)
+        except modelo_autor.DoesNotExist:
+            print(f"⚠️ No se encontró el autor del comentario con doc: {instance.object_id}")
             return
 
-        usuario_emisor = _usuario_desde_documento(autor_perfil.numero_documento)
+        usuario_emisor = _usuario_desde_documento(instance.object_id)
         if not usuario_emisor:
+            print(f"⚠️ No hay Usuario para documento: {instance.object_id}")
             return
 
-        autor_publicacion_perfil = instance.publicacion.autor
-        usuario_destinatario = _usuario_desde_documento(autor_publicacion_perfil.numero_documento)
+        # El dueño de la publicación: Publicacion.autor es FK a Bienestar directamente
+        bienestar_autor = instance.publicacion.autor  # objeto Bienestar
+        usuario_destinatario = _usuario_desde_documento(bienestar_autor.numero_documento)
         if not usuario_destinatario:
+            print(f"⚠️ No hay Usuario para el autor de la publicación: {bienestar_autor.numero_documento}")
             return
 
+        # No notificar si uno comenta en su propio post
         if usuario_emisor.id == usuario_destinatario.id:
             return
 
-        contenido_corto = instance.contenido[:50] + '...' if len(instance.contenido) > 50 else instance.contenido
+        contenido_corto = (
+            instance.contenido[:60] + '...'
+            if len(instance.contenido) > 60
+            else instance.contenido
+        )
 
         Notificacion.objects.create(
             destinatario=usuario_destinatario,
             emisor=usuario_emisor,
             tipo='comentario',
-            mensaje=f"💬 {autor_perfil.nombre} comentó en tu publicación: \"{contenido_corto}\"",
+            mensaje=f'💬 {perfil_comentarista.nombre} comentó en tu publicación: "{contenido_corto}"',
             publicacion=instance.publicacion
         )
+        print(f"✅ Notificación de comentario creada → {usuario_destinatario.nombre}")
 
     except Exception as e:
         import traceback
@@ -157,31 +169,44 @@ def notificar_like(sender, instance, created, **kwargs):
     if not created:
         return
     try:
-        usuario_like_perfil = instance.content_object
-        if not usuario_like_perfil:
+        # El autor del like: content_type + object_id (numero_documento)
+        modelo_autor = instance.content_type.model_class()
+        try:
+            perfil_like = modelo_autor.objects.get(numero_documento=instance.object_id)
+        except modelo_autor.DoesNotExist:
+            print(f"⚠️ No se encontró el usuario del like con doc: {instance.object_id}")
             return
 
-        usuario_emisor = _usuario_desde_documento(usuario_like_perfil.numero_documento)
+        usuario_emisor = _usuario_desde_documento(instance.object_id)
         if not usuario_emisor:
+            print(f"⚠️ No hay Usuario para documento: {instance.object_id}")
             return
 
-        autor_publicacion_perfil = instance.publicacion.autor
-        usuario_destinatario = _usuario_desde_documento(autor_publicacion_perfil.numero_documento)
+        # El dueño de la publicación
+        bienestar_autor = instance.publicacion.autor  # objeto Bienestar directamente
+        usuario_destinatario = _usuario_desde_documento(bienestar_autor.numero_documento)
         if not usuario_destinatario:
+            print(f"⚠️ No hay Usuario para el autor de la publicación: {bienestar_autor.numero_documento}")
             return
 
+        # No notificar si le da like a su propio post
         if usuario_emisor.id == usuario_destinatario.id:
             return
 
-        titulo_corto = instance.publicacion.titulo[:40] + '...' if len(instance.publicacion.titulo) > 40 else instance.publicacion.titulo
+        titulo_corto = (
+            instance.publicacion.titulo[:40] + '...'
+            if len(instance.publicacion.titulo) > 40
+            else instance.publicacion.titulo
+        )
 
         Notificacion.objects.create(
             destinatario=usuario_destinatario,
             emisor=usuario_emisor,
             tipo='like',
-            mensaje=f"❤️ A {usuario_like_perfil.nombre} le gustó tu publicación: \"{titulo_corto}\"",
+            mensaje=f'❤️ A {perfil_like.nombre} le gustó tu publicación: "{titulo_corto}"',
             publicacion=instance.publicacion
         )
+        print(f"✅ Notificación de like creada → {usuario_destinatario.nombre}")
 
     except Exception as e:
         import traceback
