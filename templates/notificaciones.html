@@ -659,9 +659,20 @@
                     <div style="display:flex;align-items:flex-start;gap:1rem">
 
                         <!-- AVATAR -->
-                        <img src="{% if notif.emisor.foto %}{{ notif.emisor.foto.url }}{% else %}{% static 'img/default-avatar.png' %}{% endif %}"
-                             alt="{{ notif.emisor.nombre }}"
-                             style="width:52px;height:52px;border-radius:14px;object-fit:cover;flex-shrink:0;border:2px solid #f3f4f6">
+                        {% if notif.emisor.foto %}
+<img src="{{ notif.emisor.foto.url }}"
+     alt="{{ notif.emisor.nombre }}"
+     style="width:52px;height:52px;border-radius:14px;object-fit:cover;flex-shrink:0;border:2px solid #f3f4f6">
+{% else %}
+<div style="width:52px;height:52px;border-radius:14px;flex-shrink:0;border:2px solid #f3f4f6;display:flex;align-items:center;justify-content:center;font-size:1.6rem;
+    {% if notif.emisor_tipo == 'instructor' %}background:linear-gradient(135deg,#7c3aed,#a855f7)
+    {% elif notif.emisor_tipo == 'bienestar' %}background:linear-gradient(135deg,#15803d,#22c55e)
+    {% else %}background:linear-gradient(135deg,#1d4ed8,#3b82f6){% endif %}">
+    {% if notif.emisor_tipo == 'instructor' %}👨‍🏫
+    {% elif notif.emisor_tipo == 'bienestar' %}🏥
+    {% else %}🎓{% endif %}
+</div>
+{% endif %}
 
                         <!-- CONTENIDO -->
                         <div style="flex:1;min-width:0">
@@ -719,11 +730,11 @@
                                 {% endif %}
 
                                 {% if notif.publicacion %}
-                                <a href="{% url 'publicaciones:detalle' notif.publicacion.id %}"
-                                   class="notif-action-btn btn-ver">
-                                    Ver publicación →
-                                </a>
-                                {% endif %}
+<a href="{% url 'perfil:ver_perfil' notif.publicacion.autor.numero_documento %}#publicacion-{{ notif.publicacion.id }}"
+   class="notif-action-btn btn-ver">
+    Ver publicación →
+</a>
+{% endif %}
 
                                 {% if notif.tipo == 'mensaje' %}
                                 <a href="{% url 'chat:lista_chats' %}"

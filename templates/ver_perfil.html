@@ -148,6 +148,24 @@
     });
 })();
 </script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const hash = window.location.hash;
+    if (hash && hash.startsWith('#publicacion-')) {
+        const el = document.querySelector(hash);
+        if (el) {
+            setTimeout(() => {
+                const top = el.getBoundingClientRect().top + window.scrollY - 80;
+                window.scrollTo({ top, behavior: 'smooth' });
+                // Resaltar brevemente la publicación
+                el.style.transition = 'background 0.3s';
+                el.style.background = '#f0fdf4';
+                setTimeout(() => { el.style.background = ''; }, 2000);
+            }, 300);
+        }
+    }
+});
+</script>
 <body>
 
     {% if messages %}
@@ -422,7 +440,7 @@
                 {% if publicaciones %}
                 <div class="space-y-6">
                     {% for publicacion in publicaciones %}
-                    <div class="border-b border-gray-200 pb-6 last:border-b-0 publicacion-card">
+                    <div id="publicacion-{{ publicacion.id }}" class="border-b border-gray-200 pb-6 last:border-b-0 publicacion-card">
                         <div class="flex items-center justify-between mb-3">
                             <div class="flex items-center gap-3">
                                 {% if usuario_perfil.foto %}<img src="{{ usuario_perfil.foto.url }}" alt="{{ usuario_perfil.nombre }}" class="w-10 h-10 rounded-full object-cover">
