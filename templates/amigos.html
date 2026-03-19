@@ -51,7 +51,6 @@
             gap: 1rem;
         }
 
-        /* Logo */
         .logo-area {
             display: flex;
             align-items: center;
@@ -86,7 +85,6 @@
 
         .logo-text span { color: #7efa8a; }
 
-        /* Search bar */
         .header-search {
             flex: 1;
             max-width: 400px;
@@ -138,7 +136,6 @@
             align-items: center;
         }
 
-        /* Search panel dropdown */
         .search-panel {
             position: absolute;
             top: calc(100% + 10px);
@@ -183,7 +180,6 @@
             cursor: pointer;
         }
 
-        /* Nav icon buttons */
         .nav-icon-btn {
             position: relative;
             width: 44px;
@@ -213,7 +209,6 @@
             box-shadow: 0 0 0 2px rgba(255,255,255,0.4);
         }
 
-        /* Tooltip */
         .tooltip-wrap { position: relative; }
 
         .tooltip-tip {
@@ -246,7 +241,6 @@
 
         .tooltip-wrap:hover .tooltip-tip { opacity: 1; }
 
-        /* Badge */
         .notif-badge {
             position: absolute;
             top: 5px;
@@ -271,7 +265,6 @@
             50%       { transform: scale(1.2); }
         }
 
-        /* Avatar button */
         .avatar-btn-header {
             width: 42px;
             height: 42px;
@@ -296,7 +289,6 @@
 
         .avatar-btn-header img { width: 100%; height: 100%; object-fit: cover; }
 
-        /* Dropdown */
         .hdr-dropdown {
             position: absolute;
             top: calc(100% + 12px);
@@ -557,6 +549,8 @@
             transition: all 0.2s ease;
             position: relative;
             overflow: hidden;
+            /* FIX: cursor pointer para indicar que es clickeable */
+            cursor: pointer;
         }
 
         .friend-card:hover {
@@ -631,6 +625,9 @@
             margin-bottom: 0.4rem;
             border: none;
             cursor: pointer;
+            /* FIX: posición relativa para que el z-index funcione sobre el onclick de la card */
+            position: relative;
+            z-index: 2;
         }
 
         .friend-btn:last-child { margin-bottom: 0; }
@@ -647,7 +644,6 @@
         .btn-red { background: #ef4444; color: white; }
         .btn-red:hover { background: #dc2626; }
 
-        /* Badge amigos en común */
         .common-badge {
             position: absolute;
             top: 10px;
@@ -658,9 +654,10 @@
             font-weight: 700;
             padding: 3px 8px;
             border-radius: 999px;
+            /* FIX: z-index para que quede encima */
+            z-index: 2;
         }
 
-        /* Common friends avatars */
         .common-friends-box {
             background: #f0fdf4;
             border-radius: 10px;
@@ -673,6 +670,36 @@
             color: #16a34a;
             font-weight: 700;
             margin-bottom: 0.35rem;
+        }
+
+        /* FIX: Estilos para el fallback de imagen rota de amigos en común */
+        .common-friend-avatar-wrap {
+            position: relative;
+            width: 24px;
+            height: 24px;
+            flex-shrink: 0;
+        }
+
+        .common-friend-img {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 2px solid white;
+            object-fit: cover;
+            display: block;
+        }
+
+        .common-friend-fallback {
+            display: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #60a5fa, #3b82f6);
+            border: 2px solid white;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            color: white;
         }
 
         /* Tabs */
@@ -699,7 +726,6 @@
 
         .tab-btn.inactive-tab:hover { background: #d1d5db; }
 
-        /* Section title */
         .section-title {
             font-family: 'Sora', sans-serif;
             font-size: 1.1rem;
@@ -711,7 +737,6 @@
             gap: 0.5rem;
         }
 
-        /* Animations */
         @keyframes slide-in {
             from { opacity: 0; transform: translateX(400px); }
             to   { opacity: 1; transform: translateX(0); }
@@ -728,41 +753,17 @@
         }
     </style>
 </head>
-<!-- ==========================================
-     SEGURIDAD: Anti-caché y protección sesión
-     Pegar antes del </body> en TODOS los templates
-     EXCEPTO: login.html, index.html, registrar.html
-     ========================================== -->
 <script>
 (function() {
-    // 1. Evitar que el navegador guarde esta página en caché
-    // Esto impide que el botón "atrás" muestre páginas de sesiones anteriores
     if (window.history.replaceState) {
         window.history.replaceState(null, null, window.location.href);
     }
-
-    // 2. Al volver con el botón atrás (pageshow), verificar sesión con el servidor
     window.addEventListener('pageshow', function(event) {
-        // event.persisted = true significa que el navegador sacó la página del caché
         if (event.persisted) {
-            // Hacer una petición silenciosa para verificar si la sesión sigue activa
-            fetch('/sesion/verificar-sesion/', {
-                method: 'GET',
-                credentials: 'same-origin'
-            })
-            .then(function(response) {
-                return response.json();
-            })
-            .then(function(data) {
-                if (!data.autenticado) {
-                    // Sesión inválida: forzar redirección al login
-                    window.location.replace('/sesion/login/');
-                }
-            })
-            .catch(function() {
-                // Si falla la petición, redirigir al login por seguridad
-                window.location.replace('/sesion/login/');
-            });
+            fetch('/sesion/verificar-sesion/', { method: 'GET', credentials: 'same-origin' })
+            .then(function(response) { return response.json(); })
+            .then(function(data) { if (!data.autenticado) { window.location.replace('/sesion/login/'); } })
+            .catch(function() { window.location.replace('/sesion/login/'); });
         }
     });
 })();
@@ -783,19 +784,14 @@
 </div>
 {% endif %}
 
-<!-- ========================= -->
-<!--      HEADER MEJORADO      -->
-<!-- ========================= -->
 <header class="header">
     <div class="header-inner">
 
-        <!-- LOGO -->
         <a href="{% url 'sesion:home' %}" class="logo-area">
             <div class="logo-monogram">iS</div>
             <span class="logo-text">Info<span>Sena</span></span>
         </a>
 
-        <!-- BÚSQUEDA DESKTOP -->
         <div class="header-search hidden md:block">
             <svg class="search-icon-abs" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <circle cx="11" cy="11" r="7"/><line x1="16" y1="16" x2="21" y2="21"/>
@@ -807,7 +803,6 @@
                 </svg>
             </button>
 
-            <!-- Panel resultados -->
             <div id="searchPanel" class="search-panel hidden">
                 <div class="search-panel-header">
                     <h3 id="panelTitle">Búsquedas recientes</h3>
@@ -831,10 +826,8 @@
             </div>
         </div>
 
-        <!-- ICONOS DESKTOP -->
         <div class="hidden md:flex items-center gap-1">
 
-            <!-- Home -->
             <div class="tooltip-wrap">
                 <a href="{% url 'sesion:home' %}" class="nav-icon-btn">
                     <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -843,7 +836,6 @@
                 </a>
             </div>
 
-            <!-- Chat -->
             <div class="tooltip-wrap">
                 <a href="{% url 'chat:lista_chats' %}" class="nav-icon-btn">
                     <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -852,7 +844,6 @@
                 </a>
             </div>
 
-            <!-- Amigos (activo en esta página) -->
             <div class="tooltip-wrap">
                 <a href="{% url 'sesion:amigos' %}" class="nav-icon-btn is-active">
                     <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -864,7 +855,6 @@
                 </a>
             </div>
 
-            <!-- Notificaciones -->
             <div class="tooltip-wrap" style="position:relative">
                 <button id="btnNotificaciones" class="nav-icon-btn">
                     <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
@@ -873,7 +863,6 @@
                     <span id="notificationBadge" class="notif-badge hidden">0</span>
                 </button>
                
-                <!-- Menú notificaciones (original) -->
                 <div id="menuNotificaciones" class="hdr-dropdown" style="width:320px; right:0">
                     <div class="hdr-dropdown-header" style="display:flex;justify-content:space-between;align-items:center">
                         <h4>🔔 Notificaciones</h4>
@@ -897,7 +886,6 @@
 
             <div class="nav-divider"></div>
 
-            <!-- Perfil -->
             <div style="position:relative">
                 <button id="btnPerfil" class="avatar-btn-header">
                     {% if usuario.foto %}
@@ -966,7 +954,6 @@
             </div>
         </div>
 
-        <!-- BOTONES MOBILE -->
         <div class="flex md:hidden items-center gap-2">
             <button id="btnSearch" class="nav-icon-btn">
                 <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -976,7 +963,6 @@
          </div>
     </div>
 
-    <!-- BÚSQUEDA MOBILE EXPANDIBLE -->
     <div id="mobileSearchBox" class="hidden px-4 pb-3 md:hidden">
         <div class="bg-white/15 border border-white/25 rounded-2xl px-4 py-2 flex items-center gap-3 relative">
             <svg width="16" height="16" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2" viewBox="0 0 24 24" class="flex-shrink-0">
@@ -1011,16 +997,10 @@
             </div>
         </div>
     </div>
-
-    <!-- MENU MOBILE -->
 </header>
 
-<!-- ========================= -->
-<!--    CONTENEDOR PRINCIPAL   -->
-<!-- ========================= -->
 <div class="pt-5 grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6" style="max-width:1400px;margin:0 auto;padding-left:1.25rem;padding-right:1.25rem;gap:1.25rem;min-height:calc(100vh - 64px)">
 
-    <!-- SIDEBAR IZQUIERDO -->
     <aside class="hidden md:block md:col-span-1 sidebar-left">
         <div class="sidebar-card">
             <a href="{% url 'perfil:perfiles' %}" class="sidebar-user">
@@ -1067,7 +1047,6 @@
                     Chat
                 </a>
 
-                <!-- Amigos activo -->
                 <a href="{% url 'sesion:amigos' %}" class="sidebar-nav-item active home-reload-btn">
                     <div class="sni-icon">
                         <svg width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -1097,7 +1076,6 @@
     <!-- ========================= -->
     <main class="col-span-4 lg:col-span-5 py-4" style="padding-right:0">
 
-        <!-- Título de página -->
         <div class="flex justify-between items-center mb-5">
             <div>
                 <h2 style="font-family:'Sora',sans-serif;font-size:1.6rem;font-weight:800;color:#111827;margin:0">Amigos</h2>
@@ -1105,7 +1083,6 @@
             </div>
         </div>
 
-        <!-- PESTAÑAS (funciones originales intactas) -->
         <div class="flex gap-3 mb-6" style="border-bottom:2px solid #f3f4f6;padding-bottom:0.75rem">
             <button id="btnSolicitudes" class="tab-btn active-tab">
                 Solicitudes
@@ -1120,17 +1097,19 @@
         </div>
 
         <!-- ========================================= -->
-        <!-- SOLICITUDES Y SUGERENCIAS (original)      -->
+        <!-- SOLICITUDES Y SUGERENCIAS                 -->
         <!-- ========================================= -->
         <div id="solicitudesSection">
 
-            <!-- SOLICITUDES RECIBIDAS -->
             {% if solicitudes_recibidas %}
             <div class="mb-8">
                 <div class="section-title">📬 Solicitudes recibidas</div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
                     {% for solicitud in solicitudes_recibidas %}
-                    <div class="friend-card">
+                    <!-- FIX: onclick en toda la card, stopPropagation en botones -->
+                    <div class="friend-card"
+                         onclick="window.location.href='{% url 'perfil:ver_perfil' solicitud.emisor.documento %}'">
+
                         {% if solicitud.emisor.foto %}
                         <img src="{{ solicitud.emisor.foto.url }}" alt="{{ solicitud.emisor.nombre }}" class="friend-avatar" style="border-color:#86efac">
                         {% else %}
@@ -1143,10 +1122,14 @@
 
                         <div class="friend-divider"></div>
 
-                        <a href="{% url 'amistades:aceptar_solicitud' solicitud.id %}" class="friend-btn btn-green">
+                        <a href="{% url 'amistades:aceptar_solicitud' solicitud.id %}"
+                           class="friend-btn btn-green"
+                           onclick="event.stopPropagation()">
                             ✓ Aceptar
                         </a>
-                        <a href="{% url 'amistades:rechazar_solicitud' solicitud.id %}" class="friend-btn btn-gray">
+                        <a href="{% url 'amistades:rechazar_solicitud' solicitud.id %}"
+                           class="friend-btn btn-gray"
+                           onclick="event.stopPropagation()">
                             ✕ Rechazar
                         </a>
                     </div>
@@ -1155,12 +1138,15 @@
             </div>
             {% endif %}
 
-            <!-- SUGERENCIAS DE AMISTAD (original completo) -->
+            <!-- SUGERENCIAS DE AMISTAD -->
             <div class="mb-8">
                 <div class="section-title">💡 Sugerencias de amistad</div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
                     {% for sugerencia in sugerencias %}
-                    <div class="friend-card {% if sugerencia.amigos_en_comun > 0 %}has-common{% endif %}">
+
+                    <!-- FIX: onclick en toda la card navega al perfil -->
+                    <div class="friend-card {% if sugerencia.amigos_en_comun > 0 %}has-common{% endif %}"
+                         onclick="window.location.href='{% url 'perfil:ver_perfil' sugerencia.usuario.documento %}'">
 
                         {% if sugerencia.amigos_en_comun > 0 %}
                         <div class="common-badge">{{ sugerencia.amigos_en_comun }} en común</div>
@@ -1185,14 +1171,19 @@
                         {% if sugerencia.amigos_en_comun > 0 %}
                         <div class="common-friends-box">
                             <div class="common-friends-label">Amigos en común:</div>
-                            <div style="display:flex;justify-content:center;align-items:center;gap:4px">
+                            <!-- FIX: layout flex con altura fija para que las imágenes rotas no rompan el diseño -->
+                            <div style="display:flex;justify-content:center;align-items:center;gap:4px;min-height:28px">
                                 {% for amigo_comun in sugerencia.amigos_en_comun_lista %}
-                                <div class="relative group" style="position:relative">
+                                <div style="position:relative;width:24px;height:24px;flex-shrink:0">
                                     {% if amigo_comun.foto %}
-                                    <img src="{{ amigo_comun.foto.url }}" alt="{{ amigo_comun.nombre }}"
-                                         style="width:24px;height:24px;border-radius:50%;border:2px solid white;object-fit:cover">
+                                    <!-- FIX: onerror muestra el fallback sin romper el layout -->
+                                    <img src="{{ amigo_comun.foto.url }}"
+                                         alt="{{ amigo_comun.nombre }}"
+                                         style="width:24px;height:24px;border-radius:50%;border:2px solid white;object-fit:cover;display:block"
+                                         onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+                                    <div style="display:none;width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#60a5fa,#3b82f6);border:2px solid white;align-items:center;justify-content:center;font-size:0.65rem;color:white;position:absolute;top:0;left:0">👤</div>
                                     {% else %}
-                                    <div style="width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#60a5fa,#3b82f6);border:2px solid white;display:flex;align-items:center;justify-content:center;font-size:0.7rem;color:white">👤</div>
+                                    <div style="width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#60a5fa,#3b82f6);border:2px solid white;display:flex;align-items:center;justify-content:center;font-size:0.65rem;color:white">👤</div>
                                     {% endif %}
                                 </div>
                                 {% endfor %}
@@ -1206,16 +1197,23 @@
                         <div class="friend-divider"></div>
 
                         {% if sugerencia.usuario.id in solicitudes_enviadas_ids %}
-                        <a href="{% url 'amistades:cancelar_solicitud' sugerencia.usuario.id %}" class="friend-btn btn-gray">
+                        <!-- FIX: stopPropagation para que el botón no dispare el onclick de la card -->
+                        <a href="{% url 'amistades:cancelar_solicitud' sugerencia.usuario.id %}"
+                           class="friend-btn btn-gray"
+                           onclick="event.stopPropagation()">
                             ⏳ Cancelar solicitud
                         </a>
                         {% else %}
-                        <a href="{% url 'amistades:enviar_solicitud' sugerencia.usuario.id %}" class="friend-btn btn-green">
+                        <a href="{% url 'amistades:enviar_solicitud' sugerencia.usuario.id %}"
+                           class="friend-btn btn-green"
+                           onclick="event.stopPropagation()">
                             ➕ Agregar amigo
                         </a>
                         {% endif %}
 
-                        <a href="{% url 'perfil:ver_perfil' sugerencia.usuario.documento %}" class="friend-btn btn-blue">
+                        <a href="{% url 'perfil:ver_perfil' sugerencia.usuario.documento %}"
+                           class="friend-btn btn-blue"
+                           onclick="event.stopPropagation()">
                             👁️ Ver perfil
                         </a>
                     </div>
@@ -1228,13 +1226,16 @@
         </div>
 
         <!-- ========================================= -->
-        <!-- MIS AMIGOS (original completo)            -->
+        <!-- MIS AMIGOS                                -->
         <!-- ========================================= -->
         <div id="agregadosSection" class="hidden">
             <div class="section-title">👥 Mis amigos</div>
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
                 {% for amigo in amigos %}
-                <div class="friend-card">
+                <!-- FIX: onclick en toda la card navega al perfil -->
+                <div class="friend-card"
+                     onclick="window.location.href='{% url 'perfil:ver_perfil' amigo.documento %}'">
+
                     {% if amigo.foto %}
                     <img src="{{ amigo.foto.url }}" alt="{{ amigo.nombre }}" class="friend-avatar" style="border-color:#86efac">
                     {% else %}
@@ -1247,11 +1248,14 @@
 
                     <div class="friend-divider"></div>
 
-                    <a href="{% url 'perfil:ver_perfil' amigo.documento %}" class="friend-btn btn-blue">
+                    <!-- FIX: stopPropagation en botones internos -->
+                    <a href="{% url 'perfil:ver_perfil' amigo.documento %}"
+                       class="friend-btn btn-blue"
+                       onclick="event.stopPropagation()">
                         👁️ Ver perfil
                     </a>
                     <a href="{% url 'amistades:eliminar_amigo' amigo.documento %}"
-                       onclick="return confirm('¿Estás seguro de eliminar a {{ amigo.nombre }} de tus amigos?')"
+                       onclick="event.stopPropagation(); return confirm('¿Estás seguro de eliminar a {{ amigo.nombre }} de tus amigos?')"
                        class="friend-btn btn-red">
                         🗑️ Eliminar amigo
                     </a>
@@ -1265,7 +1269,6 @@
     </main>
 </div>
 
-<!-- MOBILE BOTTOM NAV -->
 <nav class="mobile-bottom-nav">
     <div class="mobile-bottom-nav-inner">
         <a href="{% url 'sesion:home' %}" class="mob-nav-btn">
@@ -1318,7 +1321,6 @@
 <!--         SCRIPTS           -->
 <!-- ========================= -->
 
-<!-- Tabs (original) -->
 <script>
     const btnSolicitudes = document.getElementById("btnSolicitudes");
     const btnAgregados = document.getElementById("btnAgregados");
@@ -1352,7 +1354,6 @@
     }, 4000);
 </script>
 
-<!-- Menús header (original) -->
 <script>
     document.getElementById("btnPerfil")?.addEventListener("click", (e) => {
         e.stopPropagation();
@@ -1374,20 +1375,18 @@
     });
 </script>
 
-<!-- Mobile menu toggle -->
 <script>
     document.getElementById("btnSearch")?.addEventListener("click", () => {
         document.getElementById("mobileSearchBox").classList.toggle("hidden");
-        document.getElementById("mobileMenu").classList.add("hidden");
+        document.getElementById("mobileMenu")?.classList.add("hidden");
     });
 
     document.getElementById("btnMenu")?.addEventListener("click", () => {
-        document.getElementById("mobileMenu").classList.toggle("hidden");
+        document.getElementById("mobileMenu")?.classList.toggle("hidden");
         document.getElementById("mobileSearchBox").classList.add("hidden");
     });
 </script>
 
-<!-- Home reload (original) -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.home-reload-btn').forEach(button => {
@@ -1415,7 +1414,6 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-<!-- NOTIFICACIONES EN TIEMPO REAL (original completo) -->
 <script>
 let notificationInterval;
 
@@ -1534,7 +1532,6 @@ function getCookie(name) {
 }
 </script>
 
-<!-- BÚSQUEDA (original completa) -->
 <script>
 const searchInput = document.getElementById('searchInput');
 const mobileSearchInput = document.getElementById('mobileSearchInput');
