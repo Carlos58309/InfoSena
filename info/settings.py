@@ -31,9 +31,31 @@ STATICFILES_DIRS = [
 ]
 
 # Media files
+import cloudinary
+
+# Cloudinary
+cloudinary.config(
+    cloud_name=os.getenv('CLOUDINARY_CLOUD_NAME'),
+    api_key=os.getenv('CLOUDINARY_API_KEY'),
+    api_secret=os.getenv('CLOUDINARY_API_SECRET'),
+)
+
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': os.getenv('CLOUDINARY_CLOUD_NAME'),
+    'API_KEY':    os.getenv('CLOUDINARY_API_KEY'),
+    'API_SECRET': os.getenv('CLOUDINARY_API_SECRET'),
+}
+
+# Media files
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'  # Ahora funciona porque BASE_DIR es Path
-WHITENOISE_ROOT = BASE_DIR / 'media'
+
+if os.getenv('CLOUDINARY_CLOUD_NAME'):
+    # Produccion: guardar en Cloudinary
+    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+else:
+    # Desarrollo local: guardar en disco
+    MEDIA_ROOT = BASE_DIR / 'media'
+    
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-h2*$b!#5upbewe)h)c0s074)!675xs#zj4sj$sx3yd*bn55k!1')
 
@@ -78,6 +100,8 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'cloudinary_storage',
+    'cloudinary',
     'django.contrib.staticfiles',
 
     'applications.registro.apps.IndexConfig',
