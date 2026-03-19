@@ -33,7 +33,7 @@ STATICFILES_DIRS = [
 # Media files
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'  # Ahora funciona porque BASE_DIR es Path
-
+WHITENOISE_ROOT = BASE_DIR / 'media'
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-h2*$b!#5upbewe)h)c0s074)!675xs#zj4sj$sx3yd*bn55k!1')
 
