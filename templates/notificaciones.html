@@ -396,6 +396,10 @@
         @media (max-width: 768px) {
             .mobile-bottom-nav { display: block; }
             body { padding-bottom: 70px; }
+            .layout-grid {
+                grid-template-columns: 1fr !important;
+                padding: 1rem !important;
+            }
         }
     </style>
 </head>
@@ -522,7 +526,7 @@
 </header>
 
 <!-- LAYOUT PRINCIPAL -->
-<div style="max-width:1400px;margin:0 auto;padding:1.25rem;display:grid;grid-template-columns:240px 1fr;gap:1.25rem;min-height:calc(100vh - 64px)">
+<div class="layout-grid" style="max-width:1400px;margin:0 auto;padding:1.25rem;display:grid;grid-template-columns:240px 1fr;gap:1.25rem;min-height:calc(100vh - 64px)">
 
     <!-- SIDEBAR -->
     <aside class="hidden md:block">
