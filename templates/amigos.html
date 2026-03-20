@@ -1457,8 +1457,14 @@ function renderizarNotificaciones(notificaciones) {
         <div class="${colores[notif.tipo] || 'bg-white'} p-4 hover:bg-gray-100 transition cursor-pointer border-b border-gray-200"
              onclick="irANotificacion(${notif.id}, ${notif.publicacion_id || null})">
             <div class="flex items-start gap-3">
-                <img src="${notif.emisor_foto || '{% static "img/default-avatar.png" %}'}" alt="${notif.emisor_nombre}"
-                     class="w-10 h-10 rounded-full object-cover flex-shrink-0">
+                <div style="width:40px;height:40px;border-radius:50%;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.1rem;
+                        ${notif.emisor_foto ? '' : notif.emisor_tipo === 'instructor' ? 'background:linear-gradient(135deg,#7c3aed,#a855f7)' : notif.emisor_tipo === 'bienestar' ? 'background:linear-gradient(135deg,#15803d,#22c55e)' : 'background:linear-gradient(135deg,#1d4ed8,#3b82f6)'}">
+                        ${notif.emisor_foto
+                            ? `<img src="${notif.emisor_foto}" style="width:100%;height:100%;object-fit:cover;">`
+                            : notif.emisor_tipo === 'instructor' ? '👨‍🏫'
+                            : notif.emisor_tipo === 'bienestar' ? '🏥'
+                            : '🎓'}
+                    </div>
                 <div class="flex-1 min-w-0">
                     <div class="flex items-center gap-2 mb-1">
                         <span class="text-lg">${iconos[notif.tipo] || '📢'}</span>

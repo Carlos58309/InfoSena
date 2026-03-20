@@ -43,6 +43,7 @@ def obtener_notificaciones(request):
                     'emisor_foto': n.emisor.foto.url if n.emisor.foto else None,
                     'fecha': n.fecha_creacion.strftime('%Y-%m-%d %H:%M'),
                     'publicacion_id': n.publicacion.id if n.publicacion else None,
+                    'emisor_tipo': n.emisor.tipo,
                 }
                 for n in notificaciones
             ]
