@@ -549,8 +549,10 @@
             transition: all 0.2s ease;
             position: relative;
             overflow: hidden;
-            /* FIX: cursor pointer para indicar que es clickeable */
             cursor: pointer;
+            /* FIX alineación: flex column para que los botones siempre queden al fondo */
+            display: flex;
+            flex-direction: column;
         }
 
         .friend-card:hover {
@@ -560,6 +562,18 @@
 
         .friend-card.has-common {
             border: 2px solid #86efac;
+        }
+
+        /* FIX: spacer que empuja los botones al fondo de la card */
+        .friend-card-body {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* FIX: los botones siempre al fondo */
+        .friend-card-actions {
+            margin-top: auto;
         }
 
         .friend-avatar {
@@ -1106,32 +1120,36 @@
                 <div class="section-title">📬 Solicitudes recibidas</div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
                     {% for solicitud in solicitudes_recibidas %}
-                    <!-- FIX: onclick en toda la card, stopPropagation en botones -->
                     <div class="friend-card"
                          onclick="window.location.href='{% url 'perfil:ver_perfil' solicitud.emisor.documento %}'">
 
-                        {% if solicitud.emisor.foto %}
-                        <img src="{{ solicitud.emisor.foto.url }}" alt="{{ solicitud.emisor.nombre }}" class="friend-avatar" style="border-color:#86efac">
-                        {% else %}
-                        <div class="friend-avatar-placeholder">👤</div>
-                        {% endif %}
+                        <!-- Contenido variable: crece y empuja los botones abajo -->
+                        <div class="friend-card-body">
+                            {% if solicitud.emisor.foto %}
+                            <img src="{{ solicitud.emisor.foto.url }}" alt="{{ solicitud.emisor.nombre }}" class="friend-avatar" style="border-color:#86efac">
+                            {% else %}
+                            <div class="friend-avatar-placeholder">👤</div>
+                            {% endif %}
 
-                        <div class="friend-name">{{ solicitud.emisor.nombre }}</div>
-                        <div class="friend-email">{{ solicitud.emisor.email }}</div>
-                        <div class="friend-role">{{ solicitud.fecha_solicitud|timesince }} atrás</div>
+                            <div class="friend-name">{{ solicitud.emisor.nombre }}</div>
+                            <div class="friend-email">{{ solicitud.emisor.email }}</div>
+                            <div class="friend-role">{{ solicitud.fecha_solicitud|timesince }} atrás</div>
+                        </div>
 
-                        <div class="friend-divider"></div>
-
-                        <a href="{% url 'amistades:aceptar_solicitud' solicitud.id %}"
-                           class="friend-btn btn-green"
-                           onclick="event.stopPropagation()">
-                            ✓ Aceptar
-                        </a>
-                        <a href="{% url 'amistades:rechazar_solicitud' solicitud.id %}"
-                           class="friend-btn btn-gray"
-                           onclick="event.stopPropagation()">
-                            ✕ Rechazar
-                        </a>
+                        <!-- Botones siempre al fondo -->
+                        <div class="friend-card-actions">
+                            <div class="friend-divider"></div>
+                            <a href="{% url 'amistades:aceptar_solicitud' solicitud.id %}"
+                               class="friend-btn btn-green"
+                               onclick="event.stopPropagation()">
+                                ✓ Aceptar
+                            </a>
+                            <a href="{% url 'amistades:rechazar_solicitud' solicitud.id %}"
+                               class="friend-btn btn-gray"
+                               onclick="event.stopPropagation()">
+                                ✕ Rechazar
+                            </a>
+                        </div>
                     </div>
                     {% endfor %}
                 </div>
@@ -1144,7 +1162,7 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
                     {% for sugerencia in sugerencias %}
 
-                    <!-- FIX: onclick en toda la card navega al perfil -->
+                    <!-- onclick en toda la card navega al perfil -->
                     <div class="friend-card {% if sugerencia.amigos_en_comun > 0 %}has-common{% endif %}"
                          onclick="window.location.href='{% url 'perfil:ver_perfil' sugerencia.usuario.documento %}'">
 
@@ -1152,70 +1170,72 @@
                         <div class="common-badge">{{ sugerencia.amigos_en_comun }} en común</div>
                         {% endif %}
 
-                        {% if sugerencia.usuario.foto %}
-                        <img src="{{ sugerencia.usuario.foto.url }}" alt="{{ sugerencia.usuario.nombre }}"
-                             class="friend-avatar" style="{% if sugerencia.amigos_en_comun > 0 %}border-color:#86efac{% endif %}">
-                        {% else %}
-                        <div class="friend-avatar-placeholder {% if sugerencia.amigos_en_comun > 0 %}green-grad{% endif %}">
-                            {% if sugerencia.usuario.tipo == 'instructor' %}👨‍🏫
-                            {% elif sugerencia.usuario.tipo == 'bienestar' %}🏥
-                            {% elif sugerencia.usuario.tipo == 'aprendiz' %}🎓
-                            {% else %}👤{% endif %}
-                        </div>
-                        {% endif %}
+                        <!-- Contenido variable: crece y empuja los botones abajo -->
+                        <div class="friend-card-body">
+                            {% if sugerencia.usuario.foto %}
+                            <img src="{{ sugerencia.usuario.foto.url }}" alt="{{ sugerencia.usuario.nombre }}"
+                                 class="friend-avatar" style="{% if sugerencia.amigos_en_comun > 0 %}border-color:#86efac{% endif %}">
+                            {% else %}
+                            <div class="friend-avatar-placeholder {% if sugerencia.amigos_en_comun > 0 %}green-grad{% endif %}">
+                                {% if sugerencia.usuario.tipo == 'instructor' %}👨‍🏫
+                                {% elif sugerencia.usuario.tipo == 'bienestar' %}🏥
+                                {% elif sugerencia.usuario.tipo == 'aprendiz' %}🎓
+                                {% else %}👤{% endif %}
+                            </div>
+                            {% endif %}
 
-                        <div class="friend-name">{{ sugerencia.usuario.nombre }}</div>
-                        <div class="friend-email">{{ sugerencia.usuario.email }}</div>
-                        <div class="friend-role">{{ sugerencia.usuario.get_tipo_display|default:"Usuario" }}</div>
+                            <div class="friend-name">{{ sugerencia.usuario.nombre }}</div>
+                            <div class="friend-email">{{ sugerencia.usuario.email }}</div>
+                            <div class="friend-role">{{ sugerencia.usuario.get_tipo_display|default:"Usuario" }}</div>
 
-                        {% if sugerencia.amigos_en_comun > 0 %}
-                        <div class="common-friends-box">
-                            <div class="common-friends-label">Amigos en común:</div>
-                            <!-- FIX: layout flex con altura fija para que las imágenes rotas no rompan el diseño -->
-                            <div style="display:flex;justify-content:center;align-items:center;gap:4px;min-height:28px">
-                                {% for amigo_comun in sugerencia.amigos_en_comun_lista %}
-                                <div style="position:relative;width:24px;height:24px;flex-shrink:0">
-                                    {% if amigo_comun.foto %}
-                                    <!-- FIX: onerror muestra el fallback sin romper el layout -->
-                                    <img src="{{ amigo_comun.foto.url }}"
-                                         alt="{{ amigo_comun.nombre }}"
-                                         style="width:24px;height:24px;border-radius:50%;border:2px solid white;object-fit:cover;display:block"
-                                         onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-                                    <div style="display:none;width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#60a5fa,#3b82f6);border:2px solid white;align-items:center;justify-content:center;font-size:0.65rem;color:white;position:absolute;top:0;left:0">👤</div>
-                                    {% else %}
-                                    <div style="width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#60a5fa,#3b82f6);border:2px solid white;display:flex;align-items:center;justify-content:center;font-size:0.65rem;color:white">👤</div>
+                            {% if sugerencia.amigos_en_comun > 0 %}
+                            <div class="common-friends-box">
+                                <div class="common-friends-label">Amigos en común:</div>
+                                <div style="display:flex;justify-content:center;align-items:center;gap:4px;min-height:28px">
+                                    {% for amigo_comun in sugerencia.amigos_en_comun_lista %}
+                                    <div style="position:relative;width:24px;height:24px;flex-shrink:0">
+                                        {% if amigo_comun.foto %}
+                                        <img src="{{ amigo_comun.foto.url }}"
+                                             alt="{{ amigo_comun.nombre }}"
+                                             style="width:24px;height:24px;border-radius:50%;border:2px solid white;object-fit:cover;display:block"
+                                             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+                                        <div style="display:none;width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#60a5fa,#3b82f6);border:2px solid white;align-items:center;justify-content:center;font-size:0.65rem;color:white;position:absolute;top:0;left:0">👤</div>
+                                        {% else %}
+                                        <div style="width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#60a5fa,#3b82f6);border:2px solid white;display:flex;align-items:center;justify-content:center;font-size:0.65rem;color:white">👤</div>
+                                        {% endif %}
+                                    </div>
+                                    {% endfor %}
+                                    {% if sugerencia.amigos_en_comun > 3 %}
+                                    <span style="font-size:0.72rem;color:#16a34a;font-weight:700">+{{ sugerencia.amigos_en_comun|add:"-3" }}</span>
                                     {% endif %}
                                 </div>
-                                {% endfor %}
-                                {% if sugerencia.amigos_en_comun > 3 %}
-                                <span style="font-size:0.72rem;color:#16a34a;font-weight:700">+{{ sugerencia.amigos_en_comun|add:"-3" }}</span>
-                                {% endif %}
                             </div>
+                            {% endif %}
                         </div>
-                        {% endif %}
 
-                        <div class="friend-divider"></div>
+                        <!-- Botones siempre al fondo -->
+                        <div class="friend-card-actions">
+                            <div class="friend-divider"></div>
+                            {% if sugerencia.usuario.id in solicitudes_enviadas_ids %}
+                            <a href="{% url 'amistades:cancelar_solicitud' sugerencia.usuario.id %}"
+                               class="friend-btn btn-gray"
+                               onclick="event.stopPropagation()">
+                                ⏳ Cancelar solicitud
+                            </a>
+                            {% else %}
+                            <a href="{% url 'amistades:enviar_solicitud' sugerencia.usuario.id %}"
+                               class="friend-btn btn-green"
+                               onclick="event.stopPropagation()">
+                                ➕ Agregar amigo
+                            </a>
+                            {% endif %}
 
-                        {% if sugerencia.usuario.id in solicitudes_enviadas_ids %}
-                        <!-- FIX: stopPropagation para que el botón no dispare el onclick de la card -->
-                        <a href="{% url 'amistades:cancelar_solicitud' sugerencia.usuario.id %}"
-                           class="friend-btn btn-gray"
-                           onclick="event.stopPropagation()">
-                            ⏳ Cancelar solicitud
-                        </a>
-                        {% else %}
-                        <a href="{% url 'amistades:enviar_solicitud' sugerencia.usuario.id %}"
-                           class="friend-btn btn-green"
-                           onclick="event.stopPropagation()">
-                            ➕ Agregar amigo
-                        </a>
-                        {% endif %}
-
-                        <a href="{% url 'perfil:ver_perfil' sugerencia.usuario.documento %}"
-                           class="friend-btn btn-blue"
-                           onclick="event.stopPropagation()">
-                            👁️ Ver perfil
-                        </a>
+                            <a href="{% url 'perfil:ver_perfil' sugerencia.usuario.documento %}"
+                               class="friend-btn btn-blue"
+                               onclick="event.stopPropagation()">
+                                👁️ Ver perfil
+                            </a>
+                        </div>
                     </div>
                     {% empty %}
                     <p class="text-gray-500 col-span-4 text-center py-8">No hay sugerencias disponibles en este momento.</p>
@@ -1232,33 +1252,37 @@
             <div class="section-title">👥 Mis amigos</div>
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
                 {% for amigo in amigos %}
-                <!-- FIX: onclick en toda la card navega al perfil -->
+                <!-- onclick en toda la card navega al perfil -->
                 <div class="friend-card"
                      onclick="window.location.href='{% url 'perfil:ver_perfil' amigo.documento %}'">
 
-                    {% if amigo.foto %}
-                    <img src="{{ amigo.foto.url }}" alt="{{ amigo.nombre }}" class="friend-avatar" style="border-color:#86efac">
-                    {% else %}
-                    <div class="friend-avatar-placeholder">👤</div>
-                    {% endif %}
+                    <!-- Contenido variable: crece y empuja los botones abajo -->
+                    <div class="friend-card-body">
+                        {% if amigo.foto %}
+                        <img src="{{ amigo.foto.url }}" alt="{{ amigo.nombre }}" class="friend-avatar" style="border-color:#86efac">
+                        {% else %}
+                        <div class="friend-avatar-placeholder">👤</div>
+                        {% endif %}
 
-                    <div class="friend-name">{{ amigo.nombre }}</div>
-                    <div class="friend-email">{{ amigo.email }}</div>
-                    <div class="friend-role">{{ amigo.get_tipo_perfil_display }}</div>
+                        <div class="friend-name">{{ amigo.nombre }}</div>
+                        <div class="friend-email">{{ amigo.email }}</div>
+                        <div class="friend-role">{{ amigo.get_tipo_perfil_display }}</div>
+                    </div>
 
-                    <div class="friend-divider"></div>
-
-                    <!-- FIX: stopPropagation en botones internos -->
-                    <a href="{% url 'perfil:ver_perfil' amigo.documento %}"
-                       class="friend-btn btn-blue"
-                       onclick="event.stopPropagation()">
-                        👁️ Ver perfil
-                    </a>
-                    <a href="{% url 'amistades:eliminar_amigo' amigo.documento %}"
-                       onclick="event.stopPropagation(); return confirm('¿Estás seguro de eliminar a {{ amigo.nombre }} de tus amigos?')"
-                       class="friend-btn btn-red">
-                        🗑️ Eliminar amigo
-                    </a>
+                    <!-- Botones siempre al fondo -->
+                    <div class="friend-card-actions">
+                        <div class="friend-divider"></div>
+                        <a href="{% url 'perfil:ver_perfil' amigo.documento %}"
+                           class="friend-btn btn-blue"
+                           onclick="event.stopPropagation()">
+                            👁️ Ver perfil
+                        </a>
+                        <a href="{% url 'amistades:eliminar_amigo' amigo.documento %}"
+                           onclick="event.stopPropagation(); return confirm('¿Estás seguro de eliminar a {{ amigo.nombre }} de tus amigos?')"
+                           class="friend-btn btn-red">
+                            🗑️ Eliminar amigo
+                        </a>
+                    </div>
                 </div>
                 {% empty %}
                 <p class="text-gray-500 col-span-4 text-center py-10">Aún no tienes amigos agregados.</p>
@@ -1299,13 +1323,13 @@
             Amigos
         </a>
         <a href="{% url 'notificaciones:lista' %}" class="mob-nav-btn" id="mobNavAlertas">
-            <div class="mob-nav-icon" style="position:relative">
-                <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/>
-                </svg>
-                <span id="mobileBadge" class="hidden" style="position:absolute;top:-4px;right:-4px;background:#ef4444;color:white;font-size:0.55rem;font-weight:700;min-width:15px;height:15px;border-radius:999px;display:none;align-items:center;justify-content:center;padding:0 3px;border:1.5px solid white">0</span>
-            </div>
-            Alertas
+                <div class="mob-nav-icon" style="position:relative">
+                    <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/>
+                    </svg>
+                    <span id="mobileBadge" class="hidden" style="position:absolute;top:-4px;right:-4px;background:#ef4444;color:white;font-size:0.55rem;font-weight:700;min-width:15px;height:15px;border-radius:999px;display:none;align-items:center;justify-content:center;padding:0 3px;border:1.5px solid white">0</span>
+                </div>
+                Alertas
         </a>
         <a href="{% url 'perfil:perfiles' %}" class="mob-nav-btn">
             <div class="mob-nav-icon">
