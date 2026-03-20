@@ -1009,11 +1009,12 @@
             </div>
             Amigos
         </a>
-        <a href="{% url 'notificaciones:lista' %}" class="mob-nav-btn">
-            <div class="mob-nav-icon">
+        <a href="{% url 'notificaciones:lista' %}" class="mob-nav-btn" id="mobNavAlertas">
+            <div class="mob-nav-icon" style="position:relative">
                 <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/>
                 </svg>
+                <span id="mobileBadge" class="hidden" style="position:absolute;top:-4px;right:-4px;background:#ef4444;color:white;font-size:0.55rem;font-weight:700;min-width:15px;height:15px;border-radius:999px;display:none;align-items:center;justify-content:center;padding:0 3px;border:1.5px solid white">0</span>
             </div>
             Alertas
         </a>

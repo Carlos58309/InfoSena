@@ -516,7 +516,15 @@ document.addEventListener('DOMContentLoaded', function() {
             <a href="{% url 'sesion:home' %}" class="mob-nav-btn"><div class="mob-nav-icon"><svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9.75L12 3l9 6.75V21H3V9.75z" stroke-linejoin="round"/></svg></div>Inicio</a>
             <a href="{% url 'chat:lista_chats' %}" class="mob-nav-btn"><div class="mob-nav-icon"><svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6A8.38 8.38 0 0111.5 3h1a8.5 8.5 0 018.5 8.5z"/></svg></div>Chat</a>
             <a href="{% url 'sesion:amigos' %}" class="mob-nav-btn"><div class="mob-nav-icon"><svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="7" cy="7" r="4"/><path d="M1 21v-2a6 6 0 016-6h0a6 6 0 016 6v2"/><circle cx="17" cy="9" r="3.5"/><path d="M14 21v-2a4 4 0 014-4h0a4 4 0 014 4v2"/></svg></div>Amigos</a>
-            <a href="{% url 'notificaciones:lista' %}" class="mob-nav-btn"><div class="mob-nav-icon"><svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg></div>Alertas</a>
+            <a href="{% url 'notificaciones:lista' %}" class="mob-nav-btn" id="mobNavAlertas">
+                <div class="mob-nav-icon" style="position:relative">
+                    <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/>
+                    </svg>
+                    <span id="mobileBadge" class="hidden" style="position:absolute;top:-4px;right:-4px;background:#ef4444;color:white;font-size:0.55rem;font-weight:700;min-width:15px;height:15px;border-radius:999px;display:none;align-items:center;justify-content:center;padding:0 3px;border:1.5px solid white">0</span>
+                </div>
+                Alertas
+            </a>
             <a href="{% url 'perfil:perfiles' %}" class="mob-nav-btn active"><div class="mob-nav-icon"><svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 12a5 5 0 100-10 5 5 0 000 10zm7 8c0-4-3-7-7-7s-7 3-7 7"/></svg></div>Perfil</a>
         </div>
     </nav>
@@ -618,7 +626,24 @@ document.addEventListener('DOMContentLoaded', function() {
     let notificationInterval;
     document.addEventListener('DOMContentLoaded',function(){cargarNotificaciones();notificationInterval=setInterval(cargarNotificaciones,30000);document.addEventListener('visibilitychange',function(){if(!document.hidden)cargarNotificaciones();});});
     async function cargarNotificaciones(){try{const r=await fetch("{% url 'notificaciones:obtener_notificaciones' %}");const d=await r.json();actualizarBadge(d.count);if(d.notificaciones&&d.notificaciones.length>0)renderizarNotificaciones(d.notificaciones);else mostrarNotificacionesVacias();}catch(e){}}
-    function actualizarBadge(c){const b=document.getElementById('notificationBadge');if(b){if(c>0){b.textContent=c>99?'99+':c;b.classList.remove('hidden');}else b.classList.add('hidden');}}
+    function actualizarBadge(count) {
+        // Badge del header (ya existe)
+        const badge = document.getElementById('notificationBadge');
+        if (badge) {
+            if (count > 0) { badge.textContent = count > 99 ? '99+' : count; badge.classList.remove('hidden'); }
+            else { badge.classList.add('hidden'); }
+        }
+        // Badge móvil (nuevo)
+        const mobBadge = document.getElementById('mobileBadge');
+        if (mobBadge) {
+            if (count > 0) {
+                mobBadge.textContent = count > 99 ? '99+' : count;
+                mobBadge.style.display = 'flex';
+            } else {
+                mobBadge.style.display = 'none';
+            }
+        }
+    }
     function renderizarNotificaciones(ns){const l=document.getElementById('listaNotificaciones');const ic={'solicitud_amistad':'👋','amistad_aceptada':'✅','nueva_publicacion':'📝','comentario':'💬','like':'❤️'};const co={'solicitud_amistad':'bg-green-50 border-l-4 border-green-500','amistad_aceptada':'bg-blue-50 border-l-4 border-blue-500','nueva_publicacion':'bg-purple-50 border-l-4 border-purple-500','comentario':'bg-yellow-50 border-l-4 border-yellow-500','like':'bg-red-50 border-l-4 border-red-500'};l.innerHTML=ns.map(n=>`<div class="${co[n.tipo]||'bg-white'} p-4 hover:bg-gray-100 transition cursor-pointer border-b border-gray-200" onclick="irANotificacion(${n.id},${n.publicacion_id||null})"><div class="flex items-start gap-3"><div class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0 text-lg">${ic[n.tipo]||'📢'}</div><div class="flex-1 min-w-0"><p class="text-sm text-gray-800 mb-1">${n.mensaje}</p><p class="text-xs text-gray-500">${calcularTiempo(n.fecha)}</p></div></div></div>`).join('');}
     function mostrarNotificacionesVacias(){document.getElementById('listaNotificaciones').innerHTML=`<div class="flex flex-col items-center justify-center py-12"><div class="text-5xl mb-3">🔔</div><p class="text-gray-600 font-semibold">Todo al día</p></div>`;}
     function calcularTiempo(f){const d=Math.floor((new Date()-new Date(f))/1000);if(d<60)return'Justo ahora';if(d<3600)return`Hace ${Math.floor(d/60)} min`;if(d<86400)return`Hace ${Math.floor(d/3600)} h`;return`Hace ${Math.floor(d/86400)} días`;}
