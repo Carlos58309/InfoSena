@@ -56,7 +56,7 @@ MEDIA_URL = '/media/'
 if os.getenv('CLOUDINARY_CLOUD_NAME'):
     STORAGES = {
         "default": {
-            "BACKEND": "cloudinary_storage.storage.RawMediaCloudinaryStorage",
+            "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
         },
         "staticfiles": {
             "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
