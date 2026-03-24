@@ -398,24 +398,41 @@
                     <div class="flex items-center justify-between">
                         <div class="flex items-center space-x-3">
                             {% if publicacion.autor.foto %}
-                            <a href="{% url 'perfil:ver_perfil' publicacion.autor.documento %}">
+                                {% if publicacion.autor.documento %}
+                                <a href="{% url 'perfil:ver_perfil' publicacion.autor.documento %}">
+                                    <img src="{{ publicacion.autor.foto.url }}" alt="{{ publicacion.autor.nombre }}" 
+                                        class="w-12 h-12 rounded-full object-cover hover:opacity-80 transition-opacity">
+                                </a>
+                                {% else %}
                                 <img src="{{ publicacion.autor.foto.url }}" alt="{{ publicacion.autor.nombre }}" 
-                                    class="w-12 h-12 rounded-full object-cover hover:opacity-80 transition-opacity">
-                            </a>
+                                    class="w-12 h-12 rounded-full object-cover">
+                                {% endif %}
                             {% else %}
-                            <div class="w-12 h-12 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center text-white text-xl">🏥</div>
+                                {% if publicacion.autor.documento %}
+                                <a href="{% url 'perfil:ver_perfil' publicacion.autor.documento %}">
+                                    <div class="w-12 h-12 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center text-white text-xl hover:opacity-80 transition-opacity cursor-pointer">🏥</div>
+                                </a>
+                                {% else %}
+                                <div class="w-12 h-12 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center text-white text-xl">🏥</div>
+                                {% endif %}
                             {% endif %}
+
                             <div>
+                                {% if publicacion.autor.documento %}
                                 <a href="{% url 'perfil:ver_perfil' publicacion.autor.documento %}" 
-                                class="font-bold text-gray-900 hover:underline hover:text-green-700 transition-colors">
+                                    class="font-bold text-gray-900 hover:underline hover:text-green-700 transition-colors">
                                     {{ publicacion.autor.nombre }}
                                 </a>
+                                {% else %}
+                                <p class="font-bold text-gray-900">{{ publicacion.autor.nombre }}</p>
+                                {% endif %}
                                 <div class="flex items-center gap-2 text-sm text-gray-500">
                                     <span>{{ publicacion.fecha_creacion|timesince }} atrás</span>
                                     <span>•</span>
                                     <span>🌐</span>
                                 </div>
                             </div>
+                        </div>
                         </div>
                         <span class="px-3 py-1 rounded-full text-xs font-semibold
                             {% if publicacion.categoria == 'salud' %} bg-red-100 text-red-700
