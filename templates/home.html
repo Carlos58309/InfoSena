@@ -398,12 +398,18 @@
                     <div class="flex items-center justify-between">
                         <div class="flex items-center space-x-3">
                             {% if publicacion.autor.foto %}
-                            <img src="{{ publicacion.autor.foto.url }}" alt="{{ publicacion.autor.nombre }}" class="w-12 h-12 rounded-full object-cover">
+                            <a href="{% url 'perfil:ver_perfil' publicacion.autor.documento %}">
+                                <img src="{{ publicacion.autor.foto.url }}" alt="{{ publicacion.autor.nombre }}" 
+                                    class="w-12 h-12 rounded-full object-cover hover:opacity-80 transition-opacity">
+                            </a>
                             {% else %}
                             <div class="w-12 h-12 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center text-white text-xl">🏥</div>
                             {% endif %}
                             <div>
-                                <p class="font-bold text-gray-900">{{ publicacion.autor.nombre }}</p>
+                                <a href="{% url 'perfil:ver_perfil' publicacion.autor.documento %}" 
+                                class="font-bold text-gray-900 hover:underline hover:text-green-700 transition-colors">
+                                    {{ publicacion.autor.nombre }}
+                                </a>
                                 <div class="flex items-center gap-2 text-sm text-gray-500">
                                     <span>{{ publicacion.fecha_creacion|timesince }} atrás</span>
                                     <span>•</span>
