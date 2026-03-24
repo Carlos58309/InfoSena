@@ -421,9 +421,12 @@
                     {% for archivo in publicacion.archivos.all|slice:":5" %}
                         {% if archivo.tipo == 'imagen' %}
                         <div class="media-item">
-                            <img src="{{ archivo.archivo.url }}" alt="{{ publicacion.titulo }}" onclick="abrirMediaModal({{ publicacion.id }}, {{ forloop.counter0 }})">
+                            <img src="{{ archivo.archivo.url }}" alt="{{ publicacion.titulo }}"
+                                 onclick="abrirMediaModal({{ publicacion.id }}, {{ forloop.counter0 }})">
                             {% if forloop.last and total_media > 5 %}
-                            <div class="media-overlay" onclick="abrirMediaModal({{ publicacion.id }}, {{ forloop.counter0 }})">+{{ total_media|add:"-5" }}</div>
+                            <div class="media-overlay" onclick="abrirMediaModal({{ publicacion.id }}, {{ forloop.counter0 }})">
+                                +{{ total_media|add:"-5" }}
+                            </div>
                             {% endif %}
                         </div>
                         {% endif %}
@@ -431,21 +434,42 @@
                         <div class="media-item video-item">
                             <video src="{{ archivo.archivo.url }}" class="w-full h-full object-cover"></video>
                             <div class="video-play-overlay" onclick="abrirMediaModal({{ publicacion.id }}, {{ forloop.counter0 }})">
-                                <svg class="w-16 h-16 text-white" fill="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="white" fill-opacity="0.9"/><path d="M8 5v14l11-7z" fill="#000"/></svg>
+                                <svg class="w-16 h-16 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <circle cx="12" cy="12" r="10" fill="white" fill-opacity="0.9"/>
+                                    <path d="M8 5v14l11-7z" fill="#000"/>
+                                </svg>
                             </div>
                             {% if forloop.last and total_media > 5 %}
-                            <div class="media-overlay" onclick="abrirMediaModal({{ publicacion.id }}, {{ forloop.counter0 }})">+{{ total_media|add:"-5" }}</div>
+                            <div class="media-overlay" onclick="abrirMediaModal({{ publicacion.id }}, {{ forloop.counter0 }})">
+                                +{{ total_media|add:"-5" }}
+                            </div>
                             {% endif %}
                         </div>
                         {% endif %}
                     {% endfor %}
                 </div>
+
                 <script>
-                    inicializarMediaPublicacion({{ publicacion.id }}, [
+                (function() {
+                    var pubId = {{ publicacion.id }};
+                    var archivos = [
                         {% for archivo in publicacion.archivos.all %}
-                        { tipo: '{{ archivo.tipo }}', url: '{{ archivo.archivo.url }}', alt: '{{ publicacion.titulo|escapejs }}' }{% if not forloop.last %},{% endif %}
+                        {
+                            tipo: '{{ archivo.tipo }}',
+                            url: '{{ archivo.archivo.url }}',
+                            alt: '{{ publicacion.titulo|escapejs }}'
+                        }{% if not forloop.last %},{% endif %}
                         {% endfor %}
-                    ]);
+                    ];
+                    function tryInit() {
+                        if (typeof inicializarMediaPublicacion === 'function') {
+                            inicializarMediaPublicacion(pubId, archivos);
+                        } else {
+                            setTimeout(tryInit, 50);
+                        }
+                    }
+                    tryInit();
+                })();
                 </script>
                 {% endwith %}
                 {% endif %}
@@ -1184,63 +1208,160 @@
     function escapeRegex(t) { return t.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'); }
     </script>
 
-    <!-- MODALES MEDIA -->
+<!-- MODALES MEDIA -->
     <script>
     const publicacionesMedia = {};
-    function inicializarMediaPublicacion(publicacionId, archivos) { publicacionesMedia[publicacionId] = archivos; }
-    function abrirMediaModal(publicacionId, index) {
-        const archivos = publicacionesMedia[publicacionId];
-        if (!archivos || !archivos[index]) return;
-        const modal = crearModalMedia(publicacionId, index, archivos.length);
-        document.body.appendChild(modal);
+
+    window.inicializarMediaPublicacion = function(publicacionId, archivos) {
+        publicacionesMedia[String(publicacionId)] = archivos;
+    };
+
+    window.abrirMediaModal = function(publicacionId, index) {
+        const key = String(publicacionId);
+        const archivos = publicacionesMedia[key];
+
+        if (!archivos || archivos.length === 0) {
+            console.warn('No hay archivos para publicacion:', publicacionId);
+            return;
+        }
+
+        const existente = document.getElementById('mediaModalOverlay');
+        if (existente) existente.remove();
+
+        let currentIndex = parseInt(index) || 0;
+        if (currentIndex >= archivos.length) currentIndex = 0;
+
+        const overlay = document.createElement('div');
+        overlay.id = 'mediaModalOverlay';
+        overlay.style.cssText = `
+            position:fixed; inset:0;
+            background:rgba(0,0,0,0.95);
+            z-index:99999;
+            display:flex; align-items:center; justify-content:center;
+        `;
+
+        const btnCerrar = document.createElement('button');
+        btnCerrar.dataset.action = 'cerrar';
+        btnCerrar.style.cssText = `
+            position:absolute; top:16px; right:16px;
+            width:44px; height:44px; border-radius:50%;
+            background:rgba(255,255,255,0.15); border:none;
+            color:white; font-size:1.6rem; cursor:pointer;
+            display:flex; align-items:center; justify-content:center;
+            z-index:100; line-height:1;
+        `;
+        btnCerrar.textContent = '×';
+
+        const contador = document.createElement('div');
+        contador.id = 'mediaContador';
+        contador.style.cssText = `
+            position:absolute; top:16px; left:50%; transform:translateX(-50%);
+            background:rgba(0,0,0,0.6); color:white;
+            padding:6px 16px; border-radius:20px;
+            font-size:0.85rem; font-weight:600; z-index:100;
+            display: ${archivos.length > 1 ? 'block' : 'none'};
+        `;
+
+        const btnPrev = document.createElement('button');
+        btnPrev.dataset.action = 'prev';
+        btnPrev.style.cssText = `
+            position:absolute; left:16px; top:50%; transform:translateY(-50%);
+            width:48px; height:48px; border-radius:50%;
+            background:rgba(255,255,255,0.2); border:none;
+            color:white; font-size:2rem; cursor:pointer;
+            display:${archivos.length > 1 ? 'flex' : 'none'};
+            align-items:center; justify-content:center; z-index:100;
+        `;
+        btnPrev.innerHTML = '&#8249;';
+
+        const btnNext = document.createElement('button');
+        btnNext.dataset.action = 'next';
+        btnNext.style.cssText = `
+            position:absolute; right:16px; top:50%; transform:translateY(-50%);
+            width:48px; height:48px; border-radius:50%;
+            background:rgba(255,255,255,0.2); border:none;
+            color:white; font-size:2rem; cursor:pointer;
+            display:${archivos.length > 1 ? 'flex' : 'none'};
+            align-items:center; justify-content:center; z-index:100;
+        `;
+        btnNext.innerHTML = '&#8250;';
+
+        const contenedor = document.createElement('div');
+        contenedor.id = 'mediaContenedor';
+        contenedor.style.cssText = `
+            display:flex; align-items:center; justify-content:center;
+            max-width:90vw; max-height:90vh;
+        `;
+
+        overlay.appendChild(btnCerrar);
+        overlay.appendChild(contador);
+        overlay.appendChild(btnPrev);
+        overlay.appendChild(btnNext);
+        overlay.appendChild(contenedor);
+
+        function renderArchivo() {
+            const videoAnterior = contenedor.querySelector('video');
+            if (videoAnterior) videoAnterior.pause();
+            contenedor.innerHTML = '';
+            const archivo = archivos[currentIndex];
+
+            if (archivo.tipo === 'imagen') {
+                const img = document.createElement('img');
+                img.src = archivo.url;
+                img.alt = archivo.alt || 'Imagen';
+                img.style.cssText = 'max-width:90vw; max-height:85vh; object-fit:contain; border-radius:8px; display:block;';
+                contenedor.appendChild(img);
+            } else if (archivo.tipo === 'video') {
+                const video = document.createElement('video');
+                video.controls = true;
+                video.autoplay = true;
+                video.style.cssText = 'max-width:90vw; max-height:85vh; border-radius:8px; display:block; background:#000;';
+                const source = document.createElement('source');
+                source.src = archivo.url;
+                video.appendChild(source);
+                contenedor.appendChild(video);
+            }
+
+            contador.textContent = `${currentIndex + 1} / ${archivos.length}`;
+            btnPrev.style.opacity = currentIndex === 0 ? '0.3' : '1';
+            btnPrev.style.pointerEvents = currentIndex === 0 ? 'none' : 'auto';
+            btnNext.style.opacity = currentIndex === archivos.length - 1 ? '0.3' : '1';
+            btnNext.style.pointerEvents = currentIndex === archivos.length - 1 ? 'none' : 'auto';
+        }
+
+        overlay.addEventListener('click', function(e) {
+            const action = e.target.closest('[data-action]')?.dataset.action;
+            if (action === 'cerrar') {
+                cerrarMediaModal();
+            } else if (action === 'prev') {
+                if (currentIndex > 0) { currentIndex--; renderArchivo(); }
+            } else if (action === 'next') {
+                if (currentIndex < archivos.length - 1) { currentIndex++; renderArchivo(); }
+            } else if (e.target === overlay) {
+                cerrarMediaModal();
+            }
+        });
+
+        renderArchivo();
+        document.body.appendChild(overlay);
         document.body.style.overflow = 'hidden';
-        cargarArchivoEnModal(modal, archivos[index]);
+    };
+
+    function cerrarMediaModal() {
+        const overlay = document.getElementById('mediaModalOverlay');
+        if (overlay) {
+            overlay.querySelector('video')?.pause();
+            overlay.remove();
+        }
+        document.body.style.overflow = '';
     }
-    function crearModalMedia(publicacionId, indexActual, totalArchivos) {
-        const modal = document.createElement('div');
-        modal.className = 'modal-media';
-        modal.dataset.publicacionId = publicacionId;
-        modal.dataset.currentIndex = indexActual;
-        modal.onclick = (e) => { if (e.target === modal) cerrarModalMedia(modal); };
-        modal.innerHTML = `
-            <button class="modal-close-btn" onclick="cerrarModalMedia(this.parentElement)">×</button>
-            ${totalArchivos > 1 ? `
-            <div class="modal-counter"><span id="modal-counter-text">${indexActual+1} / ${totalArchivos}</span></div>
-            <button class="modal-nav-btn prev" onclick="navegarMedia(this,-1)"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7"/></svg></button>
-            <button class="modal-nav-btn next" onclick="navegarMedia(this,1)"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"/></svg></button>` : ''}
-            <div id="modal-content-container"></div>`;
-        return modal;
-    }
-    function cargarArchivoEnModal(modal, archivo) {
-        const container = modal.querySelector('#modal-content-container');
-        if (archivo.tipo === 'imagen') container.innerHTML = `<img src="${archivo.url}" alt="${archivo.alt||'Imagen'}" onclick="event.stopPropagation()" style="max-width:90%;max-height:90vh;object-fit:contain;">`;
-        else if (archivo.tipo === 'video') container.innerHTML = `<video controls autoplay onclick="event.stopPropagation()" style="max-width:90%;max-height:90vh;"><source src="${archivo.url}" type="video/mp4"><source src="${archivo.url}" type="video/webm"><source src="${archivo.url}" type="video/ogg">Tu navegador no soporta videos.</video>`;
-    }
-    function navegarMedia(btn, direccion) {
-        const modal = btn.closest('.modal-media');
-        const archivos = publicacionesMedia[modal.dataset.publicacionId];
-        let idx = parseInt(modal.dataset.currentIndex) + direccion;
-        if (idx < 0 || idx >= archivos.length) return;
-        modal.dataset.currentIndex = idx;
-        const counter = modal.querySelector('#modal-counter-text');
-        if (counter) counter.textContent = `${idx+1} / ${archivos.length}`;
-        const prev = modal.querySelector('.modal-nav-btn.prev');
-        const next = modal.querySelector('.modal-nav-btn.next');
-        if (prev) prev.disabled = idx === 0;
-        if (next) next.disabled = idx === archivos.length-1;
-        cargarArchivoEnModal(modal, archivos[idx]);
-    }
-    function cerrarModalMedia(modal) {
-        modal.querySelectorAll('video').forEach(v => { v.pause(); v.currentTime = 0; });
-        modal.remove();
-        document.body.style.overflow = 'auto';
-    }
+
     document.addEventListener('keydown', (e) => {
-        const modal = document.querySelector('.modal-media');
-        if (!modal) return;
-        if (e.key === 'Escape') cerrarModalMedia(modal);
-        if (e.key === 'ArrowLeft') { const b = modal.querySelector('.modal-nav-btn.prev'); if(b && !b.disabled) navegarMedia(b,-1); }
-        if (e.key === 'ArrowRight') { const b = modal.querySelector('.modal-nav-btn.next'); if(b && !b.disabled) navegarMedia(b,1); }
+        const overlay = document.getElementById('mediaModalOverlay');
+        if (!overlay) return;
+        if (e.key === 'Escape')     cerrarMediaModal();
+        if (e.key === 'ArrowLeft')  overlay.querySelector('[data-action="prev"]')?.click();
+        if (e.key === 'ArrowRight') overlay.querySelector('[data-action="next"]')?.click();
     });
     </script>
 
