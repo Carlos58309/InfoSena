@@ -1413,51 +1413,70 @@
                     </div>
 
                     <!-- MEDIA GRID -->
-                    {% if publicacion.archivos.all %}
-                    {% with total_media=publicacion.archivos.all|length %}
-                    <div class="
-                        {% if total_media == 1 %}media-grid-1
-                        {% elif total_media == 2 %}media-grid-2
-                        {% elif total_media == 3 %}media-grid-3
-                        {% elif total_media == 4 %}media-grid-4
-                        {% else %}media-grid-5plus{% endif %}
-                    ">
-                        {% for archivo in publicacion.archivos.all|slice:":5" %}
-                            {% if archivo.tipo == 'imagen' %}
-                            <div class="media-item">
-                                <img src="{{ archivo.archivo.url }}" alt="{{ publicacion.titulo }}"
-                                     onclick="abrirMediaModal({{ publicacion.id }}, {{ forloop.counter0 }})">
-                                {% if forloop.last and total_media > 5 %}
-                                <div class="media-overlay" onclick="abrirMediaModal({{ publicacion.id }}, {{ forloop.counter0 }})">+{{ total_media|add:"-5" }}</div>
-                                {% endif %}
+                {% if publicacion.archivos.all %}
+                {% with total_media=publicacion.archivos.all|length %}
+                <div class="
+                    {% if total_media == 1 %}media-grid-1
+                    {% elif total_media == 2 %}media-grid-2
+                    {% elif total_media == 3 %}media-grid-3
+                    {% elif total_media == 4 %}media-grid-4
+                    {% else %}media-grid-5plus{% endif %}
+                ">
+                    {% for archivo in publicacion.archivos.all|slice:":5" %}
+                        {% if archivo.tipo == 'imagen' %}
+                        <div class="media-item">
+                            <img src="{{ archivo.archivo.url }}" alt="{{ publicacion.titulo }}"
+                                 onclick="abrirMediaModal({{ publicacion.id }}, {{ forloop.counter0 }})">
+                            {% if forloop.last and total_media > 5 %}
+                            <div class="media-overlay" onclick="abrirMediaModal({{ publicacion.id }}, {{ forloop.counter0 }})">
+                                +{{ total_media|add:"-5" }}
                             </div>
                             {% endif %}
-                            {% if archivo.tipo == 'video' %}
-                            <div class="media-item video-item">
-                                <video src="{{ archivo.archivo.url }}" class="w-full h-full object-cover"></video>
-                                <div class="video-play-overlay" onclick="abrirMediaModal({{ publicacion.id }}, {{ forloop.counter0 }})">
-                                    <svg class="w-16 h-16" fill="currentColor" viewBox="0 0 24 24">
-                                        <circle cx="12" cy="12" r="10" fill="white" fill-opacity="0.9"/>
-                                        <path d="M8 5v14l11-7z" fill="#000"/>
-                                    </svg>
-                                </div>
-                                {% if forloop.last and total_media > 5 %}
-                                <div class="media-overlay" onclick="abrirMediaModal({{ publicacion.id }}, {{ forloop.counter0 }})">+{{ total_media|add:"-5" }}</div>
-                                {% endif %}
+                        </div>
+                        {% endif %}
+                        {% if archivo.tipo == 'video' %}
+                        <div class="media-item video-item">
+                            <video src="{{ archivo.archivo.url }}" class="w-full h-full object-cover"></video>
+                            <div class="video-play-overlay" onclick="abrirMediaModal({{ publicacion.id }}, {{ forloop.counter0 }})">
+                                <svg class="w-16 h-16 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <circle cx="12" cy="12" r="10" fill="white" fill-opacity="0.9"/>
+                                    <path d="M8 5v14l11-7z" fill="#000"/>
+                                </svg>
+                            </div>
+                            {% if forloop.last and total_media > 5 %}
+                            <div class="media-overlay" onclick="abrirMediaModal({{ publicacion.id }}, {{ forloop.counter0 }})">
+                                +{{ total_media|add:"-5" }}
                             </div>
                             {% endif %}
-                        {% endfor %}
-                    </div>
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
 
-                    <script>
-                        inicializarMediaPublicacion({{ publicacion.id }}, [
-                            {% for archivo in publicacion.archivos.all %}
-                            { tipo: '{{ archivo.tipo }}', url: '{{ archivo.archivo.url }}', alt: '{{ publicacion.titulo|escapejs }}' }{% if not forloop.last %},{% endif %}
-                            {% endfor %}
-                        ]);
-                    </script>
-                    {% endwith %}
-                    {% endif %}
+                <script>
+                (function() {
+                    var pubId = {{ publicacion.id }};
+                    var archivos = [
+                        {% for archivo in publicacion.archivos.all %}
+                        {
+                            tipo: '{{ archivo.tipo }}',
+                            url: '{{ archivo.archivo.url }}',
+                            alt: '{{ publicacion.titulo|escapejs }}'
+                        }{% if not forloop.last %},{% endif %}
+                        {% endfor %}
+                    ];
+                    function tryInit() {
+                        if (typeof inicializarMediaPublicacion === 'function') {
+                            inicializarMediaPublicacion(pubId, archivos);
+                        } else {
+                            setTimeout(tryInit, 50);
+                        }
+                    }
+                    tryInit();
+                })();
+                </script>
+                {% endwith %}
+                {% endif %}
 
                     <!-- Acciones -->
                     <div class="px-4 pb-3">
@@ -2287,7 +2306,7 @@
     function escapeRegex(t) { return t.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'); }
     </script>
 
-    <!-- MODALES MEDIA -->
+<!-- MODALES MEDIA -->
     <script>
     const publicacionesMedia = {};
 

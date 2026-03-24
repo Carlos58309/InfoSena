@@ -457,24 +457,71 @@ document.addEventListener('DOMContentLoaded', function() {
                         <h3 class="text-xl font-bold text-gray-800 mb-2">{{ publicacion.titulo }}</h3>
                         <p class="text-gray-700 whitespace-pre-line mb-3">{{ publicacion.contenido }}</p>
 
-                        {% if publicacion.archivos.all %}
-                        {% with total_media=publicacion.archivos.all|length %}
-                        <div class="{% if total_media == 1 %}media-grid-1{% elif total_media == 2 %}media-grid-2{% elif total_media == 3 %}media-grid-3{% elif total_media == 4 %}media-grid-4{% else %}media-grid-5plus{% endif %}">
-                            {% for archivo in publicacion.archivos.all|slice:":5" %}
-                                {% if archivo.tipo == 'imagen' %}
-                                <div class="media-item"><img src="{{ archivo.archivo.url }}" alt="{{ publicacion.titulo }}" onclick="abrirMediaModal({{ publicacion.id }}, {{ forloop.counter0 }})">{% if forloop.last and total_media > 5 %}<div class="media-overlay" onclick="abrirMediaModal({{ publicacion.id }}, {{ forloop.counter0 }})">+{{ total_media|add:"-5" }}</div>{% endif %}</div>
-                                {% endif %}
-                                {% if archivo.tipo == 'video' %}
-                                <div class="media-item video-item"><video src="{{ archivo.archivo.url }}" class="w-full h-full object-cover"></video><div class="video-play-overlay" onclick="abrirMediaModal({{ publicacion.id }}, {{ forloop.counter0 }})"><svg class="w-16 h-16 text-white" fill="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="white" fill-opacity="0.9"/><path d="M8 5v14l11-7z" fill="#000"/></svg></div>{% if forloop.last and total_media > 5 %}<div class="media-overlay" onclick="abrirMediaModal({{ publicacion.id }}, {{ forloop.counter0 }})">+{{ total_media|add:"-5" }}</div>{% endif %}</div>
-                                {% endif %}
-                            {% endfor %}
+                        <!-- MEDIA GRID -->
+                {% if publicacion.archivos.all %}
+                {% with total_media=publicacion.archivos.all|length %}
+                <div class="
+                    {% if total_media == 1 %}media-grid-1
+                    {% elif total_media == 2 %}media-grid-2
+                    {% elif total_media == 3 %}media-grid-3
+                    {% elif total_media == 4 %}media-grid-4
+                    {% else %}media-grid-5plus{% endif %}
+                ">
+                    {% for archivo in publicacion.archivos.all|slice:":5" %}
+                        {% if archivo.tipo == 'imagen' %}
+                        <div class="media-item">
+                            <img src="{{ archivo.archivo.url }}" alt="{{ publicacion.titulo }}"
+                                 onclick="abrirMediaModal({{ publicacion.id }}, {{ forloop.counter0 }})">
+                            {% if forloop.last and total_media > 5 %}
+                            <div class="media-overlay" onclick="abrirMediaModal({{ publicacion.id }}, {{ forloop.counter0 }})">
+                                +{{ total_media|add:"-5" }}
+                            </div>
+                            {% endif %}
                         </div>
-                        <script>
-                        (function(){var p={{ publicacion.id }};var a=[{% for archivo in publicacion.archivos.all %}{tipo:'{{ archivo.tipo }}',url:'{{ archivo.archivo.url }}',alt:'{{ publicacion.titulo|escapejs }}'}{% if not forloop.last %},{% endif %}{% endfor %}];function t(){if(typeof inicializarMediaPublicacion==='function'){inicializarMediaPublicacion(p,a);}else{setTimeout(t,50);}}t();})();
-                        </script>
-                        {% endwith %}
                         {% endif %}
+                        {% if archivo.tipo == 'video' %}
+                        <div class="media-item video-item">
+                            <video src="{{ archivo.archivo.url }}" class="w-full h-full object-cover"></video>
+                            <div class="video-play-overlay" onclick="abrirMediaModal({{ publicacion.id }}, {{ forloop.counter0 }})">
+                                <svg class="w-16 h-16 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <circle cx="12" cy="12" r="10" fill="white" fill-opacity="0.9"/>
+                                    <path d="M8 5v14l11-7z" fill="#000"/>
+                                </svg>
+                            </div>
+                            {% if forloop.last and total_media > 5 %}
+                            <div class="media-overlay" onclick="abrirMediaModal({{ publicacion.id }}, {{ forloop.counter0 }})">
+                                +{{ total_media|add:"-5" }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
 
+                <script>
+                (function() {
+                    var pubId = {{ publicacion.id }};
+                    var archivos = [
+                        {% for archivo in publicacion.archivos.all %}
+                        {
+                            tipo: '{{ archivo.tipo }}',
+                            url: '{{ archivo.archivo.url }}',
+                            alt: '{{ publicacion.titulo|escapejs }}'
+                        }{% if not forloop.last %},{% endif %}
+                        {% endfor %}
+                    ];
+                    function tryInit() {
+                        if (typeof inicializarMediaPublicacion === 'function') {
+                            inicializarMediaPublicacion(pubId, archivos);
+                        } else {
+                            setTimeout(tryInit, 50);
+                        }
+                    }
+                    tryInit();
+                })();
+                </script>
+                {% endwith %}
+                {% endif %}
                         <div class="flex justify-between items-center py-2 text-sm text-gray-500 border-b border-gray-200 mt-2">
                             <div class="flex items-center gap-2">
                                 <div class="w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center"><svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"/></svg></div>
@@ -676,26 +723,161 @@ document.addEventListener('DOMContentLoaded', function() {
     function escapeRegex(t){return t.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');}
     </script>
 
+<!-- MODALES MEDIA -->
     <script>
-    const publicacionesMedia={};
-    window.inicializarMediaPublicacion=function(id,a){publicacionesMedia[String(id)]=a;};
-    window.abrirMediaModal=function(id,idx){
-        const key=String(id);const a=publicacionesMedia[key];if(!a||!a.length)return;
-        const ex=document.getElementById('mediaModalOverlay');if(ex)ex.remove();
-        let ci=parseInt(idx)||0;if(ci>=a.length)ci=0;
-        const ov=document.createElement('div');ov.id='mediaModalOverlay';ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:99999;display:flex;align-items:center;justify-content:center;';
-        const bc=document.createElement('button');bc.dataset.action='cerrar';bc.style.cssText='position:absolute;top:16px;right:16px;width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,0.15);border:none;color:white;font-size:1.6rem;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:100;';bc.textContent='×';
-        const cnt=document.createElement('div');cnt.style.cssText=`position:absolute;top:16px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.6);color:white;padding:6px 16px;border-radius:20px;font-size:0.85rem;font-weight:600;z-index:100;display:${a.length>1?'block':'none'};`;
-        const bp=document.createElement('button');bp.dataset.action='prev';bp.style.cssText=`position:absolute;left:16px;top:50%;transform:translateY(-50%);width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,0.2);border:none;color:white;font-size:2rem;cursor:pointer;display:${a.length>1?'flex':'none'};align-items:center;justify-content:center;z-index:100;`;bp.innerHTML='&#8249;';
-        const bn=document.createElement('button');bn.dataset.action='next';bn.style.cssText=`position:absolute;right:16px;top:50%;transform:translateY(-50%);width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,0.2);border:none;color:white;font-size:2rem;cursor:pointer;display:${a.length>1?'flex':'none'};align-items:center;justify-content:center;z-index:100;`;bn.innerHTML='&#8250;';
-        const con=document.createElement('div');con.style.cssText='display:flex;align-items:center;justify-content:center;max-width:90vw;max-height:90vh;';
-        ov.appendChild(bc);ov.appendChild(cnt);ov.appendChild(bp);ov.appendChild(bn);ov.appendChild(con);
-        function render(){const v=con.querySelector('video');if(v)v.pause();con.innerHTML='';const f=a[ci];if(f.tipo==='imagen'){const i=document.createElement('img');i.src=f.url;i.alt=f.alt||'';i.style.cssText='max-width:90vw;max-height:85vh;object-fit:contain;border-radius:8px;display:block;';con.appendChild(i);}else if(f.tipo==='video'){const v=document.createElement('video');v.controls=true;v.autoplay=true;v.style.cssText='max-width:90vw;max-height:85vh;border-radius:8px;display:block;background:#000;';const s=document.createElement('source');s.src=f.url;v.appendChild(s);con.appendChild(v);}cnt.textContent=`${ci+1} / ${a.length}`;bp.style.opacity=ci===0?'0.3':'1';bp.style.pointerEvents=ci===0?'none':'auto';bn.style.opacity=ci===a.length-1?'0.3':'1';bn.style.pointerEvents=ci===a.length-1?'none':'auto';}
-        ov.addEventListener('click',function(e){const ac=e.target.closest('[data-action]')?.dataset.action;if(ac==='cerrar')cerrarMediaModal();else if(ac==='prev'){if(ci>0){ci--;render();}}else if(ac==='next'){if(ci<a.length-1){ci++;render();}}else if(e.target===ov)cerrarMediaModal();});
-        render();document.body.appendChild(ov);document.body.style.overflow='hidden';
+    const publicacionesMedia = {};
+
+    window.inicializarMediaPublicacion = function(publicacionId, archivos) {
+        publicacionesMedia[String(publicacionId)] = archivos;
     };
-    function cerrarMediaModal(){const o=document.getElementById('mediaModalOverlay');if(o){o.querySelector('video')?.pause();o.remove();}document.body.style.overflow='';}
-    document.addEventListener('keydown',e=>{const o=document.getElementById('mediaModalOverlay');if(!o)return;if(e.key==='Escape')cerrarMediaModal();if(e.key==='ArrowLeft')o.querySelector('[data-action="prev"]')?.click();if(e.key==='ArrowRight')o.querySelector('[data-action="next"]')?.click();});
+
+    window.abrirMediaModal = function(publicacionId, index) {
+        const key = String(publicacionId);
+        const archivos = publicacionesMedia[key];
+
+        if (!archivos || archivos.length === 0) {
+            console.warn('No hay archivos para publicacion:', publicacionId);
+            return;
+        }
+
+        const existente = document.getElementById('mediaModalOverlay');
+        if (existente) existente.remove();
+
+        let currentIndex = parseInt(index) || 0;
+        if (currentIndex >= archivos.length) currentIndex = 0;
+
+        const overlay = document.createElement('div');
+        overlay.id = 'mediaModalOverlay';
+        overlay.style.cssText = `
+            position:fixed; inset:0;
+            background:rgba(0,0,0,0.95);
+            z-index:99999;
+            display:flex; align-items:center; justify-content:center;
+        `;
+
+        const btnCerrar = document.createElement('button');
+        btnCerrar.dataset.action = 'cerrar';
+        btnCerrar.style.cssText = `
+            position:absolute; top:16px; right:16px;
+            width:44px; height:44px; border-radius:50%;
+            background:rgba(255,255,255,0.15); border:none;
+            color:white; font-size:1.6rem; cursor:pointer;
+            display:flex; align-items:center; justify-content:center;
+            z-index:100; line-height:1;
+        `;
+        btnCerrar.textContent = '×';
+
+        const contador = document.createElement('div');
+        contador.id = 'mediaContador';
+        contador.style.cssText = `
+            position:absolute; top:16px; left:50%; transform:translateX(-50%);
+            background:rgba(0,0,0,0.6); color:white;
+            padding:6px 16px; border-radius:20px;
+            font-size:0.85rem; font-weight:600; z-index:100;
+            display: ${archivos.length > 1 ? 'block' : 'none'};
+        `;
+
+        const btnPrev = document.createElement('button');
+        btnPrev.dataset.action = 'prev';
+        btnPrev.style.cssText = `
+            position:absolute; left:16px; top:50%; transform:translateY(-50%);
+            width:48px; height:48px; border-radius:50%;
+            background:rgba(255,255,255,0.2); border:none;
+            color:white; font-size:2rem; cursor:pointer;
+            display:${archivos.length > 1 ? 'flex' : 'none'};
+            align-items:center; justify-content:center; z-index:100;
+        `;
+        btnPrev.innerHTML = '&#8249;';
+
+        const btnNext = document.createElement('button');
+        btnNext.dataset.action = 'next';
+        btnNext.style.cssText = `
+            position:absolute; right:16px; top:50%; transform:translateY(-50%);
+            width:48px; height:48px; border-radius:50%;
+            background:rgba(255,255,255,0.2); border:none;
+            color:white; font-size:2rem; cursor:pointer;
+            display:${archivos.length > 1 ? 'flex' : 'none'};
+            align-items:center; justify-content:center; z-index:100;
+        `;
+        btnNext.innerHTML = '&#8250;';
+
+        const contenedor = document.createElement('div');
+        contenedor.id = 'mediaContenedor';
+        contenedor.style.cssText = `
+            display:flex; align-items:center; justify-content:center;
+            max-width:90vw; max-height:90vh;
+        `;
+
+        overlay.appendChild(btnCerrar);
+        overlay.appendChild(contador);
+        overlay.appendChild(btnPrev);
+        overlay.appendChild(btnNext);
+        overlay.appendChild(contenedor);
+
+        function renderArchivo() {
+            const videoAnterior = contenedor.querySelector('video');
+            if (videoAnterior) videoAnterior.pause();
+            contenedor.innerHTML = '';
+            const archivo = archivos[currentIndex];
+
+            if (archivo.tipo === 'imagen') {
+                const img = document.createElement('img');
+                img.src = archivo.url;
+                img.alt = archivo.alt || 'Imagen';
+                img.style.cssText = 'max-width:90vw; max-height:85vh; object-fit:contain; border-radius:8px; display:block;';
+                contenedor.appendChild(img);
+            } else if (archivo.tipo === 'video') {
+                const video = document.createElement('video');
+                video.controls = true;
+                video.autoplay = true;
+                video.style.cssText = 'max-width:90vw; max-height:85vh; border-radius:8px; display:block; background:#000;';
+                const source = document.createElement('source');
+                source.src = archivo.url;
+                video.appendChild(source);
+                contenedor.appendChild(video);
+            }
+
+            contador.textContent = `${currentIndex + 1} / ${archivos.length}`;
+            btnPrev.style.opacity = currentIndex === 0 ? '0.3' : '1';
+            btnPrev.style.pointerEvents = currentIndex === 0 ? 'none' : 'auto';
+            btnNext.style.opacity = currentIndex === archivos.length - 1 ? '0.3' : '1';
+            btnNext.style.pointerEvents = currentIndex === archivos.length - 1 ? 'none' : 'auto';
+        }
+
+        overlay.addEventListener('click', function(e) {
+            const action = e.target.closest('[data-action]')?.dataset.action;
+            if (action === 'cerrar') {
+                cerrarMediaModal();
+            } else if (action === 'prev') {
+                if (currentIndex > 0) { currentIndex--; renderArchivo(); }
+            } else if (action === 'next') {
+                if (currentIndex < archivos.length - 1) { currentIndex++; renderArchivo(); }
+            } else if (e.target === overlay) {
+                cerrarMediaModal();
+            }
+        });
+
+        renderArchivo();
+        document.body.appendChild(overlay);
+        document.body.style.overflow = 'hidden';
+    };
+
+    function cerrarMediaModal() {
+        const overlay = document.getElementById('mediaModalOverlay');
+        if (overlay) {
+            overlay.querySelector('video')?.pause();
+            overlay.remove();
+        }
+        document.body.style.overflow = '';
+    }
+
+    document.addEventListener('keydown', (e) => {
+        const overlay = document.getElementById('mediaModalOverlay');
+        if (!overlay) return;
+        if (e.key === 'Escape')     cerrarMediaModal();
+        if (e.key === 'ArrowLeft')  overlay.querySelector('[data-action="prev"]')?.click();
+        if (e.key === 'ArrowRight') overlay.querySelector('[data-action="next"]')?.click();
+    });
     </script>
 
 </body>
