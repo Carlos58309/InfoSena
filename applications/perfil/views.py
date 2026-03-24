@@ -3,6 +3,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from applications.registro.models import Aprendiz, Instructor, Bienestar
 from applications.usuarios.models import Usuario
+from applications.perfil.models import PrivacidadPerfil
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
@@ -14,6 +15,9 @@ from django.core.files.storage import default_storage
 from applications.publicaciones.models import Publicacion
 from applications.amistades.models import Amistad
 from applications.sesion.decorators import sesion_requerida
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+import json
 
 # ========================================
 # VISTA: PERFIL PROPIO
@@ -97,11 +101,13 @@ def perfiles(request):
 
     print(f"{'='*60}\n")
     usuario = Usuario.objects.get(documento=request.session['usuario_id'])
+    privacidad_config = PrivacidadPerfil.obtener_o_crear(usuario_id)
     context = {
         'tipo_perfil': tipo_perfil,
         'usuario': datos_usuario,
         'publicaciones': publicaciones,
         'es_admin': usuario.es_admin,
+        'privacidad':       privacidad_config,
     }
 
     return render(request, 'perfil.html', context)
@@ -248,6 +254,36 @@ def eliminar_perfil(request):
 
     return render(request, 'eliminar_perfil.html')
 
+@sesion_requerida
+@require_POST
+def actualizar_privacidad(request):
+    """
+    Recibe JSON con los campos de privacidad y los guarda.
+    Solo el propio usuario puede actualizar su privacidad.
+    """
+    usuario_id = request.session.get('usuario_id')
+    if not usuario_id:
+        return JsonResponse({'ok': False, 'error': 'No autenticado'}, status=401)
+ 
+    try:
+        body = json.loads(request.body)
+    except (json.JSONDecodeError, ValueError):
+        return JsonResponse({'ok': False, 'error': 'JSON inválido'}, status=400)
+ 
+    CAMPOS_PERMITIDOS = [
+        'mostrar_email', 'mostrar_documento', 'mostrar_centro',
+        'mostrar_region', 'mostrar_ficha', 'mostrar_jornada',
+    ]
+ 
+    privacidad = PrivacidadPerfil.obtener_o_crear(usuario_id)
+ 
+    for campo in CAMPOS_PERMITIDOS:
+        if campo in body:
+            setattr(privacidad, campo, bool(body[campo]))
+ 
+    privacidad.save()
+    return JsonResponse({'ok': True})
+ 
 
 # ========================================
 # VISTA: VER PERFIL DE CUALQUIER USUARIO
@@ -389,6 +425,7 @@ def ver_perfil(request, documento):
     
     print(f"{'='*70}\n")
     usuario = Usuario.objects.get(documento=request.session['usuario_id'])
+    privacidad = PrivacidadPerfil.obtener_o_crear(documento_str)
     # ========================================
     # PREPARAR CONTEXTO
     # ========================================
@@ -406,6 +443,12 @@ def ver_perfil(request, documento):
         'cantidad_amigos': len(amigos),
         'cantidad_publicaciones': publicaciones.count() if publicaciones else 0,
         'es_admin': usuario.es_admin,
+        'priv_email':     privacidad.mostrar_email,
+        'priv_documento': privacidad.mostrar_documento,
+        'priv_centro':    privacidad.mostrar_centro,
+        'priv_region':    privacidad.mostrar_region,
+        'priv_ficha':     privacidad.mostrar_ficha,
+        'priv_jornada':   privacidad.mostrar_jornada,
     }
     
     return render(request, 'ver_perfil.html', context)

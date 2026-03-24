@@ -1164,99 +1164,119 @@
             <!-- ============================================ -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
 
-                <!-- INFORMACIÓN PERSONAL -->
+                <!-- INFORMACIÓN PERSONAL + CONTROL DE PRIVACIDAD -->
                 <div class="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                    <div class="px-6 py-4 border-b border-gray-100 flex items-center gap-2">
-                        <div style="width:30px;height:30px;border-radius:8px;background:#f0fdf4;display:flex;align-items:center;justify-content:center">
-                            <svg width="16" height="16" fill="none" stroke="#16a34a" stroke-width="2" viewBox="0 0 24 24">
-                                <path d="M12 12a5 5 0 100-10 5 5 0 000 10zm7 8c0-4-3-7-7-7s-7 3-7 7"/>
-                            </svg>
+                    <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between gap-2">
+                        <div class="flex items-center gap-2">
+                            <div style="width:30px;height:30px;border-radius:8px;background:#f0fdf4;display:flex;align-items:center;justify-content:center">
+                                <svg width="16" height="16" fill="none" stroke="#16a34a" stroke-width="2" viewBox="0 0 24 24">
+                                    <path d="M12 12a5 5 0 100-10 5 5 0 000 10zm7 8c0-4-3-7-7-7s-7 3-7 7"/>
+                                </svg>
+                            </div>
+                            <h2 style="font-family:'Sora',sans-serif" class="font-700 text-gray-800 text-base">Información personal</h2>
                         </div>
-                        <h2 style="font-family:'Sora',sans-serif" class="font-700 text-gray-800 text-base">Información personal</h2>
+                
+                        <!-- Botón privacidad -->
+                        <button id="btnPrivacidad"
+                                onclick="abrirPanelPrivacidad()"
+                                class="flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-600 transition"
+                                style="background:#f0fdf4;color:#16a34a;border:1.5px solid #bbf7d0">
+                            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                                <path d="M7 11V7a5 5 0 0110 0v4"/>
+                            </svg>
+                            Privacidad
+                        </button>
                     </div>
-
-                    <div class="p-4 space-y-1">
+                
+                    <div class="p-4 space-y-1" id="infoPersonalList">
                         <!-- Email -->
-                        <div class="info-row">
+                        <div class="info-row" id="row-email">
                             <div class="info-icon" style="background:#eff6ff">
                                 <svg width="18" height="18" fill="none" stroke="#3b82f6" stroke-width="2" viewBox="0 0 24 24">
                                     <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                                 </svg>
                             </div>
-                            <div>
+                            <div class="flex-1">
                                 <div class="info-label">Correo electrónico</div>
                                 <div class="info-value">{{ usuario.email }}</div>
                             </div>
+                            <span id="badge-email" class="hidden text-xs font-600 px-2 py-0.5 rounded-full" style="background:#fef2f2;color:#dc2626">Oculto</span>
                         </div>
-
+                
                         <!-- Documento -->
-                        <div class="info-row">
+                        <div class="info-row" id="row-documento">
                             <div class="info-icon" style="background:#fef3c7">
                                 <svg width="18" height="18" fill="none" stroke="#d97706" stroke-width="2" viewBox="0 0 24 24">
                                     <rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/>
                                 </svg>
                             </div>
-                            <div>
+                            <div class="flex-1">
                                 <div class="info-label">{{ usuario.tipo_documento }}</div>
                                 <div class="info-value">{{ usuario.numero_documento }}</div>
                             </div>
+                            <span id="badge-documento" class="hidden text-xs font-600 px-2 py-0.5 rounded-full" style="background:#fef2f2;color:#dc2626">Oculto</span>
                         </div>
-
+                
                         <!-- Centro -->
-                        <div class="info-row">
+                        <div class="info-row" id="row-centro">
                             <div class="info-icon" style="background:#f0fdf4">
                                 <svg width="18" height="18" fill="none" stroke="#16a34a" stroke-width="2" viewBox="0 0 24 24">
                                     <path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
                                 </svg>
                             </div>
-                            <div>
+                            <div class="flex-1">
                                 <div class="info-label">Centro formativo</div>
                                 <div class="info-value">{{ usuario.centro_formativo }}</div>
                             </div>
+                            <span id="badge-centro" class="hidden text-xs font-600 px-2 py-0.5 rounded-full" style="background:#fef2f2;color:#dc2626">Oculto</span>
                         </div>
-
+                
                         <!-- Región -->
-                        <div class="info-row">
+                        <div class="info-row" id="row-region">
                             <div class="info-icon" style="background:#fdf4ff">
                                 <svg width="18" height="18" fill="none" stroke="#a855f7" stroke-width="2" viewBox="0 0 24 24">
                                     <path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
                                     <path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
                                 </svg>
                             </div>
-                            <div>
+                            <div class="flex-1">
                                 <div class="info-label">Región</div>
                                 <div class="info-value">{{ usuario.region }}</div>
                             </div>
+                            <span id="badge-region" class="hidden text-xs font-600 px-2 py-0.5 rounded-full" style="background:#fef2f2;color:#dc2626">Oculto</span>
                         </div>
-
+                
                         {% if tipo_perfil == 'aprendiz' %}
                         <!-- Ficha -->
-                        <div class="info-row">
+                        <div class="info-row" id="row-ficha">
                             <div class="info-icon" style="background:#fff7ed">
                                 <svg width="18" height="18" fill="none" stroke="#ea580c" stroke-width="2" viewBox="0 0 24 24">
                                     <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
                                 </svg>
                             </div>
-                            <div>
+                            <div class="flex-1">
                                 <div class="info-label">Ficha de formación</div>
                                 <div class="info-value">{{ usuario.ficha }}</div>
                             </div>
+                            <span id="badge-ficha" class="hidden text-xs font-600 px-2 py-0.5 rounded-full" style="background:#fef2f2;color:#dc2626">Oculto</span>
                         </div>
-
+                
                         <!-- Jornada -->
-                        <div class="info-row">
+                        <div class="info-row" id="row-jornada">
                             <div class="info-icon" style="background:#f0fdf4">
                                 <svg width="18" height="18" fill="none" stroke="#16a34a" stroke-width="2" viewBox="0 0 24 24">
                                     <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
                                 </svg>
                             </div>
-                            <div>
+                            <div class="flex-1">
                                 <div class="info-label">Jornada</div>
                                 <div class="info-value">{{ usuario.jornada }}</div>
                             </div>
+                            <span id="badge-jornada" class="hidden text-xs font-600 px-2 py-0.5 rounded-full" style="background:#fef2f2;color:#dc2626">Oculto</span>
                         </div>
                         {% endif %}
-
+                
                         <!-- Tipo de usuario -->
                         <div class="info-row">
                             <div class="info-icon" style="background:#f0fdf4">
@@ -1269,6 +1289,11 @@
                                 <div class="info-value capitalize">{{ tipo_perfil }}</div>
                             </div>
                         </div>
+                    </div>
+                
+                    <!-- Nota informativa si hay campos ocultos -->
+                    <div id="notaPrivacidad" class="hidden mx-4 mb-4 px-4 py-3 rounded-xl text-xs text-gray-600" style="background:#fffbeb;border:1px solid #fde68a">
+                        🔒 Algunos campos están ocultos para otros usuarios. Solo tú puedes verlos aquí.
                     </div>
                 </div>
 
@@ -1691,7 +1716,61 @@
             </a>
         </div>
     </nav>
-
+<!-- Overlay -->
+<div id="modalPrivacidad"
+     class="hidden fixed inset-0 z-50 flex items-center justify-content-center"
+     style="background:rgba(0,0,0,0.55);align-items:center;justify-content:center"
+     onclick="if(event.target===this)cerrarPanelPrivacidad()">
+ 
+    <div class="bg-white rounded-2xl shadow-2xl w-full overflow-hidden animate-fade-in"
+         style="max-width:440px;margin:1rem">
+ 
+        <!-- Header -->
+        <div style="background:linear-gradient(135deg,#0d3604,#2b9e15);padding:1.25rem 1.5rem;display:flex;align-items:center;justify-content:space-between">
+            <div>
+                <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.15rem">
+                    <svg width="18" height="18" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                        <path d="M7 11V7a5 5 0 0110 0v4"/>
+                    </svg>
+                    <span style="font-family:'Sora',sans-serif;color:white;font-weight:700;font-size:1rem">Privacidad del perfil</span>
+                </div>
+                <p style="color:rgba(255,255,255,0.75);font-size:0.75rem;margin:0">Elige qué información ven los demás</p>
+            </div>
+            <button onclick="cerrarPanelPrivacidad()"
+                    style="width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.2);border:none;color:white;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.2rem">
+                ×
+            </button>
+        </div>
+ 
+        <!-- Body -->
+        <div style="padding:1.25rem 1.5rem">
+            <p style="font-size:0.8rem;color:#6b7280;margin-bottom:1.1rem;background:#f9fafb;padding:0.65rem 0.85rem;border-radius:10px;border:1px solid #e5e7eb">
+                🔒 Los campos desactivados serán reemplazados por "—" en tu perfil público. <strong>Solo tú</strong> podrás ver la información real.
+            </p>
+ 
+            <div style="display:flex;flex-direction:column;gap:0.6rem" id="privacidadToggleList">
+                <!-- Se genera dinámicamente via JS -->
+            </div>
+        </div>
+ 
+        <!-- Footer -->
+        <div style="padding:1rem 1.5rem;border-top:1px solid #f3f4f6;display:flex;gap:0.75rem;justify-content:flex-end;background:#fafafa">
+            <button onclick="cerrarPanelPrivacidad()"
+                    style="padding:0.6rem 1.2rem;border-radius:10px;background:#f3f4f6;color:#374151;border:none;cursor:pointer;font-weight:600;font-size:0.85rem;font-family:'Inter',sans-serif">
+                Cancelar
+            </button>
+            <button id="btnGuardarPrivacidad"
+                    onclick="guardarPrivacidad()"
+                    style="padding:0.6rem 1.4rem;border-radius:10px;background:#16a34a;color:white;border:none;cursor:pointer;font-weight:600;font-size:0.85rem;font-family:'Inter',sans-serif;display:flex;align-items:center;gap:0.4rem">
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                </svg>
+                Guardar cambios
+            </button>
+        </div>
+    </div>
+</div>
     <!-- ========================= -->
     <!--         SCRIPTS           -->
     <!-- ========================= -->
@@ -2469,6 +2548,147 @@
         if (e.key === 'ArrowRight') overlay.querySelector('[data-action="next"]')?.click();
     });
     </script>
-
+<script>
+// Estado de privacidad inicial (desde Django)
+const PRIVACIDAD_INICIAL = {
+    email:     {{ privacidad.mostrar_email|yesno:"true,false" }},
+    documento: {{ privacidad.mostrar_documento|yesno:"true,false" }},
+    centro:    {{ privacidad.mostrar_centro|yesno:"true,false" }},
+    region:    {{ privacidad.mostrar_region|yesno:"true,false" }},
+    ficha:     {{ privacidad.mostrar_ficha|yesno:"true,false" }},
+    jornada:   {{ privacidad.mostrar_jornada|yesno:"true,false" }},
+};
+ 
+// Definición de campos (label + cuáles aplican a qué tipo)
+const CAMPOS_PRIVACIDAD = [
+    { key: 'email',     label: 'Correo electrónico', emoji: '📧', tipos: ['aprendiz','instructor','bienestar'] },
+    { key: 'documento', label: 'Número de documento', emoji: '🪪', tipos: ['aprendiz','instructor','bienestar'] },
+    { key: 'centro',    label: 'Centro formativo',   emoji: '🏫', tipos: ['aprendiz','instructor','bienestar'] },
+    { key: 'region',    label: 'Región',              emoji: '📍', tipos: ['aprendiz','instructor','bienestar'] },
+    { key: 'ficha',     label: 'Ficha de formación', emoji: '📚', tipos: ['aprendiz'] },
+    { key: 'jornada',   label: 'Jornada',             emoji: '🕐', tipos: ['aprendiz'] },
+];
+ 
+const TIPO_PERFIL_ACTUAL = '{{ tipo_perfil }}';
+ 
+let estadoPrivacidad = { ...PRIVACIDAD_INICIAL };
+ 
+// ── Inicializar: reflejar estado en la UI de perfil propio ──
+document.addEventListener('DOMContentLoaded', function() {
+    aplicarBadgesOcultos();
+});
+ 
+function aplicarBadgesOcultos() {
+    let hayOcultos = false;
+    Object.entries(estadoPrivacidad).forEach(([key, visible]) => {
+        const badge = document.getElementById(`badge-${key}`);
+        if (badge) {
+            if (!visible) {
+                badge.classList.remove('hidden');
+                hayOcultos = true;
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+    });
+    const nota = document.getElementById('notaPrivacidad');
+    if (nota) nota.classList.toggle('hidden', !hayOcultos);
+}
+ 
+// ── Abrir modal ──
+function abrirPanelPrivacidad() {
+    estadoPrivacidad = { ...PRIVACIDAD_INICIAL };   // reset
+ 
+    // Construir toggles
+    const lista = document.getElementById('privacidadToggleList');
+    if (!lista) return;
+ 
+    const camposFiltrados = CAMPOS_PRIVACIDAD.filter(c => c.tipos.includes(TIPO_PERFIL_ACTUAL));
+ 
+    lista.innerHTML = camposFiltrados.map(campo => `
+        <label style="display:flex;align-items:center;justify-content:space-between;padding:0.65rem 0.85rem;border-radius:12px;border:1.5px solid ${estadoPrivacidad[campo.key] ? '#bbf7d0' : '#fecaca'};background:${estadoPrivacidad[campo.key] ? '#f0fdf4' : '#fff5f5'};cursor:pointer;transition:all 0.2s"
+               id="toggle-label-${campo.key}"
+               onclick="toggleCampo('${campo.key}')">
+            <div style="display:flex;align-items:center;gap:0.65rem">
+                <span style="font-size:1.1rem">${campo.emoji}</span>
+                <span style="font-size:0.875rem;font-weight:600;color:#374151">${campo.label}</span>
+            </div>
+            <div id="toggle-${campo.key}"
+                 style="width:42px;height:24px;border-radius:999px;background:${estadoPrivacidad[campo.key] ? '#16a34a' : '#d1d5db'};position:relative;transition:background 0.25s;flex-shrink:0">
+                <div style="position:absolute;top:3px;left:${estadoPrivacidad[campo.key] ? '21px' : '3px'};width:18px;height:18px;border-radius:50%;background:white;box-shadow:0 1px 4px rgba(0,0,0,0.25);transition:left 0.25s" id="toggle-thumb-${campo.key}"></div>
+            </div>
+        </label>
+    `).join('');
+ 
+    document.getElementById('modalPrivacidad').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
+ 
+// ── Alternar campo ──
+function toggleCampo(key) {
+    estadoPrivacidad[key] = !estadoPrivacidad[key];
+    const visible = estadoPrivacidad[key];
+ 
+    const toggle = document.getElementById(`toggle-${key}`);
+    const thumb  = document.getElementById(`toggle-thumb-${key}`);
+    const label  = document.getElementById(`toggle-label-${key}`);
+ 
+    if (toggle) toggle.style.background  = visible ? '#16a34a' : '#d1d5db';
+    if (thumb)  thumb.style.left         = visible ? '21px' : '3px';
+    if (label) {
+        label.style.borderColor  = visible ? '#bbf7d0' : '#fecaca';
+        label.style.background   = visible ? '#f0fdf4' : '#fff5f5';
+    }
+}
+ 
+// ── Cerrar modal ──
+function cerrarPanelPrivacidad() {
+    document.getElementById('modalPrivacidad').classList.add('hidden');
+    document.body.style.overflow = 'auto';
+}
+ 
+// ── Guardar via AJAX ──
+async function guardarPrivacidad() {
+    const btn = document.getElementById('btnGuardarPrivacidad');
+    btn.disabled = true;
+    btn.innerHTML = `<svg class="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4"/></svg> Guardando...`;
+ 
+    const payload = {
+        mostrar_email:     estadoPrivacidad.email,
+        mostrar_documento: estadoPrivacidad.documento,
+        mostrar_centro:    estadoPrivacidad.centro,
+        mostrar_region:    estadoPrivacidad.region,
+        mostrar_ficha:     estadoPrivacidad.ficha,
+        mostrar_jornada:   estadoPrivacidad.jornada,
+    };
+ 
+    try {
+        const res = await fetch("{% url 'perfil:actualizar_privacidad' %}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken'),
+            },
+            body: JSON.stringify(payload),
+        });
+        const data = await res.json();
+ 
+        if (data.ok) {
+            // Actualizar estado global
+            Object.assign(PRIVACIDAD_INICIAL, estadoPrivacidad);
+            cerrarPanelPrivacidad();
+            aplicarBadgesOcultos();
+            mostrarToast('🔒 Privacidad actualizada correctamente', 'success');
+        } else {
+            mostrarToast('❌ ' + (data.error || 'Error al guardar'), 'error');
+        }
+    } catch (e) {
+        mostrarToast('❌ Error de conexión', 'error');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> Guardar cambios`;
+    }
+}
+</script>
 </body>
 </html>
