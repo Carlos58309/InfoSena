@@ -1548,6 +1548,8 @@
                                     xmlns="http://www.w3.org/2000/svg" 
                                     viewBox="0 0 24 24" 
                                     class="w-6 h-6"
+                                    fill="none"
+                                    stroke="#4b5563"
                                     style="transition: all 0.2s ease;">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
                                         d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21
@@ -1947,11 +1949,11 @@
                 icono.setAttribute('stroke', '#2563eb');
             }
         } else {
-            btn.classList.add('text-gray-600');
             btn.classList.remove('text-blue-600');
+            btn.classList.add('text-gray-600');
             if (icono) {
                 icono.setAttribute('fill', 'none');
-                icono.setAttribute('stroke', 'currentColor');
+                icono.setAttribute('stroke', '#4b5563'); // gris fijo, no currentColor
             }
         }
     }
