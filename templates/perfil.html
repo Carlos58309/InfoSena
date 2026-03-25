@@ -1541,15 +1541,16 @@
                             <!-- ME GUSTA -->
                             <button onclick="reaccionar({{ publicacion.id }})"
                                     id="btn-like-{{ publicacion.id }}"
-                                    data-liked="{% if usuario in publicacion.likes.all %}true{% else %}false{% endif %}"
-                                    class="flex items-center gap-2 px-6 py-2 rounded-lg hover:bg-gray-100 transition text-gray-600 font-medium text-sm
-                                           {% if usuario in publicacion.likes.all %}text-blue-600{% endif %}">
+                                            data-liked="{% if publicacion.yo_di_like %}true{% else %}false{% endif %}"
+                                            class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg 
+                                                hover:bg-gray-100 transition-colors flex-1 font-semibold text-sm
+                                                {% if publicacion.yo_di_like %}text-blue-600{% else %}text-gray-600{% endif %}">
                                 <svg id="icono-like-{{ publicacion.id }}" 
                                     xmlns="http://www.w3.org/2000/svg" 
                                     viewBox="0 0 24 24" 
                                     class="w-6 h-6"
-                                    fill="none"
-                                    stroke="#4b5563"
+                                    fill="{% if publicacion.yo_di_like %}#2563eb{% else %}none{% endif %}"
+                                    stroke="{% if publicacion.yo_di_like %}#2563eb{% else %}#4b5563{% endif %}"
                                     style="transition: all 0.2s ease;">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
                                         d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21

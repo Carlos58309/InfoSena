@@ -366,6 +366,16 @@ def get_usuario_actual(session):
     except Exception:
         return None, None
 
+def usuario_dio_like(publicacion, usuario, ct):
+    """Verifica si un usuario específico dio like a una publicación"""
+    if not usuario or not ct:
+        return False
+    return Like.objects.filter(
+        publicacion=publicacion,
+        content_type=ct,
+        object_id=str(usuario.numero_documento)
+    ).exists()
+
 @sesion_requerida
 def toggle_like(request, publicacion_id):
     if 'usuario_id' not in request.session:

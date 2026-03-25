@@ -11,6 +11,7 @@ from applications.amistades.models import Amistad
 from .models import Sesion
 from django.contrib.auth.decorators import login_required
 from applications.publicaciones.models import Publicacion
+from applications.publicaciones.views import usuario_dio_like
 import random
 from django.utils import timezone
 from .models import CodigoRecuperacion
@@ -386,6 +387,9 @@ def home_view(request):
             sugerencias = []
     else:
         print("⚠️  usuario_actual es None - No se cargarán datos de amistades")
+    for pub in publicaciones:
+        pub.yo_di_like = usuario_dio_like(pub, usuario, ct)
+
     usuario = Usuario.objects.get(documento=request.session['usuario_id'])
     # PREPARAR CONTEXT
     context = {

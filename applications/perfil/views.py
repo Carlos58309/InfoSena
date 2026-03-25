@@ -13,6 +13,7 @@ import os
 from django.conf import settings
 from django.core.files.storage import default_storage
 from applications.publicaciones.models import Publicacion
+from applications.publicaciones.views import usuario_dio_like
 from applications.amistades.models import Amistad
 from applications.sesion.decorators import sesion_requerida
 from django.http import JsonResponse
@@ -100,6 +101,10 @@ def perfiles(request):
         return redirect('sesion:login')
 
     print(f"{'='*60}\n")
+    
+    for pub in publicaciones:
+        pub.yo_di_like = usuario_dio_like(pub, usuario, ct)
+
     usuario = Usuario.objects.get(documento=request.session['usuario_id'])
     privacidad_config = PrivacidadPerfil.obtener_o_crear(usuario_id)
     context = {
@@ -426,6 +431,8 @@ def ver_perfil(request, documento):
     print(f"{'='*70}\n")
     usuario = Usuario.objects.get(documento=request.session['usuario_id'])
     privacidad = PrivacidadPerfil.obtener_o_crear(documento_str)
+    for pub in publicaciones:
+        pub.yo_di_like = usuario_dio_like(pub, usuario, ct)
     # ========================================
     # PREPARAR CONTEXTO
     # ========================================
