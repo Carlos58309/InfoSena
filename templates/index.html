@@ -79,6 +79,22 @@
             font-size: 13px;
             display: inline-block;
         }
+        .nav-icon-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            color: white;
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.25);
+            transition: all 0.2s ease;
+        }
+        .nav-icon-btn:hover {
+            background: rgba(255,255,255,0.28);
+            transform: translateY(-1px);
+        }
     </style>
 </head>
 
@@ -96,13 +112,12 @@
             </span>
         </div>
 
-        <div class="flex items-center gap-3">
-            <a href="{% url 'sesion:login' %}" class="text-white/90 hover:text-white text-sm font-medium transition">
-                Iniciar sesión
-            </a>
-            <a href="{% url 'registro:registro' %}"
-               class="bg-white text-[#219108] text-sm font-semibold px-4 py-2 rounded-xl hover:bg-green-50 transition shadow-sm">
-                Registrarse
+        <div class="flex items-center gap-1">
+            <a href="{% static 'Manual_Usuario_InfoSena.pdf' %}" download="Manual_Usuario_InfoSena.pdf" class="nav-icon-btn" title="Descargar manual de usuario">
+                <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="10"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01"/>
+                </svg>
             </a>
         </div>
     </header>
