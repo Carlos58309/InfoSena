@@ -1536,19 +1536,18 @@
                         </div>
 
                         <!-- Botones -->
-                        <div class="flex items-center justify-around pt-1">
-
-                            <!-- ME GUSTA -->
+                        <div class="flex items-center justify-around border-t border-gray-100 py-1 px-4">
+    <!-- ME GUSTA -->
                             <button onclick="reaccionar({{ publicacion.id }})"
                                     id="btn-like-{{ publicacion.id }}"
-                                            data-liked="{% if publicacion.yo_di_like %}true{% else %}false{% endif %}"
-                                            class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg 
-                                                hover:bg-gray-100 transition-colors flex-1 font-semibold text-sm
-                                                {% if publicacion.yo_di_like %}text-blue-600{% else %}text-gray-600{% endif %}">
+                                    data-liked="{% if publicacion.yo_di_like %}true{% else %}false{% endif %}"
+                                    class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg 
+                                        hover:bg-gray-100 transition-colors flex-1 font-semibold text-sm
+                                        {% if publicacion.yo_di_like %}text-blue-600{% else %}text-gray-600{% endif %}">
                                 <svg id="icono-like-{{ publicacion.id }}" 
                                     xmlns="http://www.w3.org/2000/svg" 
                                     viewBox="0 0 24 24" 
-                                    class="w-6 h-6"
+                                    class="w-5 h-5"
                                     fill="{% if publicacion.yo_di_like %}#2563eb{% else %}none{% endif %}"
                                     stroke="{% if publicacion.yo_di_like %}#2563eb{% else %}#4b5563{% endif %}"
                                     style="transition: all 0.2s ease;">
@@ -1558,25 +1557,34 @@
                                             h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006
                                             L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"/>
                                 </svg>
+                                Me gusta
                             </button>
 
                             <!-- COMENTAR -->
                             <button onclick="openModal({{ publicacion.id }})"
-                                    class="flex items-center gap-2 px-6 py-2 rounded-lg hover:bg-gray-100 transition text-gray-600 font-medium text-sm">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                                    class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg 
+                                        hover:bg-gray-100 transition text-gray-600 font-semibold text-sm flex-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" 
+                                    viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                                    <path stroke-linecap="round" stroke-linejoin="round" 
+                                        d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
                                 </svg>
+                                Comentar
                             </button>
 
                             <!-- COMPARTIR -->
                             <button onclick="compartir({{ publicacion.id }})"
-                                    class="flex items-center gap-2 px-6 py-2 rounded-lg hover:bg-gray-100 transition text-gray-600 font-medium text-sm">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/>
+                                    class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg 
+                                        hover:bg-gray-100 transition text-gray-600 font-semibold text-sm flex-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" 
+                                    viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                                    <path stroke-linecap="round" stroke-linejoin="round" 
+                                        d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/>
                                 </svg>
+                                Compartir
                             </button>
+
                         </div>
-                    </div>
 
                     <!-- ============================================ -->
                     <!-- MODAL COMENTARIOS (AJAX, sin recarga)       -->
