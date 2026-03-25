@@ -25,7 +25,6 @@ import json
 # ========================================
 @sesion_requerida
 def perfiles(request):
-    """Ver el perfil propio del usuario"""
     if 'usuario_id' not in request.session or 'tipo_usuario' not in request.session:
         return redirect('sesion:login')
 
@@ -37,82 +36,57 @@ def perfiles(request):
     print(f"\n{'='*60}")
     print(f"🏠 PERFILES - Perfil propio")
     print(f"{'='*60}")
-    print(f"Usuario ID: {usuario_id}")
-    print(f"Tipo: {tipo_perfil}")
+    print(f"Usuario ID: {usuario_id} | Tipo: {tipo_perfil}")
+
+    # ✅ Obtener usuario y ct para likes
+    usuario_like, ct_like = get_usuario_actual(request.session)
 
     try:
         if tipo_perfil == 'aprendiz':
             datos_usuario = Aprendiz.objects.get(numero_documento=usuario_id)
-            print(f"✅ Aprendiz encontrado: {datos_usuario.nombre}")
+            print(f"✅ Aprendiz: {datos_usuario.nombre}")
 
         elif tipo_perfil == 'instructor':
             datos_usuario = Instructor.objects.get(numero_documento=usuario_id)
-            print(f"✅ Instructor encontrado: {datos_usuario.nombre}")
+            print(f"✅ Instructor: {datos_usuario.nombre}")
 
         elif tipo_perfil == 'bienestar':
             datos_usuario = Bienestar.objects.get(numero_documento=usuario_id)
-            print(f"✅ Bienestar encontrado: {datos_usuario.nombre}")
+            print(f"✅ Bienestar: {datos_usuario.nombre}")
 
-            # ✅ BUSCAR PUBLICACIONES - CORRECCIÓN FINAL
             try:
-                print(f"\n🔍 Buscando publicaciones para documento: {usuario_id}")
-                
-                # Ver TODAS las publicaciones activas primero
-                todas_publicaciones = Publicacion.objects.filter(activa=True)
-                print(f"📊 Total publicaciones activas en BD: {todas_publicaciones.count()}")
-                
-                if todas_publicaciones.count() > 0:
-                    print(f"\n📋 Primeras 3 publicaciones en BD:")
-                    for pub in todas_publicaciones[:3]:
-                        print(f"   ID: {pub.id}")
-                        print(f"   Título: {pub.titulo}")
-                        print(f"   Autor: {pub.autor}")
-                        print(f"   Tipo autor: {type(pub.autor).__name__}")
-                        
-                        # El autor puede ser Bienestar (tiene numero_documento)
-                        if hasattr(pub.autor, 'numero_documento'):
-                            print(f"   Autor.numero_documento: {pub.autor.numero_documento}")
-                        print(f"   ---")
-                
-                # ✅ FILTRAR PUBLICACIONES POR NUMERO_DOCUMENTO
-                # Como pub.autor es Bienestar, debemos usar numero_documento
                 publicaciones = Publicacion.objects.filter(
-                    autor__numero_documento=usuario_id,  # ← CORRECCIÓN: usar numero_documento
+                    autor__numero_documento=usuario_id,
                     activa=True
-                ).order_by('-fecha_creacion')
-                
-                print(f"\n✅ Publicaciones del usuario {usuario_id}: {publicaciones.count()}")
-                
-                if publicaciones.count() > 0:
-                    print(f"📝 Publicaciones encontradas:")
-                    for pub in publicaciones:
-                        print(f"   - {pub.titulo}")
-                else:
-                    print(f"⚠️ NO se encontraron publicaciones para este usuario")
-                
+                ).prefetch_related('archivos', 'comentarios', 'likes').order_by('-fecha_creacion')
+
+                print(f"✅ Publicaciones encontradas: {publicaciones.count()}")
+
+                # ✅ Anotar likes CORRECTAMENTE
+                for pub in publicaciones:
+                    pub.yo_di_like = usuario_dio_like(pub, usuario_like, ct_like)
+
             except Exception as e:
-                print(f"❌ Error al cargar publicaciones: {e}")
+                print(f"❌ Error publicaciones: {e}")
                 import traceback
                 traceback.print_exc()
                 publicaciones = None
 
     except (Aprendiz.DoesNotExist, Instructor.DoesNotExist, Bienestar.DoesNotExist) as e:
-        print(f"❌ Error: Usuario no encontrado - {e}")
+        print(f"❌ Usuario no encontrado: {e}")
         return redirect('sesion:login')
 
     print(f"{'='*60}\n")
-    
-    for pub in publicaciones:
-        pub.yo_di_like = usuario_dio_like(pub, usuario, ct)
 
-    usuario = Usuario.objects.get(documento=request.session['usuario_id'])
+    usuario_unificado = Usuario.objects.get(documento=usuario_id)
     privacidad_config = PrivacidadPerfil.obtener_o_crear(usuario_id)
+
     context = {
         'tipo_perfil': tipo_perfil,
         'usuario': datos_usuario,
         'publicaciones': publicaciones,
-        'es_admin': usuario.es_admin,
-        'privacidad':       privacidad_config,
+        'es_admin': usuario_unificado.es_admin,
+        'privacidad': privacidad_config,
     }
 
     return render(request, 'perfil.html', context)
@@ -295,151 +269,121 @@ def actualizar_privacidad(request):
 # ========================================
 @sesion_requerida
 def ver_perfil(request, documento):
-    """
-    Ver perfil de cualquier usuario
-    - Si es el perfil propio → redirige a editar perfil
-    - Si es Bienestar → muestra sus publicaciones
-    - Si es otro usuario → muestra perfil completo
-    """
-    
-    # Obtener datos del usuario actual
     usuario_actual_id = request.session.get('usuario_id')
     tipo_actual = request.session.get('tipo_usuario')
-    
-    # ========================================
-    # NORMALIZAR VALORES
-    # ========================================
+
     usuario_actual_str = str(usuario_actual_id).strip() if usuario_actual_id else ''
     documento_str = str(documento).strip()
-    
+
     print(f"\n{'='*70}")
-    print(f"👤 VER PERFIL")
-    print(f"   Usuario actual: {usuario_actual_str}")
-    print(f"   Documento a ver: {documento_str}")
-    
-    # ========================================
-    # VERIFICAR SI ES EL PERFIL PROPIO
-    # ========================================
+    print(f"👤 VER PERFIL | actual: {usuario_actual_str} | viendo: {documento_str}")
+
     if usuario_actual_str and usuario_actual_str == documento_str:
-        print(f"✅ Es el perfil propio → redirigiendo")
+        print(f"✅ Perfil propio → redirigiendo")
         return redirect('perfil:perfiles')
-    
-    # ========================================
-    # BUSCAR EL USUARIO A VER
-    # ========================================
+
+    # ✅ Obtener usuario y ct para likes
+    usuario_like, ct_like = get_usuario_actual(request.session)
+
     usuario_perfil = None
     tipo_perfil = None
-    
+
     try:
         if Aprendiz.objects.filter(numero_documento=documento_str).exists():
             usuario_perfil = Aprendiz.objects.get(numero_documento=documento_str)
             tipo_perfil = 'aprendiz'
-            
         elif Instructor.objects.filter(numero_documento=documento_str).exists():
             usuario_perfil = Instructor.objects.get(numero_documento=documento_str)
             tipo_perfil = 'instructor'
-            
         elif Bienestar.objects.filter(numero_documento=documento_str).exists():
             usuario_perfil = Bienestar.objects.get(numero_documento=documento_str)
             tipo_perfil = 'bienestar'
-            
         else:
             messages.error(request, '❌ Usuario no encontrado.')
             return redirect('sesion:home')
-            
     except Exception as e:
         print(f"❌ Error: {e}")
         messages.error(request, '❌ Error al cargar el perfil.')
         return redirect('sesion:home')
-    
-    # ========================================
-    # OBTENER USUARIO UNIFICADO
-    # ========================================
+
     try:
         usuario_obj = Usuario.objects.get(documento=documento_str)
     except Usuario.DoesNotExist:
         usuario_obj = None
-    
-    # ========================================
-    # VERIFICAR RELACIÓN DE AMISTAD
-    # ========================================
+
     es_amigo = False
     solicitud_pendiente = False
     solicitud_enviada = False
     solicitud_id = None
-    
+
     if usuario_obj:
         try:
             usuario_actual_obj = Usuario.objects.get(documento=usuario_actual_str)
-            
             es_amigo = Amistad.son_amigos(usuario_actual_obj, usuario_obj)
-            
+
             solicitud_recibida = Amistad.objects.filter(
                 emisor=usuario_obj,
                 receptor=usuario_actual_obj,
                 estado=Amistad.PENDIENTE
             ).first()
-            
+
             if solicitud_recibida:
                 solicitud_pendiente = True
                 solicitud_id = solicitud_recibida.id
-            
+
             solicitud_enviada = Amistad.objects.filter(
                 emisor=usuario_actual_obj,
                 receptor=usuario_obj,
                 estado=Amistad.PENDIENTE
             ).exists()
-            
+
         except Usuario.DoesNotExist:
             pass
         except Exception as e:
-            print(f"⚠️ Error verificando amistad: {e}")
-    
-    # ========================================
-    # OBTENER PUBLICACIONES (SOLO BIENESTAR)
-    # ========================================
+            print(f"⚠️ Error amistad: {e}")
+
     publicaciones = None
     mostrar_publicaciones = False
-    
+
     if tipo_perfil == 'bienestar':
-        print(f"\n📝 Cargando publicaciones de Bienestar {documento_str}...")
         try:
-            # ✅ CORRECCIÓN: usar numero_documento porque pub.autor es Bienestar
             publicaciones = Publicacion.objects.filter(
-                autor__numero_documento=documento_str,  # ← CORRECCIÓN
+                autor__numero_documento=documento_str,
                 activa=True
-            ).order_by('-fecha_creacion')
-            
+            ).prefetch_related('archivos', 'comentarios', 'likes').order_by('-fecha_creacion')
+
             mostrar_publicaciones = True
-            print(f"✅ Publicaciones encontradas: {publicaciones.count()}")
-            
+            print(f"✅ Publicaciones: {publicaciones.count()}")
+
+            # ✅ Anotar likes CORRECTAMENTE
+            for pub in publicaciones:
+                pub.yo_di_like = usuario_dio_like(pub, usuario_like, ct_like)
+
         except Exception as e:
-            print(f"⚠️ Error: {e}")
+            print(f"⚠️ Error publicaciones: {e}")
             publicaciones = None
-    
-    # ========================================
-    # OBTENER AMIGOS
-    # ========================================
+
     amigos = []
     if usuario_obj:
         try:
             amigos = Amistad.obtener_amigos(usuario_obj)
         except Exception as e:
-            print(f"⚠️ Error obteniendo amigos: {e}")
+            print(f"⚠️ Error amigos: {e}")
             amigos = []
-    
+
     print(f"{'='*70}\n")
-    usuario = Usuario.objects.get(documento=request.session['usuario_id'])
+
+    usuario_unificado = Usuario.objects.get(documento=request.session['usuario_id'])
     privacidad = PrivacidadPerfil.obtener_o_crear(documento_str)
-    for pub in publicaciones:
-        pub.yo_di_like = usuario_dio_like(pub, usuario, ct)
-    # ========================================
-    # PREPARAR CONTEXTO
-    # ========================================
+
+    # ✅ Obtener datos_usuario para el header (usuario logueado)
+    _, datos_usuario_header = obtener_usuario_actual(request)
+
     context = {
         'usuario_perfil': usuario_perfil,
         'tipo_perfil': tipo_perfil,
         'usuario_obj': usuario_obj,
+        'usuario': datos_usuario_header,
         'publicaciones': publicaciones,
         'mostrar_publicaciones': mostrar_publicaciones,
         'es_amigo': es_amigo,
@@ -449,13 +393,13 @@ def ver_perfil(request, documento):
         'amigos': amigos,
         'cantidad_amigos': len(amigos),
         'cantidad_publicaciones': publicaciones.count() if publicaciones else 0,
-        'es_admin': usuario.es_admin,
-        'priv_email':     privacidad.mostrar_email,
+        'es_admin': usuario_unificado.es_admin,
+        'priv_email': privacidad.mostrar_email,
         'priv_documento': privacidad.mostrar_documento,
-        'priv_centro':    privacidad.mostrar_centro,
-        'priv_region':    privacidad.mostrar_region,
-        'priv_ficha':     privacidad.mostrar_ficha,
-        'priv_jornada':   privacidad.mostrar_jornada,
+        'priv_centro': privacidad.mostrar_centro,
+        'priv_region': privacidad.mostrar_region,
+        'priv_ficha': privacidad.mostrar_ficha,
+        'priv_jornada': privacidad.mostrar_jornada,
     }
-    
+
     return render(request, 'ver_perfil.html', context)

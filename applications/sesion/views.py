@@ -313,85 +313,67 @@ def obtener_sugerencias_inteligentes(usuario_actual, tipo_perfil_actual, limite=
 # ==========================================
 @sesion_requerida
 def home_view(request):
-    """Vista principal con publicaciones y datos de amistades"""
-    
     print("\n" + "=" * 100)
     print("🏠 HOME VIEW")
     print("=" * 100)
-    
-    # Obtener usuario
+
     usuario_actual, datos_usuario = obtener_usuario_actual(request)
-    
+
     if not datos_usuario:
         print("❌ No se encontró datos_usuario")
         return redirect('sesion:login')
-    
+
     tipo_perfil = request.session.get('tipo_usuario')
     print(f"📋 Tipo perfil: {tipo_perfil}")
-    
-    # Publicaciones
-    publicaciones = Publicacion.objects.filter(activa=True).order_by('-fecha_creacion')
+
+    # ✅ Obtener usuario y ct para likes
+    usuario_like, ct_like = get_usuario_actual(request.session)
+
+    publicaciones = Publicacion.objects.filter(activa=True).prefetch_related(
+        'archivos', 'comentarios', 'likes'
+    ).order_by('-fecha_creacion')
     print(f"📰 Publicaciones: {publicaciones.count()}")
-    
-    # INICIALIZAR VARIABLES CON VALORES POR DEFECTO
+
+    # ✅ Anotar likes CORRECTAMENTE
+    for pub in publicaciones:
+        pub.yo_di_like = usuario_dio_like(pub, usuario_like, ct_like)
+
     solicitudes_recibidas = []
     sugerencias = []
     amigos = []
-    
-    # Si existe usuario_actual, obtener datos de amistades
+
     if usuario_actual:
-        print(f"✅ usuario_actual existe: {usuario_actual.nombre} (ID: {usuario_actual.id})")
-        
-        # 1. SOLICITUDES RECIBIDAS - Convertir a lista
+        print(f"✅ usuario_actual: {usuario_actual.nombre}")
+
         try:
             solicitudes_queryset = Amistad.objects.filter(
                 receptor=usuario_actual,
                 estado=Amistad.PENDIENTE
             ).select_related('emisor').order_by('-fecha_solicitud')[:5]
-            
-            solicitudes_recibidas = list(solicitudes_queryset)  # ⭐ CONVERTIR A LISTA
-            print(f"📬 Solicitudes recibidas: {len(solicitudes_recibidas)}")
-            
-            if len(solicitudes_recibidas) > 0:
-                print(f"   Ejemplo: {solicitudes_recibidas[0].emisor.nombre}")
+            solicitudes_recibidas = list(solicitudes_queryset)
+            print(f"📬 Solicitudes: {len(solicitudes_recibidas)}")
         except Exception as e:
-            print(f"❌ Error al obtener solicitudes: {e}")
+            print(f"❌ Error solicitudes: {e}")
             solicitudes_recibidas = []
-        
-        # 2. AMIGOS - Convertir a lista
+
         try:
-            amigos = list(Amistad.obtener_amigos(usuario_actual))  # ⭐ CONVERTIR A LISTA
+            amigos = list(Amistad.obtener_amigos(usuario_actual))
             print(f"👥 Amigos: {len(amigos)}")
-            
-            if len(amigos) > 0:
-                print(f"   Ejemplo: {amigos[0].nombre}")
         except Exception as e:
-            print(f"❌ Error al obtener amigos: {e}")
+            print(f"❌ Error amigos: {e}")
             amigos = []
-        
-        # 3. SUGERENCIAS - Ya es lista
+
         try:
             sugerencias = obtener_sugerencias_inteligentes(usuario_actual, tipo_perfil, limite=10)
-            print(f"💡 Sugerencias generadas: {len(sugerencias)}")
-            
-            if len(sugerencias) == 0:
-                print("⚠️  Sugerencias está vacía - Verificar algoritmo")
-            else:
-                print("✅ Sugerencias OK:")
-                for i, sug in enumerate(sugerencias[:3], 1):
-                    print(f"   {i}. {sug['usuario'].nombre} (Amigos común: {sug['amigos_en_comun']})")
+            print(f"💡 Sugerencias: {len(sugerencias)}")
         except Exception as e:
-            print(f"❌ ERROR al obtener sugerencias: {e}")
-            import traceback
-            traceback.print_exc()
+            print(f"❌ Error sugerencias: {e}")
             sugerencias = []
     else:
-        print("⚠️  usuario_actual es None - No se cargarán datos de amistades")
-    for pub in publicaciones:
-        pub.yo_di_like = usuario_dio_like(pub, usuario, ct)
+        print("⚠️ usuario_actual es None")
 
-    usuario = Usuario.objects.get(documento=request.session['usuario_id'])
-    # PREPARAR CONTEXT
+    usuario_unificado = Usuario.objects.get(documento=request.session['usuario_id'])
+
     context = {
         'tipo_perfil': tipo_perfil,
         'usuario': datos_usuario,
@@ -399,19 +381,10 @@ def home_view(request):
         'solicitudes_recibidas': solicitudes_recibidas,
         'sugerencias': sugerencias,
         'amigos': amigos,
-        'es_admin': usuario.es_admin,
+        'es_admin': usuario_unificado.es_admin,
     }
-    
-    # Verificar si son listas vacías o None
-    if context['solicitudes_recibidas'] is None:
-        print("   ⚠️  solicitudes_recibidas es None!")
-    if context['sugerencias'] is None:
-        print("   ⚠️  sugerencias es None!")
-    if context['amigos'] is None:
-        print("   ⚠️  amigos es None!")
-    
+
     print("=" * 100 + "\n")
-    
     return render(request, 'home.html', context)
 
 
