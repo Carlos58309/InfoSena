@@ -11,7 +11,8 @@ from applications.amistades.models import Amistad
 from .models import Sesion
 from django.contrib.auth.decorators import login_required
 from applications.publicaciones.models import Publicacion
-from applications.publicaciones.views import usuario_dio_like
+from applications.publicaciones.views import get_usuario_actual, usuario_dio_like
+from applications.publicaciones.models import Like
 import random
 from django.utils import timezone
 from .models import CodigoRecuperacion

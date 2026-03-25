@@ -13,13 +13,13 @@ import os
 from django.conf import settings
 from django.core.files.storage import default_storage
 from applications.publicaciones.models import Publicacion
-from applications.publicaciones.views import usuario_dio_like
+from applications.publicaciones.views import get_usuario_actual, usuario_dio_like
 from applications.amistades.models import Amistad
 from applications.sesion.decorators import sesion_requerida
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 import json
-
+from applications.publicaciones.models import Like
 # ========================================
 # VISTA: PERFIL PROPIO
 # ========================================
