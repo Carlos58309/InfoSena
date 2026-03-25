@@ -377,13 +377,12 @@ def ver_perfil(request, documento):
     privacidad = PrivacidadPerfil.obtener_o_crear(documento_str)
 
     # ✅ Obtener datos_usuario para el header (usuario logueado)
-    _, datos_usuario_header = obtener_usuario_actual(request)
 
     context = {
         'usuario_perfil': usuario_perfil,
         'tipo_perfil': tipo_perfil,
         'usuario_obj': usuario_obj,
-        'usuario': datos_usuario_header,
+        'usuario': usuario_like,
         'publicaciones': publicaciones,
         'mostrar_publicaciones': mostrar_publicaciones,
         'es_amigo': es_amigo,
