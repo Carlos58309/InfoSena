@@ -682,17 +682,24 @@ document.addEventListener('DOMContentLoaded', function() {
                             </span>
                         </div>
                         <div class="flex items-center justify-around pt-1">
-                            <button onclick="reaccionar({{ publicacion.id }})" id="btn-like-{{ publicacion.id }}" class="flex items-center gap-2 px-6 py-2 rounded-lg hover:bg-gray-100 transition text-gray-600 font-medium text-sm">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3H14zM7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"/></svg>
-                                Me gusta
+                            <button onclick="reaccionar({{ publicacion.id }})" id="btn-like-{{ publicacion.id }}" data-liked="{% if usuario in publicacion.likes.all %}true{% else %}false{% endif %}" class="flex items-center gap-2 px-6 py-2 rounded-lg hover:bg-gray-100 transition text-gray-600 font-medium text-sm">
+                                <svg id="icono-like-{{ publicacion.id }}" 
+                                    xmlns="http://www.w3.org/2000/svg" 
+                                    viewBox="0 0 24 24" 
+                                    class="w-6 h-6"
+                                    style="transition: all 0.2s ease;">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                                        d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21
+                                            h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2
+                                            h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006
+                                            L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"/>
+                                </svg>
                             </button>
                             <button onclick="openModal({{ publicacion.id }})" class="flex items-center gap-2 px-6 py-2 rounded-lg hover:bg-gray-100 transition text-gray-600 font-medium text-sm">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
-                                Comentar
                             </button>
                             <button onclick="compartir({{ publicacion.id }})" class="flex items-center gap-2 px-6 py-2 rounded-lg hover:bg-gray-100 transition text-gray-600 font-medium text-sm">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
-                                Compartir
                             </button>
                         </div>
                     </div>
@@ -771,12 +778,67 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // ── LIKES ──
-    function reaccionar(id){
-        fetch(`/publicaciones/like/${id}/`,{method:'POST',headers:{'X-CSRFToken':getCookie('csrftoken'),'Content-Type':'application/json'}})
-        .then(r=>r.json()).then(data=>{
-            const c=document.getElementById(`likes-count-${id}`);if(c)c.innerText=data.likes_count;
-            const b=document.getElementById(`btn-like-${id}`);if(b){b.classList.toggle('text-blue-600',data.liked);b.classList.toggle('text-gray-600',!data.liked);}
-        }).catch(()=>mostrarToast('❌ Error al procesar reacción','error'));
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('[id^="btn-like-"]').forEach(function(btn) {
+            if (btn.dataset.liked === 'true') {
+                aplicarEstiloLike(btn, true);
+            }
+        });
+    });
+
+    function aplicarEstiloLike(btn, liked) {
+        const pubId = btn.id.replace('btn-like-', '');
+        const icono = document.getElementById('icono-like-' + pubId);
+        
+        if (liked) {
+            btn.classList.add('text-blue-600');
+            btn.classList.remove('text-gray-600');
+            if (icono) {
+                icono.setAttribute('fill', '#2563eb');
+                icono.setAttribute('stroke', '#2563eb');
+            }
+        } else {
+            btn.classList.add('text-gray-600');
+            btn.classList.remove('text-blue-600');
+            if (icono) {
+                icono.setAttribute('fill', 'none');
+                icono.setAttribute('stroke', 'currentColor');
+            }
+        }
+    }
+    function reaccionar(id) {
+        fetch(`/publicaciones/like/${id}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            // Actualizar contador
+            const span = document.getElementById(`likes-${id}`) 
+                    || document.getElementById(`likes-count-${id}`);
+            if (span) span.innerText = data.likes_count 
+                                    || data.likes_count + ' personas';
+
+            // Actualizar botón
+            const btn = document.getElementById(`btn-like-${id}`);
+            if (btn) {
+                btn.dataset.liked = data.liked ? 'true' : 'false';
+                aplicarEstiloLike(btn, data.liked);
+            }
+            
+            // Animación al dar like
+            if (data.liked) {
+                const icono = document.getElementById(`icono-like-${id}`);
+                if (icono) {
+                    icono.style.transform = 'scale(1.3)';
+                    setTimeout(() => icono.style.transform = 'scale(1)', 200);
+                }
+            }
+        })
+        .catch(() => mostrarToast('❌ Error al procesar reacción', 'error'));
     }
 
     // ── ENVIAR COMENTARIO ──
