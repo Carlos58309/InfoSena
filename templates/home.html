@@ -443,7 +443,15 @@
                     </div>
                     <div class="mt-4">
                         <h3 class="text-xl font-bold text-gray-900 mb-2">{{ publicacion.titulo }}</h3>
-                        <p class="text-gray-700 whitespace-pre-line">{{ publicacion.contenido }}</p>
+                        <div class="contenido-publicacion" data-id="{{ publicacion.id }}">
+                            <p class="text-gray-700 whitespace-pre-line texto-contenido" 
+                            id="texto-pub-{{ publicacion.id }}">{{ publicacion.contenido }}</p>
+                            <button class="ver-mas-btn hidden text-green-600 font-semibold text-sm mt-1 hover:text-green-800 transition-colors"
+                                    id="btn-vermás-{{ publicacion.id }}"
+                                    onclick="toggleVerMas({{ publicacion.id }})">
+                                ... Ver más
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -1403,6 +1411,44 @@
         if (e.key === 'ArrowRight') overlay.querySelector('[data-action="next"]')?.click();
     });
     </script>
+<script>
+const LIMITE_CARACTERES = 300;
 
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.contenido-publicacion').forEach(function(wrapper) {
+        const id = wrapper.dataset.id;
+        const parrafo = document.getElementById('texto-pub-' + id);
+        const btn = document.getElementById('btn-vermás-' + id);
+        if (!parrafo || !btn) return;
+
+        const textoCompleto = parrafo.textContent;
+        if (textoCompleto.length <= LIMITE_CARACTERES) return;
+
+        parrafo.textContent = textoCompleto.slice(0, LIMITE_CARACTERES) + '…';
+        parrafo.dataset.completo = textoCompleto;
+        parrafo.dataset.expandido = 'false';
+        btn.classList.remove('hidden');
+    });
+});
+
+function toggleVerMas(id) {
+    const parrafo = document.getElementById('texto-pub-' + id);
+    const btn = document.getElementById('btn-vermás-' + id);
+    if (!parrafo || !btn) return;
+
+    const expandido = parrafo.dataset.expandido === 'true';
+    const textoCompleto = parrafo.dataset.completo;
+
+    if (expandido) {
+        parrafo.textContent = textoCompleto.slice(0, LIMITE_CARACTERES) + '…';
+        parrafo.dataset.expandido = 'false';
+        btn.textContent = '... Ver más';
+    } else {
+        parrafo.textContent = textoCompleto;
+        parrafo.dataset.expandido = 'true';
+        btn.textContent = 'Ver menos ▲';
+    }
+}
+</script>
 </body>
 </html>

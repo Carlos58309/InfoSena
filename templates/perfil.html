@@ -1441,7 +1441,15 @@
                     <!-- Contenido -->
                     <div class="px-4 pb-3">
                         <h3 class="text-lg font-bold text-gray-900 mb-1">{{ publicacion.titulo }}</h3>
-                        <p class="text-gray-700 text-sm whitespace-pre-line leading-relaxed">{{ publicacion.contenido }}</p>
+                        <div class="contenido-publicacion" data-id="{{ publicacion.id }}">
+                            <p class="text-gray-700 whitespace-pre-line texto-contenido" 
+                            id="texto-pub-{{ publicacion.id }}">{{ publicacion.contenido }}</p>
+                            <button class="ver-mas-btn hidden text-green-600 font-semibold text-sm mt-1 hover:text-green-800 transition-colors"
+                                    id="btn-vermás-{{ publicacion.id }}"
+                                    onclick="toggleVerMas({{ publicacion.id }})">
+                                ... Ver más
+                            </button>
+                        </div>
                     </div>
 
                     <!-- MEDIA GRID -->
@@ -2687,6 +2695,45 @@ async function guardarPrivacidad() {
     } finally {
         btn.disabled = false;
         btn.innerHTML = `<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> Guardar cambios`;
+    }
+}
+</script>
+<script>
+const LIMITE_CARACTERES = 300;
+
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.contenido-publicacion').forEach(function(wrapper) {
+        const id = wrapper.dataset.id;
+        const parrafo = document.getElementById('texto-pub-' + id);
+        const btn = document.getElementById('btn-vermás-' + id);
+        if (!parrafo || !btn) return;
+
+        const textoCompleto = parrafo.textContent;
+        if (textoCompleto.length <= LIMITE_CARACTERES) return;
+
+        parrafo.textContent = textoCompleto.slice(0, LIMITE_CARACTERES) + '…';
+        parrafo.dataset.completo = textoCompleto;
+        parrafo.dataset.expandido = 'false';
+        btn.classList.remove('hidden');
+    });
+});
+
+function toggleVerMas(id) {
+    const parrafo = document.getElementById('texto-pub-' + id);
+    const btn = document.getElementById('btn-vermás-' + id);
+    if (!parrafo || !btn) return;
+
+    const expandido = parrafo.dataset.expandido === 'true';
+    const textoCompleto = parrafo.dataset.completo;
+
+    if (expandido) {
+        parrafo.textContent = textoCompleto.slice(0, LIMITE_CARACTERES) + '…';
+        parrafo.dataset.expandido = 'false';
+        btn.textContent = '... Ver más';
+    } else {
+        parrafo.textContent = textoCompleto;
+        parrafo.dataset.expandido = 'true';
+        btn.textContent = 'Ver menos ▲';
     }
 }
 </script>
