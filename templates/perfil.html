@@ -1370,7 +1370,7 @@
             <!-- PUBLICACIONES (SOLO BIENESTAR)              -->
             <!-- ============================================ -->
             {% if tipo_perfil == 'bienestar' %}
-            <div class="space-y-5">
+            <div class="space-y-6">
 
                 <!-- Header sección publicaciones -->
                 <div class="flex items-center justify-between">
@@ -1389,7 +1389,7 @@
 
                 {% if publicaciones %}
                 {% for publicacion in publicaciones %}
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden publicacion-card">
+                <div class="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden publicacion-card">
 
                     <!-- Header publicación -->
                     <div class="p-4 flex items-start justify-between">
@@ -1537,7 +1537,7 @@
 
                         <!-- Botones -->
                         <div class="flex items-center justify-around border-t border-gray-100 py-1 px-4">
-    <!-- ME GUSTA -->
+                        <!-- ME GUSTA -->
                             <button onclick="reaccionar({{ publicacion.id }})"
                                     id="btn-like-{{ publicacion.id }}"
                                     data-liked="{% if publicacion.yo_di_like %}true{% else %}false{% endif %}"
