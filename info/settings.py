@@ -285,7 +285,7 @@ MODERACION_PALABRAS_PROHIBIDAS = [
     'pato', 'pata', 'mamerto', 'lanpara', 'guisa', 'guaricha',
             # Abreviaciones
     'hp', 'hdp', 'mrda', 'pndj', 'pt', 'pto', 'pta', 'hpta', 'mka', 'mrka', 'mrd',
-    'hpt'
+    'hpt', 'mk', 'pm', '🐸', '🤬', '🖕'
 ]
 
 # Caché (opcional pero recomendado)
