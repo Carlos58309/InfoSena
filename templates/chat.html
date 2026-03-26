@@ -690,35 +690,64 @@
         <!-- Área de mensajes -->
         <div id="messagesContainer" class="flex-1 overflow-y-auto p-4 chat-bg">
             <div id="messagesList" class="flex flex-col gap-1.5 max-w-3xl mx-auto">
-                {% for mensaje in mensajes %}
+            {% for mensaje in mensajes %}
+
+                {% if forloop.first %}
+                <div class="flex items-center gap-3 my-3">
+                    <div class="flex-1 h-px bg-gray-200"></div>
+                    <span class="text-[11px] text-gray-400 font-medium px-3 py-1 bg-white rounded-full shadow-sm border border-gray-100">
+                        {{ mensaje.enviado|date:"d \d\e F \d\e Y" }}
+                    </span>
+                    <div class="flex-1 h-px bg-gray-200"></div>
+                </div>
+                {% else %}
+                    {% ifchanged mensaje.enviado|date:"d/m/Y" %}
+                    <div class="flex items-center gap-3 my-3">
+                        <div class="flex-1 h-px bg-gray-200"></div>
+                        <span class="text-[11px] text-gray-400 font-medium px-3 py-1 bg-white rounded-full shadow-sm border border-gray-100">
+                            {{ mensaje.enviado|date:"d \d\e F \d\e Y" }}
+                        </span>
+                        <div class="flex-1 h-px bg-gray-200"></div>
+                    </div>
+                    {% endifchanged %}
+                {% endif %}
+
                 <div class="flex {% if mensaje.autor.id == usuario.id %}justify-end{% else %}justify-start{% endif %} group"
-                     data-msg-id="{{ mensaje.id }}">
+                    data-msg-id="{{ mensaje.id }}">
                     <div class="msg-bubble-wrap max-w-[62%]">
                         {% if is_group and mensaje.autor.id != usuario.id %}
                         <p class="text-xs font-semibold mb-1 ml-3" style="color:#1a6b09">{{ mensaje.autor.nombre }}</p>
                         {% endif %}
+
                         {% if mensaje.tipo_archivo == 'imagen' %}
                         <a href="{{ mensaje.archivo.url }}" target="_blank" rel="noopener" class="block rounded-xl overflow-hidden shadow-sm max-w-[220px]">
                             <img src="{{ mensaje.archivo.url }}" alt="imagen" class="w-full object-cover max-h-[280px] {% if mensaje.autor.id == usuario.id %}rounded-tl-xl rounded-br-xl rounded-bl-xl rounded-tr-none{% else %}rounded-tr-xl rounded-bl-xl rounded-br-xl rounded-tl-none{% endif %}">
                             {% if mensaje.contenido %}<p class="text-xs text-gray-700 px-3 pt-1.5 pb-2 bg-white">{{ mensaje.contenido }}</p>{% endif %}
                         </a>
+
                         {% elif mensaje.tipo_archivo == 'video' %}
                         <div class="rounded-xl overflow-hidden shadow-sm max-w-[260px] {% if mensaje.autor.id == usuario.id %}bubble-sent{% else %}bubble-recv{% endif %} p-1">
                             <video src="{{ mensaje.archivo.url }}" controls class="w-full rounded-lg max-h-[220px]"></video>
                             {% if mensaje.contenido %}<p class="text-xs text-gray-700 px-2 pt-1 pb-1">{{ mensaje.contenido }}</p>{% endif %}
                         </div>
+
                         {% elif mensaje.tipo_archivo == 'documento' %}
                         <div class="{% if mensaje.autor.id == usuario.id %}bubble-sent{% else %}bubble-recv{% endif %} px-3.5 py-2.5 shadow-sm">
                             <a href="{{ mensaje.archivo.url }}" target="_blank" rel="noopener" class="flex items-center gap-3 group/doc">
                                 <div class="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center flex-shrink-0 group-hover/doc:bg-blue-100 transition">
-                                    <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                                    <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                                    </svg>
                                 </div>
                                 <div class="min-w-0">
                                     <p class="text-sm font-medium text-gray-900 truncate max-w-[160px]">{{ mensaje.contenido }}</p>
                                 </div>
-                                <svg class="w-4 h-4 text-gray-400 flex-shrink-0 ml-1 group-hover/doc:text-[#2b9e15] transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                                <svg class="w-4 h-4 text-gray-400 flex-shrink-0 ml-1 group-hover/doc:text-[#2b9e15] transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                                </svg>
                             </a>
                         </div>
+
                         {% else %}
                         <div class="{% if mensaje.autor.id == usuario.id %}bubble-sent{% else %}bubble-recv{% endif %} px-3.5 py-2 shadow-sm">
                             <p class="text-[14px] text-gray-900 leading-snug break-words">{{ mensaje.contenido }}</p>
@@ -732,10 +761,12 @@
                             </div>
                         </div>
                         {% endif %}
+
                     </div>
                 </div>
-                {% endfor %}
-            </div>
+
+            {% endfor %}
+        </div>
         </div>
 
         <!-- ══════════════════════════════════════════════════════
@@ -1110,6 +1141,14 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('.mobile-back-btn').forEach(b => b.style.display = 'flex');
     }
     scrollToBottom();
+    const ultimoBubble = messagesList.querySelector('[data-msg-id]:last-child');
+    if (ultimoBubble) {
+        const ultimoId = ultimoBubble.dataset.msgId;
+        // Usamos la fecha de hoy como fallback conservador
+        _ultimaFechaMostrada = new Date().toLocaleDateString('es-ES', {
+            day: '2-digit', month: '2-digit', year: 'numeric'
+        });
+    }
     initWebSocket();
     {% endif %}
 });
@@ -1758,9 +1797,43 @@ if (msgInput) {
     });
 }
 
+let _ultimaFechaMostrada = null;
+
 function appendMsg(msg) {
-    // Evitar duplicados: si ya existe un elemento con ese data-msg-id, no agregar
     if (msg.id && document.querySelector(`[data-msg-id="${msg.id}"]`)) return;
+
+    // ── Separador de fecha ────────────────────────────────────
+    const fechaMsg = new Date(msg.enviado);
+    const diaMsg = fechaMsg.toLocaleDateString('es-ES', {
+        day: '2-digit', month: '2-digit', year: 'numeric'
+    });
+
+    if (diaMsg !== _ultimaFechaMostrada) {
+        _ultimaFechaMostrada = diaMsg;
+
+        const hoy  = new Date();
+        const ayer = new Date(); ayer.setDate(ayer.getDate() - 1);
+        const hoyStr  = hoy.toLocaleDateString('es-ES',  { day: '2-digit', month: '2-digit', year: 'numeric' });
+        const ayerStr = ayer.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+
+        let etiqueta;
+        if (diaMsg === hoyStr)        etiqueta = 'Hoy';
+        else if (diaMsg === ayerStr)  etiqueta = 'Ayer';
+        else etiqueta = fechaMsg.toLocaleDateString('es-ES', {
+            day: 'numeric', month: 'long', year: 'numeric'
+        });
+
+        const separador = document.createElement('div');
+        separador.className = 'flex items-center gap-3 my-3';
+        separador.innerHTML = `
+            <div class="flex-1 h-px bg-gray-200"></div>
+            <span class="text-[11px] text-gray-400 font-medium px-3 py-1 bg-white rounded-full shadow-sm border border-gray-100">
+                ${etiqueta}
+            </span>
+            <div class="flex-1 h-px bg-gray-200"></div>`;
+        messagesList.appendChild(separador);
+    }
+    // ── Fin separador ─────────────────────────────────────────
 
     const esMio = msg.autor_id === usuarioId;
     const div = document.createElement('div');
@@ -1777,7 +1850,7 @@ function appendMsg(msg) {
                 <p class="text-[14px] text-gray-900 leading-snug break-words">${escapeHtml(msg.contenido)}</p>
                 <div class="flex items-center justify-end gap-1 mt-0.5">
                     <span class="text-[11px] text-gray-400">
-                        ${new Date(msg.enviado).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
+                        ${fechaMsg.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
                     </span>
                     ${esMio ? `<svg class="w-3.5 h-3.5 text-gray-400" fill="currentColor" viewBox="0 0 16 16">
                         <path d="M12.354 4.354a.5.5 0 0 0-.708-.708L5 10.293 1.854 7.146a.5.5 0 1 0-.708.708l3.5 3.5a.5.5 0 0 0 .708 0l7-7zm-4.208 7-.896-.897.707-.707.543.543 6.646-6.647a.5.5 0 0 1 .708.708l-7 7a.5.5 0 0 1-.708 0z"/>
