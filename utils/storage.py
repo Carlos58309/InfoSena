@@ -1,23 +1,33 @@
 # utils/storage.py
-from cloudinary_storage.storage import MediaCloudinaryStorage, RawMediaCloudinaryStorage
+import os
+from cloudinary_storage.storage import MediaCloudinaryStorage
+import cloudinary.uploader
 
 class MediaOrVideoCloudinaryStorage(MediaCloudinaryStorage):
-    """
-    Usa MediaCloudinaryStorage para imágenes y RawMediaCloudinaryStorage para videos.
-    """
     VIDEO_EXTENSIONS = ['.mp4', '.webm', '.flv', '.mov', '.ogv', '.avi', '.wmv']
 
+    def _get_extension(self, name):
+        ext = os.path.splitext(name)[-1].lower() if name else ''
+        return ext
+
     def _save(self, name, content):
-        ext = '.' + name.split('.')[-1].lower() if '.' in name else ''
+        ext = self._get_extension(name)
         if ext in self.VIDEO_EXTENSIONS:
-            # Delegar al storage de archivos crudos para videos
-            raw_storage = RawMediaCloudinaryStorage()
-            return raw_storage._save(name, content)
+            # Subir video directamente con cloudinary como raw
+            response = cloudinary.uploader.upload(
+                content,
+                resource_type='video',
+                public_id=os.path.splitext(name)[0],
+                overwrite=True,
+            )
+            return response['public_id'] + ext
         return super()._save(name, content)
 
     def url(self, name):
-        ext = '.' + name.split('.')[-1].lower() if name and '.' in name else ''
+        if not name:
+            return ''
+        ext = self._get_extension(name)
         if ext in self.VIDEO_EXTENSIONS:
-            raw_storage = RawMediaCloudinaryStorage()
-            return raw_storage.url(name)
+            import cloudinary
+            return cloudinary.CloudinaryVideo(name).build_url()
         return super().url(name)
