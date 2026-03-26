@@ -11,6 +11,8 @@ from django.views.decorators.http import require_POST
 from django.core.exceptions import ValidationError
 from applications.moderacion.decorators import moderar_mensaje_chat
 from applications.usuarios.models import Usuario
+from applications.registro.models import Aprendiz, Instructor, Bienestar
+from applications.perfil.models import PrivacidadPerfil
 from applications.amistades.models import Amistad
 from applications.moderacion.moderacion_service import ModeracionService
 from .models import Chat, Mensaje, MensajeEliminadoParaUsuario, ChatVaciadoPorUsuario
@@ -163,7 +165,6 @@ def chat_room(request, chat_id):
     otro_usuario = None
     if not chat.is_group:
         otro_usuario = chat.participantes.exclude(id=usuario_actual.id).first()
-
     # Estado de silenciado para mostrar el botón correctamente
     silenciado = False
     if otro_usuario:
@@ -172,6 +173,23 @@ def chat_room(request, chat_id):
             silenciado = ChatSilenciado.esta_silenciado(usuario=usuario_actual, emisor=otro_usuario)
         except Exception:
             pass
+    otro_usuario_perfil = None
+    otro_usuario_tipo = None
+    privacidad_otro = None  
+    if otro_usuario:
+        doc = otro_usuario.documento
+
+        if Aprendiz.objects.filter(numero_documento=doc).exists():
+            otro_usuario_perfil = Aprendiz.objects.get(numero_documento=doc)
+            otro_usuario_tipo = 'aprendiz'
+        elif Instructor.objects.filter(numero_documento=doc).exists():
+            otro_usuario_perfil = Instructor.objects.get(numero_documento=doc)
+            otro_usuario_tipo = 'instructor'
+        elif Bienestar.objects.filter(numero_documento=doc).exists():
+            otro_usuario_perfil = Bienestar.objects.get(numero_documento=doc)
+            otro_usuario_tipo = 'bienestar'
+
+        privacidad_otro = PrivacidadPerfil.obtener_o_crear(doc)      
     es_participante_activo = chat.participantes.filter(id=usuario_actual.id).exists()
     es_admin_grupo = chat.is_group and chat.admin_grupo == usuario_actual
     context = {
@@ -183,6 +201,9 @@ def chat_room(request, chat_id):
         "chat_foto": chat.obtener_foto_para_usuario(usuario_actual),
         "is_group": chat.is_group,
         "otro_usuario": otro_usuario,
+        "otro_usuario_perfil": otro_usuario_perfil,
+        "otro_usuario_tipo": otro_usuario_tipo,
+        "privacidad_otro": privacidad_otro,
         "silenciado": silenciado,
         "es_participante_activo": es_participante_activo,
         "es_admin_grupo": es_admin_grupo,
