@@ -590,7 +590,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="space-y-5">
                     {% for publicacion in publicaciones %}
                     <div id="publicacion-{{ publicacion.id }}" class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden publicacion-card">
-                        <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center justify-between p-4 pb-0">
                             <div class="flex items-center gap-3">
                                 {% if usuario_perfil.foto %}<img src="{{ usuario_perfil.foto.url }}" alt="{{ usuario_perfil.nombre }}" class="w-10 h-10 rounded-full object-cover">
                                 {% else %}<div class="w-10 h-10 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-white text-xl">🏥</div>{% endif %}
@@ -603,15 +603,17 @@ document.addEventListener('DOMContentLoaded', function() {
                                 {{ publicacion.get_categoria_display }}
                             </span>
                         </div>
-                        <h3 class="text-xl font-bold text-gray-800 mb-2">{{ publicacion.titulo }}</h3>
-                        <div class="contenido-publicacion" data-id="{{ publicacion.id }}">
-                            <p class="text-gray-700 whitespace-pre-line texto-contenido" 
-                            id="texto-pub-{{ publicacion.id }}">{{ publicacion.contenido }}</p>
-                            <button class="ver-mas-btn hidden text-green-600 font-semibold text-sm mt-1 hover:text-green-800 transition-colors"
-                                    id="btn-vermás-{{ publicacion.id }}"
-                                    onclick="toggleVerMas({{ publicacion.id }})">
-                                ... Ver más
-                            </button>
+                        <div class="px-4 pb-3">
+                            <h3 class="text-xl font-bold text-gray-800 mb-2">{{ publicacion.titulo }}</h3>
+                            <div class="contenido-publicacion" data-id="{{ publicacion.id }}">
+                                <p class="text-gray-700 whitespace-pre-line texto-contenido" 
+                                id="texto-pub-{{ publicacion.id }}">{{ publicacion.contenido }}</p>
+                                <button class="ver-mas-btn hidden text-green-600 font-semibold text-sm mt-1 hover:text-green-800 transition-colors"
+                                        id="btn-vermás-{{ publicacion.id }}"
+                                        onclick="toggleVerMas({{ publicacion.id }})">
+                                    ... Ver más
+                                </button>
+                            </div>
                         </div>
 
                         <!-- MEDIA GRID -->
