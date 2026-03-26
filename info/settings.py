@@ -282,7 +282,10 @@ MODERACION_PALABRAS_PROHIBIDAS = [
     'maricon', 'cabron', 'imbecil', 'estupido', 'pito',
     'pene', 'tetas', 'cuca', 'vagina', 'culo', 'tetranutra',
     'cacorro', 'sapo', 'zunga', 'valija', 'pirobo', 'pingo',
-    'pato', 'pata', 'mamerto', 'lanpara', 'guisa', 'guaricha'
+    'pato', 'pata', 'mamerto', 'lanpara', 'guisa', 'guaricha',
+            # Abreviaciones
+    'hp', 'hdp', 'mrda', 'pndj', 'pt', 'pto', 'pta', 'hpta', 'mka', 'mrka', 'mrd',
+    'hpt'
 ]
 
 # Caché (opcional pero recomendado)

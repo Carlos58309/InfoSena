@@ -75,7 +75,8 @@ class PerspectiveModeration:
             'cacorro', 'sapo', 'zunga', 'valija', 'pirobo', 'pingo',
             'pato', 'pata', 'mamerto', 'lanpara', 'guisa', 'guaricha',
             # Abreviaciones
-            'hp', 'hdp', 'mrda', 'pndj', 'pt', 'pto', 'pta', 'hpta',
+            'hp', 'hdp', 'mrda', 'pndj', 'pt', 'pto', 'pta', 'hpta', 'mka', 'mrka', 'mrd',
+            'hpt'
         ])
 
         # Pre-normalizar la lista de palabras prohibidas (una sola vez)
