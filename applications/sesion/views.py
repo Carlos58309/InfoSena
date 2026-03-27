@@ -20,8 +20,7 @@ from django.contrib.auth import authenticate, login
 from django.db import transaction, connection
 from applications.sesion.decorators import sesion_requerida
 from django.http import JsonResponse
-
-from registro.models import Aprendiz, Instructor, Bienestar
+from django.contrib.auth.hashers import make_password
 
 def login_view(request):
     if request.method == "POST":
@@ -574,19 +573,19 @@ def nueva_contrasena(request):
 
                 # Actualizar la tabla correspondiente
                 if usuario.tipo == "aprendiz":
-                    Aprendiz.objects.filter(numero_documento=usuario.numero_documento).update(
-                        contrasena=password1
-                    )
+                    aprendiz = Aprendiz.objects.get(numero_documento=usuario.numero_documento)
+                    aprendiz.set_password(password1)
+                    aprendiz.save()
 
                 elif usuario.tipo == "instructor":
-                    Instructor.objects.filter(numero_documento=usuario.numero_documento).update(
-                        contrasena=password1
-                    )
+                    instructor = Instructor.objects.get(numero_documento=usuario.numero_documento)
+                    instructor.set_password(password1)
+                    instructor.save()
 
                 elif usuario.tipo == "bienestar":
-                    Bienestar.objects.filter(numero_documento=usuario.numero_documento).update(
-                        contrasena=password1
-                    )
+                    bienestar = Bienestar.objects.get(numero_documento=usuario.numero_documento)
+                    bienestar.set_password(password1)
+                    bienestar.save()
 
                 # Eliminar códigos de recuperación
                 CodigoRecuperacion.objects.filter(usuario=usuario).delete()
