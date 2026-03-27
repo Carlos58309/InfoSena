@@ -109,6 +109,8 @@ def lista_chats(request):
     chats_enriquecidos = []
     for c in todos_los_chats:
         ultimo_msg = c.ultimo_mensaje_para_usuario(usuario_actual)
+        if ultimo_msg and ultimo_msg.contenido:
+            ultimo_msg.contenido = desencriptar(ultimo_msg.contenido)
         chats_enriquecidos.append({
             "chat": c,
             "nombre": c.obtener_nombre_para_usuario(usuario_actual),
