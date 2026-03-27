@@ -23,7 +23,11 @@ from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 from applications.sesion.decorators import sesion_requerida
 logger = logging.getLogger(__name__)
-
+def fecha_local(dt):
+    """Convierte datetime UTC a hora Colombia para el frontend."""
+    if timezone.is_aware(dt):
+        dt = dt.astimezone(timezone.get_current_timezone())
+    return dt.strftime("%Y-%m-%dT%H:%M:%S")
 moderador = ModeracionService()
 
 TIPOS_PERMITIDOS = {
@@ -388,7 +392,7 @@ def api_enviar_mensaje(request, chat_id):
                 "autor_id": mensaje.autor.id,
                 "autor_nombre": mensaje.autor.nombre,
                 "contenido": mensaje.contenido,
-                "enviado": mensaje.enviado.isoformat(),
+                "enviado": fecha_local(mensaje.enviado),
                 "tiempo_transcurrido": mensaje.tiempo_transcurrido(),
                 "puede_eliminar_para_todos": mensaje.puede_eliminar_para_todos(usuario_actual),
             },
