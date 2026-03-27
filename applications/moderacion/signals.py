@@ -29,39 +29,40 @@ def get_moderador():
 
 @receiver(pre_save, sender='chat.Mensaje')
 def moderar_mensaje_antes_de_guardar(sender, instance, **kwargs):
-    """
-    Modera mensajes de chat antes de guardarlos en la BD
-    Si el contenido es inapropiado, lanza ValidationError
-    """
-    # Solo moderar mensajes nuevos (no actualizaciones)
     if instance.pk is not None:
         return
-    
+
     contenido = instance.contenido
-    
+
     if not contenido or not contenido.strip():
         return
-    
+
     try:
-        logger.info(f"🔍 [SIGNAL] Moderando mensaje: {contenido[:50]}...")
-        
+        # ← NUEVO: desencriptar antes de moderar
+        from applications.chat.encryption import desencriptar
+        contenido_plano = desencriptar(contenido)
+    except Exception:
+        contenido_plano = contenido  # si falla, usar tal cual
+
+    try:
+        logger.info(f"🔍 [SIGNAL] Moderando mensaje: {contenido_plano[:50]}...")
+
         moderador = get_moderador()
-        resultado = moderador.moderar_texto(contenido)
-        
+        resultado = moderador.moderar_texto(contenido_plano)  # ← texto plano
+
         if resultado['bloqueado']:
             logger.warning(f"🚫 [SIGNAL] Mensaje bloqueado: {resultado['razon']}")
             raise ValidationError(
                 f"Tu mensaje contiene contenido inapropiado y no puede ser enviado. "
                 f"Razón: {resultado['razon']}"
             )
-        
+
         logger.info(f"✅ [SIGNAL] Mensaje aprobado")
-        
+
     except ValidationError:
         raise
     except Exception as e:
         logger.error(f"❌ [SIGNAL] Error al moderar mensaje: {e}")
-        # En caso de error, permitir el mensaje (fail-open)
         pass
 
 
