@@ -21,6 +21,8 @@ from django.db import transaction, connection
 from applications.sesion.decorators import sesion_requerida
 from django.http import JsonResponse
 
+from registro.models import Aprendiz, Instructor, Bienestar
+
 def login_view(request):
     if request.method == "POST":
         documento = request.POST.get("documento")
@@ -34,14 +36,11 @@ def login_view(request):
         # Buscar en Aprendiz
         # ========================================
         aprendiz = Aprendiz.objects.filter(numero_documento=documento).first()
-        if aprendiz and aprendiz.contrasena == password:
-            
-            # ✅ VERIFICAR SI EL CORREO ESTÁ VERIFICADO
+        if aprendiz and aprendiz.check_password(password):  # ✅
             if not aprendiz.verificado:
                 messages.error(request, '⚠️ Debes verificar tu correo electrónico antes de iniciar sesión.')
                 return render(request, "login.html")
             
-            # Login exitoso
             Sesion.objects.create(numero_documento=documento, rol="Aprendiz", exito=True)
             messages.success(request, f"Bienvenido {aprendiz.nombre} (Aprendiz)")
             request.session["rol"] = "Aprendiz"
@@ -54,19 +53,15 @@ def login_view(request):
         # Buscar en Instructor
         # ========================================
         instructor = Instructor.objects.filter(numero_documento=documento).first()
-        if instructor and instructor.contrasena == password:
-            
-            # ✅ VERIFICAR SI EL CORREO ESTÁ VERIFICADO
+        if instructor and instructor.check_password(password):  # ✅
             if not instructor.verificado:
                 messages.error(request, '⚠️ Debes verificar tu correo electrónico antes de iniciar sesión.')
                 return render(request, "login.html")
             
-            # ✅ VERIFICAR SI ESTÁ APROBADO POR ADMIN
             if not instructor.verificado_admin:
                 messages.warning(request, '⏳ Tu cuenta está pendiente de aprobación administrativa. Te notificaremos cuando sea aprobada.')
                 return render(request, "login.html")
             
-            # Login exitoso
             Sesion.objects.create(numero_documento=documento, rol="Instructor", exito=True)
             messages.success(request, f"Bienvenido {instructor.nombre} (Instructor)")
             request.session["rol"] = "Instructor"
@@ -79,19 +74,15 @@ def login_view(request):
         # Buscar en Bienestar
         # ========================================
         bienestar = Bienestar.objects.filter(numero_documento=documento).first()
-        if bienestar and bienestar.contrasena == password:
-            
-            # ✅ VERIFICAR SI EL CORREO ESTÁ VERIFICADO
+        if bienestar and bienestar.check_password(password):  # ✅
             if not bienestar.verificado:
                 messages.error(request, '⚠️ Debes verificar tu correo electrónico antes de iniciar sesión.')
                 return render(request, "login.html")
             
-            # ✅ VERIFICAR SI ESTÁ APROBADO POR ADMIN
             if not bienestar.verificado_admin:
                 messages.warning(request, '⏳ Tu cuenta está pendiente de aprobación administrativa. Te notificaremos cuando sea aprobada.')
                 return render(request, "login.html")
             
-            # Login exitoso
             Sesion.objects.create(numero_documento=documento, rol="Bienestar", exito=True)
             messages.success(request, f"Bienvenido {bienestar.nombre} (Bienestar)")
             request.session["rol"] = "Bienestar"
