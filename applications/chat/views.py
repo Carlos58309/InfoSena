@@ -16,6 +16,7 @@ from applications.perfil.models import PrivacidadPerfil
 from applications.amistades.models import Amistad
 from applications.moderacion.moderacion_service import ModeracionService
 from .models import Chat, Mensaje, MensajeEliminadoParaUsuario, ChatVaciadoPorUsuario
+from applications.chat.encryption import encriptar, desencriptar
 import logging
 import json
 import uuid
@@ -143,7 +144,9 @@ def chat_room(request, chat_id):
 
     # Solo mensajes visibles para este usuario
     mensajes = chat.mensajes_visibles_para_usuario(usuario_actual)
-
+    mensajes_list = list(mensajes)
+    for m in mensajes_list:
+        m.contenido = desencriptar(m.contenido)
     for mensaje in mensajes.filter(visto=False).exclude(autor=usuario_actual):
         mensaje.marcar_como_visto()
 
@@ -199,7 +202,7 @@ def chat_room(request, chat_id):
     context = {
         "usuario": usuario_actual,
         "chat": chat,
-        "mensajes": mensajes,
+        "mensajes": mensajes_list,
         "chats": chats_enriquecidos,
         "chat_nombre": chat.obtener_nombre_para_usuario(usuario_actual),
         "chat_foto": chat.obtener_foto_para_usuario(usuario_actual),
@@ -342,7 +345,7 @@ def api_obtener_mensajes(request, chat_id):
         "id": m.id,
         "autor_id": m.autor.id,
         "autor_nombre": m.autor.nombre,
-        "contenido": m.contenido,
+        "contenido": desencriptar(m.contenido),
         "enviado": m.enviado.isoformat(),
         "tiempo_transcurrido": m.tiempo_transcurrido(),
         "es_mio": m.autor.id == usuario_actual.id,
@@ -382,7 +385,7 @@ def api_enviar_mensaje(request, chat_id):
             }, status=400)
 
     try:
-        mensaje = Mensaje.objects.create(chat=chat, autor=usuario_actual, contenido=contenido)
+        mensaje = Mensaje.objects.create(chat=chat, autor=usuario_actual, contenido=encriptar(contenido))
         chat.actualizado_en = timezone.now()
         chat.save(update_fields=["actualizado_en"])
         return JsonResponse({
@@ -391,7 +394,7 @@ def api_enviar_mensaje(request, chat_id):
                 "id": mensaje.id,
                 "autor_id": mensaje.autor.id,
                 "autor_nombre": mensaje.autor.nombre,
-                "contenido": mensaje.contenido,
+                "contenido": contenido,
                 "enviado": fecha_local(mensaje.enviado),
                 "tiempo_transcurrido": mensaje.tiempo_transcurrido(),
                 "puede_eliminar_para_todos": mensaje.puede_eliminar_para_todos(usuario_actual),
@@ -428,7 +431,7 @@ def api_subir_archivo(request, chat_id):
 
     try:
         mensaje = Mensaje.objects.create(
-            chat=chat, autor=usuario_actual, contenido=contenido_msg,
+            chat=chat, autor=usuario_actual, contenido=encriptar(contenido_msg),
             archivo=ruta_guardada, tipo_archivo=tipo_archivo,
             nombre_archivo=archivo.name, tamanio_archivo=archivo.size,
         )
@@ -480,15 +483,20 @@ def buscar_mensajes(request, chat_id):
         # Buscar solo en mensajes visibles para este usuario
         mensajes_visibles = chat.mensajes_visibles_para_usuario(usuario_actual)
 
-        resultados_qs = mensajes_visibles.filter(
-            contenido__icontains=query
-        ).select_related("autor").order_by("enviado")[:50]
+        # Traer todos y filtrar en Python (no en SQL)
+        todos_mensajes = list(mensajes_visibles.select_related("autor").order_by("enviado"))
+        query_lower = query.lower()
 
-        # Calcular el índice de cada mensaje en el chat para el scroll
-        todos_ids = list(mensajes_visibles.values_list("id", flat=True))
+        resultados_filtrados = [
+            m for m in todos_mensajes
+            if query_lower in desencriptar(m.contenido).lower()
+        ][:50]
+
+        todos_ids = [m.id for m in todos_mensajes]
 
         resultados = []
-        for m in resultados_qs:
+        for m in resultados_filtrados:
+            contenido_plano = desencriptar(m.contenido)
             try:
                 posicion = todos_ids.index(m.id)
             except ValueError:
@@ -496,12 +504,12 @@ def buscar_mensajes(request, chat_id):
 
             resultados.append({
                 "id": m.id,
-                "contenido": m.contenido,
+                "contenido": contenido_plano,
                 "autor": m.autor.nombre,
                 "es_mio": m.autor.id == usuario_actual.id,
                 "enviado": m.enviado.strftime("%d/%m/%Y %H:%M"),
                 "tiempo_transcurrido": m.tiempo_transcurrido(),
-                "posicion": posicion,  # índice en el listado visible → para scroll exacto
+                "posicion": posicion,
             })
 
         return JsonResponse({"success": True, "resultados": resultados, "total": len(resultados)})

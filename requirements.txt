@@ -18,3 +18,4 @@ Pillow==11.1.0
 resend
 cloudinary
 django-cloudinary-storage
+cryptography>=42.0.0

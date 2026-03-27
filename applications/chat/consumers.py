@@ -3,7 +3,7 @@ import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
 from django.utils import timezone
-
+from applications.chat.encryption import encriptar, desencriptar
 
 class ChatConsumer(AsyncWebsocketConsumer):
     """
@@ -175,36 +175,35 @@ class ChatConsumer(AsyncWebsocketConsumer):
     
     @database_sync_to_async
     def guardar_mensaje(self, contenido):
-        """
-        Guarda un mensaje en la base de datos
-        """
         from applications.chat.models import Chat, Mensaje
         from applications.usuarios.models import Usuario
-        
+
         try:
             chat = Chat.objects.get(id=self.chat_id)
             usuario = Usuario.objects.get(id=self.user.id)
-            
+
+            # ← ENCRIPTAR antes de guardar
+            contenido_encriptado = encriptar(contenido)
+
             mensaje = Mensaje.objects.create(
                 chat=chat,
                 autor=usuario,
-                contenido=contenido
+                contenido=contenido_encriptado  # ← encriptado
             )
-            
-            # Actualizar timestamp del chat
+
             chat.actualizado_en = timezone.now()
-            chat.save(update_fields=['actualizado_en'])
-            
+            chat.save(update_fields=["actualizado_en"])
+
             return {
-                'id': mensaje.id,
-                'autor_id': usuario.id,
-                'autor_nombre': usuario.nombre,
-                'autor_foto': usuario.foto.url if usuario.foto else None,
-                'contenido': mensaje.contenido,
-                'enviado': mensaje.enviado.isoformat(),
-                'tiempo_transcurrido': mensaje.tiempo_transcurrido(),
+                "id": mensaje.id,
+                "autor_id": usuario.id,
+                "autor_nombre": usuario.nombre,
+                "autor_foto": usuario.foto.url if usuario.foto else None,
+                "contenido": contenido,  # ← retornamos el texto PLANO al WebSocket
+                "enviado": mensaje.enviado.isoformat(),
+                "tiempo_transcurrido": mensaje.tiempo_transcurrido(),
             }
-        
+
         except (Chat.DoesNotExist, Usuario.DoesNotExist):
             return None
     
