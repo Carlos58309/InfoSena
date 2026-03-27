@@ -1,5 +1,6 @@
-# registro/models
+# registro/models.py
 from django.db import models
+from django.contrib.auth.hashers import make_password, check_password as django_check_password
 
 
 # ==========================
@@ -17,13 +18,18 @@ class Aprendiz(models.Model):
     contrasena = models.CharField(max_length=255)
     foto = models.ImageField(upload_to='perfiles/aprendices/', null=True, blank=True)
     
-    # NUEVOS CAMPOS PARA VERIFICACIÓN
     verificado = models.BooleanField(default=False)
     codigo_verificacion = models.CharField(max_length=6, blank=True, null=True)
     codigo_expiracion = models.DateTimeField(blank=True, null=True)
 
     class Meta:
         db_table = 'aprendiz'
+
+    def set_password(self, raw_password):
+        self.contrasena = make_password(raw_password)
+
+    def check_password(self, raw_password):
+        return django_check_password(raw_password, self.contrasena)
     
     def __str__(self):
         return f"{self.nombre} ({self.numero_documento})"
@@ -42,17 +48,21 @@ class Instructor(models.Model):
     contrasena = models.CharField(max_length=255)
     foto = models.ImageField(upload_to='perfiles/instructores/', null=True, blank=True)
     
-    # NUEVOS CAMPOS PARA VERIFICACIÓN
     verificado = models.BooleanField(default=False)
     codigo_verificacion = models.CharField(max_length=6, blank=True, null=True)
     codigo_expiracion = models.DateTimeField(blank=True, null=True)
-    # NUEVO: Para verificación administrativa
     verificado_admin = models.BooleanField(default=False)
     codigo_admin = models.CharField(max_length=6, blank=True, null=True)
 
     class Meta:
         db_table = 'instructor'
-    
+
+    def set_password(self, raw_password):
+        self.contrasena = make_password(raw_password)
+
+    def check_password(self, raw_password):
+        return django_check_password(raw_password, self.contrasena)
+
     def __str__(self):
         return f"{self.nombre} ({self.numero_documento})"
 
@@ -70,16 +80,20 @@ class Bienestar(models.Model):
     contrasena = models.CharField(max_length=255)
     foto = models.ImageField(upload_to='perfiles/bienestar/', null=True, blank=True)
     
-    # NUEVOS CAMPOS PARA VERIFICACIÓN
     verificado = models.BooleanField(default=False)
     codigo_verificacion = models.CharField(max_length=6, blank=True, null=True)
     codigo_expiracion = models.DateTimeField(blank=True, null=True)
-    # NUEVO: Para verificación administrativa
     verificado_admin = models.BooleanField(default=False)
     codigo_admin = models.CharField(max_length=6, blank=True, null=True)
 
     class Meta:
         db_table = 'bienestar'
-    
+
+    def set_password(self, raw_password):
+        self.contrasena = make_password(raw_password)
+
+    def check_password(self, raw_password):
+        return django_check_password(raw_password, self.contrasena)
+
     def __str__(self):
         return f"{self.nombre} ({self.numero_documento})"
