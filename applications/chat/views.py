@@ -112,8 +112,10 @@ def lista_chats(request):
         if ultimo_msg and ultimo_msg.contenido:
             try:
                 ultimo_msg.contenido = desencriptar(ultimo_msg.contenido)
+                print(f"DEBUG ultimo_msg.contenido: {ultimo_msg.contenido}")
             except Exception:
                 pass  # mensaje viejo en texto plano, se muestra tal cual
+                print(f"DEBUG error desencriptar: {e}")
         chats_enriquecidos.append({
             "chat": c,
             "nombre": c.obtener_nombre_para_usuario(usuario_actual),
