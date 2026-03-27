@@ -1104,7 +1104,7 @@
     }
     async function irANotificacion(notifId, publicacionId) {
         try { await fetch(`{% url 'notificaciones:marcar_leida' 0 %}`.replace('0', notifId), { method: 'POST', headers: { 'X-CSRFToken': getCookie('csrftoken') } }); } catch(e) {}
-        window.location.href = publicacionId ? `/publicaciones/${publicacionId}/` : "{% url 'notificaciones:lista' %}";
+        window.location.href = "{% url 'notificaciones:lista' %}";
     }
     async function marcarTodasLeidasHeader() {
         try {

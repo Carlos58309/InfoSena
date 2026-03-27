@@ -1541,7 +1541,7 @@ async function irANotificacion(notifId, publicacionId) {
             method: 'POST', headers: { 'X-CSRFToken': getCookie('csrftoken') }
         });
     } catch(e) {}
-    window.location.href = publicacionId ? `/publicaciones/${publicacionId}/` : "{% url 'notificaciones:lista' %}";
+    window.location.href = "{% url 'notificaciones:lista' %}";
 }
 
 async function marcarTodasLeidasHeader() {
