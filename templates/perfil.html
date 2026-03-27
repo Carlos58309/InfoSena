@@ -1370,8 +1370,9 @@
             <!-- ============================================ -->
             <!-- PUBLICACIONES (SOLO BIENESTAR)              -->
             <!-- ============================================ -->
+            <!-- PUBLICACIONES (SOLO BIENESTAR) -->
             {% if tipo_perfil == 'bienestar' %}
-            <div>
+            <div class="flex flex-col gap-6">
 
                 <!-- Header sección publicaciones -->
                 <div class="flex items-center justify-between">
@@ -1417,7 +1418,6 @@
                                 </div>
                             </div>
                         </div>
-
                         <!-- Menú 3 puntos -->
                         <div class="relative">
                             <button onclick="toggleMenu({{ publicacion.id }})"
@@ -1443,8 +1443,8 @@
                     <div class="px-4 pb-3">
                         <h3 class="text-lg font-bold text-gray-900 mb-1">{{ publicacion.titulo }}</h3>
                         <div class="contenido-publicacion" data-id="{{ publicacion.id }}">
-                            <p class="text-gray-700 whitespace-pre-line texto-contenido" 
-                            id="texto-pub-{{ publicacion.id }}">{{ publicacion.contenido }}</p>
+                            <p class="text-gray-700 whitespace-pre-line texto-contenido"
+                               id="texto-pub-{{ publicacion.id }}">{{ publicacion.contenido }}</p>
                             <button class="ver-mas-btn hidden text-green-600 font-semibold text-sm mt-1 hover:text-green-800 transition-colors"
                                     id="btn-vermás-{{ publicacion.id }}"
                                     onclick="toggleVerMas({{ publicacion.id }})">
@@ -1454,74 +1454,65 @@
                     </div>
 
                     <!-- MEDIA GRID -->
-                {% if publicacion.archivos.all %}
-                {% with total_media=publicacion.archivos.all|length %}
-                <div class="
-                    {% if total_media == 1 %}media-grid-1
-                    {% elif total_media == 2 %}media-grid-2
-                    {% elif total_media == 3 %}media-grid-3
-                    {% elif total_media == 4 %}media-grid-4
-                    {% else %}media-grid-5plus{% endif %}
-                ">
-                    {% for archivo in publicacion.archivos.all|slice:":5" %}
-                        {% if archivo.tipo == 'imagen' %}
-                        <div class="media-item">
-                            <img src="{{ archivo.archivo.url }}" alt="{{ publicacion.titulo }}"
-                                 onclick="abrirMediaModal({{ publicacion.id }}, {{ forloop.counter0 }})">
-                            {% if forloop.last and total_media > 5 %}
-                            <div class="media-overlay" onclick="abrirMediaModal({{ publicacion.id }}, {{ forloop.counter0 }})">
-                                +{{ total_media|add:"-5" }}
+                    {% if publicacion.archivos.all %}
+                    {% with total_media=publicacion.archivos.all|length %}
+                    <div class="
+                        {% if total_media == 1 %}media-grid-1
+                        {% elif total_media == 2 %}media-grid-2
+                        {% elif total_media == 3 %}media-grid-3
+                        {% elif total_media == 4 %}media-grid-4
+                        {% else %}media-grid-5plus{% endif %}
+                    ">
+                        {% for archivo in publicacion.archivos.all|slice:":5" %}
+                            {% if archivo.tipo == 'imagen' %}
+                            <div class="media-item">
+                                <img src="{{ archivo.archivo.url }}" alt="{{ publicacion.titulo }}"
+                                     onclick="abrirMediaModal({{ publicacion.id }}, {{ forloop.counter0 }})">
+                                {% if forloop.last and total_media > 5 %}
+                                <div class="media-overlay" onclick="abrirMediaModal({{ publicacion.id }}, {{ forloop.counter0 }})">
+                                    +{{ total_media|add:"-5" }}
+                                </div>
+                                {% endif %}
                             </div>
                             {% endif %}
-                        </div>
-                        {% endif %}
-                        {% if archivo.tipo == 'video' %}
-                        <div class="media-item video-item">
-                            <video src="{{ archivo.archivo.url }}" class="w-full h-full object-cover"></video>
-                            <div class="video-play-overlay" onclick="abrirMediaModal({{ publicacion.id }}, {{ forloop.counter0 }})">
-                                <svg class="w-16 h-16 text-white" fill="currentColor" viewBox="0 0 24 24">
-                                    <circle cx="12" cy="12" r="10" fill="white" fill-opacity="0.9"/>
-                                    <path d="M8 5v14l11-7z" fill="#000"/>
-                                </svg>
-                            </div>
-                            {% if forloop.last and total_media > 5 %}
-                            <div class="media-overlay" onclick="abrirMediaModal({{ publicacion.id }}, {{ forloop.counter0 }})">
-                                +{{ total_media|add:"-5" }}
+                            {% if archivo.tipo == 'video' %}
+                            <div class="media-item video-item">
+                                <video src="{{ archivo.archivo.url }}" class="w-full h-full object-cover"></video>
+                                <div class="video-play-overlay" onclick="abrirMediaModal({{ publicacion.id }}, {{ forloop.counter0 }})">
+                                    <svg class="w-16 h-16 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                        <circle cx="12" cy="12" r="10" fill="white" fill-opacity="0.9"/>
+                                        <path d="M8 5v14l11-7z" fill="#000"/>
+                                    </svg>
+                                </div>
+                                {% if forloop.last and total_media > 5 %}
+                                <div class="media-overlay" onclick="abrirMediaModal({{ publicacion.id }}, {{ forloop.counter0 }})">
+                                    +{{ total_media|add:"-5" }}
+                                </div>
+                                {% endif %}
                             </div>
                             {% endif %}
-                        </div>
-                        {% endif %}
-                    {% endfor %}
-                </div>
-
-                <script>
-                (function() {
-                    var pubId = {{ publicacion.id }};
-                    var archivos = [
-                        {% for archivo in publicacion.archivos.all %}
-                        {
-                            tipo: '{{ archivo.tipo }}',
-                            url: '{{ archivo.archivo.url }}',
-                            alt: '{{ publicacion.titulo|escapejs }}'
-                        }{% if not forloop.last %},{% endif %}
                         {% endfor %}
-                    ];
-                    function tryInit() {
-                        if (typeof inicializarMediaPublicacion === 'function') {
-                            inicializarMediaPublicacion(pubId, archivos);
-                        } else {
-                            setTimeout(tryInit, 50);
+                    </div>
+                    <script>
+                    (function() {
+                        var pubId = {{ publicacion.id }};
+                        var archivos = [
+                            {% for archivo in publicacion.archivos.all %}
+                            { tipo: '{{ archivo.tipo }}', url: '{{ archivo.archivo.url }}', alt: '{{ publicacion.titulo|escapejs }}' }{% if not forloop.last %},{% endif %}
+                            {% endfor %}
+                        ];
+                        function tryInit() {
+                            if (typeof inicializarMediaPublicacion === 'function') { inicializarMediaPublicacion(pubId, archivos); }
+                            else { setTimeout(tryInit, 50); }
                         }
-                    }
-                    tryInit();
-                })();
-                </script>
-                {% endwith %}
-                {% endif %}
+                        tryInit();
+                    })();
+                    </script>
+                    {% endwith %}
+                    {% endif %}
 
                     <!-- Acciones -->
                     <div class="px-4 pb-3">
-                        <!-- Contadores -->
                         <div class="flex justify-between items-center py-2 text-sm text-gray-500 border-b border-gray-200">
                             <div class="flex items-center gap-2">
                                 <div class="w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center">
@@ -1529,141 +1520,35 @@
                                         <path d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"/>
                                     </svg>
                                 </div>
-                                <!-- ✅ ID unificado: likes-count-ID (usado por reaccionar()) -->
                                 <span id="likes-count-{{ publicacion.id }}">{{ publicacion.likes.count }}</span> personas
                             </div>
-                            <!-- ✅ ID unificado: comentarios-count-ID (usado por enviarComentario()) -->
                             <span id="comentarios-count-{{ publicacion.id }}">{{ publicacion.comentarios.count }} comentarios</span>
                         </div>
-
-                        <!-- Botones -->
                         <div class="flex items-center justify-around border-t border-gray-100 py-1 px-4">
-                        <!-- ME GUSTA -->
                             <button onclick="reaccionar({{ publicacion.id }})"
                                     id="btn-like-{{ publicacion.id }}"
                                     data-liked="{% if publicacion.yo_di_like %}true{% else %}false{% endif %}"
-                                    class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg 
-                                        hover:bg-gray-100 transition-colors flex-1 font-semibold text-sm
-                                        {% if publicacion.yo_di_like %}text-blue-600{% else %}text-gray-600{% endif %}">
-                                <svg id="icono-like-{{ publicacion.id }}" 
-                                    xmlns="http://www.w3.org/2000/svg" 
-                                    viewBox="0 0 24 24" 
-                                    class="w-5 h-5"
-                                    fill="{% if publicacion.yo_di_like %}#2563eb{% else %}none{% endif %}"
-                                    stroke="{% if publicacion.yo_di_like %}#2563eb{% else %}#4b5563{% endif %}"
-                                    style="transition: all 0.2s ease;">
+                                    class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg hover:bg-gray-100 transition-colors flex-1 font-semibold text-sm {% if publicacion.yo_di_like %}text-blue-600{% else %}text-gray-600{% endif %}">
+                                <svg id="icono-like-{{ publicacion.id }}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-5 h-5"
+                                     fill="{% if publicacion.yo_di_like %}#2563eb{% else %}none{% endif %}"
+                                     stroke="{% if publicacion.yo_di_like %}#2563eb{% else %}#4b5563{% endif %}"
+                                     style="transition: all 0.2s ease;">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
-                                        d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21
-                                            h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2
-                                            h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006
-                                            L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"/>
+                                          d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"/>
                                 </svg>
                             </button>
-
-                            <!-- COMENTAR -->
                             <button onclick="openModal({{ publicacion.id }})"
-                                    class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg 
-                                        hover:bg-gray-100 transition text-gray-600 font-semibold text-sm flex-1">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" 
-                                    viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
-                                    <path stroke-linecap="round" stroke-linejoin="round" 
-                                        d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                                    class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg hover:bg-gray-100 transition text-gray-600 font-semibold text-sm flex-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
                                 </svg>
                             </button>
-
-                            <!-- COMPARTIR -->
                             <button onclick="compartir({{ publicacion.id }})"
-                                    class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg 
-                                        hover:bg-gray-100 transition text-gray-600 font-semibold text-sm flex-1">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" 
-                                    viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
-                                    <path stroke-linecap="round" stroke-linejoin="round" 
-                                        d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/>
+                                    class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg hover:bg-gray-100 transition text-gray-600 font-semibold text-sm flex-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/>
                                 </svg>
                             </button>
-
-                        </div>
-
-                    <!-- ============================================ -->
-                    <!-- MODAL COMENTARIOS (AJAX, sin recarga)       -->
-                    <!-- ============================================ -->
-                    <div id="modal-{{ publicacion.id }}" class="hidden fixed inset-0 bg-black/50 flex justify-center items-center z-50 p-4">
-                        <div class="bg-white w-full max-w-2xl rounded-2xl overflow-hidden shadow-2xl max-h-[80vh] flex flex-col">
-
-                            <!-- Header modal -->
-                            <div class="p-4 border-b flex justify-between items-center bg-gray-50">
-                                <h3 class="font-bold text-lg">Comentarios de {{ publicacion.autor.nombre }}</h3>
-                                <button onclick="closeModal({{ publicacion.id }})"
-                                        class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-200 transition">
-                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                                    </svg>
-                                </button>
-                            </div>
-
-                            <!-- Lista de comentarios -->
-                            <div class="p-4 space-y-3 overflow-y-auto flex-1" id="lista-comentarios-{{ publicacion.id }}">
-                                {% for comentario in publicacion.comentarios.all %}
-                                <!-- ✅ CAMBIO 1: id único por comentario para poder eliminarlo del DOM -->
-                                <div class="flex items-start gap-3" id="comentario-{{ comentario.id }}">
-                                    {% if comentario.get_autor_foto %}
-                                    <img src="{{ comentario.get_autor_foto }}" class="w-10 h-10 rounded-full object-cover flex-shrink-0 border-2 border-gray-200">
-                                    {% else %}
-                                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center flex-shrink-0 text-white font-bold text-sm">
-                                        {{ comentario.get_autor_nombre|first|upper }}
-                                    </div>
-                                    {% endif %}
-                                    <div class="flex-1">
-                                        <div class="bg-gray-100 rounded-2xl px-4 py-2">
-                                            <p class="font-semibold text-sm text-gray-900">{{ comentario.get_autor_nombre }}</p>
-                                            <p class="text-gray-700 mt-0.5">{{ comentario.contenido }}</p>
-                                        </div>
-                                        <div class="flex items-center gap-4 mt-1 px-2 text-xs text-gray-500">
-                                            <span>{{ comentario.fecha_creacion|timesince }} atrás</span>
-                                            <!-- Botón eliminar: visible si eres autor del comentario o de la publicación -->
-                                            {% if comentario.get_autor_documento == usuario.numero_documento or comentario.get_autor_documento == usuario.documento or publicacion.autor == usuario %}
-                                            <button onclick="eliminarComentario({{ comentario.id }}, {{ publicacion.id }})"
-                                                    class="ml-auto flex items-center gap-1 text-red-400 hover:text-red-600 font-semibold transition-colors px-2 py-0.5 rounded-lg hover:bg-red-50">
-                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                                </svg>
-                                                Eliminar
-                                            </button>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                </div>
-                                {% empty %}
-                                <div class="text-center py-8" id="vacio-{{ publicacion.id }}">
-                                    <div class="text-5xl mb-3">💬</div>
-                                    <p class="text-gray-600 font-semibold">Sé el primero en comentar</p>
-                                    <p class="text-gray-400 text-sm mt-1">Comparte tu opinión sobre esta publicación</p>
-                                </div>
-                                {% endfor %}
-                            </div>
-
-                            <!-- Input comentario (AJAX) -->
-                            <div class="flex items-center gap-3 p-4 border-t bg-gray-50">
-                                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center flex-shrink-0 overflow-hidden">
-                                    {% if usuario.foto %}
-                                    <img src="{{ usuario.foto.url }}" class="w-10 h-10 rounded-full object-cover">
-                                    {% else %}
-                                    <span class="text-white font-bold text-sm">{{ usuario.nombre|first|upper }}</span>
-                                    {% endif %}
-                                </div>
-                                <input
-                                    class="input-comentario flex-1 bg-gray-100 rounded-full px-4 py-2 outline-none focus:bg-white focus:ring-2 focus:ring-green-500 transition text-sm"
-                                    placeholder="Escribe un comentario..."
-                                    data-id="{{ publicacion.id }}"
-                                    onkeypress="if(event.key==='Enter') enviarComentario({{ publicacion.id }})">
-                                <button
-                                    onclick="enviarComentario({{ publicacion.id }})"
-                                    class="bg-green-600 text-white p-2 rounded-full hover:bg-green-700 transition flex-shrink-0">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
-                                    </svg>
-                                </button>
-                            </div>
                         </div>
                     </div>
 
@@ -1671,7 +1556,6 @@
                 {% endfor %}
 
                 {% else %}
-                <!-- Sin publicaciones -->
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-12 text-center">
                     <div class="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4 text-4xl">📝</div>
                     <h3 style="font-family:'Sora',sans-serif" class="text-lg font-700 text-gray-700 mb-2">Aún no tienes publicaciones</h3>
