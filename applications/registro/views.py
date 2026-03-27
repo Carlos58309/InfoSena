@@ -263,7 +263,7 @@ def registro_view(request):
                     messages.error(request, '⚠️ Complete todos los campos de aprendiz.')
                     return render(request, 'registrar.html', {'form_data': form_data})
                 
-                aprendiz = Aprendiz.objects.create(
+                aprendiz = Aprendiz(
                     nombre=nombre,
                     tipo_documento=tipo_documento,
                     numero_documento=numero_documento,
@@ -272,13 +272,13 @@ def registro_view(request):
                     jornada=jornada,
                     ficha=ficha,
                     region=region,
-                    contrasena=contrasena,
                     foto=foto if foto else None,
                     verificado=False,
                     codigo_verificacion=codigo_usuario,
                     codigo_expiracion=expiracion
                 )
-                
+                aprendiz.set_password(contrasena)  # ✅ Encripta aquí
+                aprendiz.save()
                 request.session['usuario_id'] = aprendiz.numero_documento
                 request.session['usuario_tipo'] = 'aprendiz'
                 
@@ -289,14 +289,13 @@ def registro_view(request):
                 if not centro_formativo:
                     centro_formativo = "Centro Agroempresarial y Desarrollo Pecuario del Huila"
                 
-                bienestar = Bienestar.objects.create(
+                bienestar = Bienestar(
                     nombre=nombre,
                     tipo_documento=tipo_documento,
                     numero_documento=numero_documento,
                     email=email,
                     centro_formativo=centro_formativo,
                     region=region,
-                    contrasena=contrasena,
                     foto=foto if foto else None,
                     verificado=False,
                     codigo_verificacion=codigo_usuario,
@@ -304,7 +303,8 @@ def registro_view(request):
                     verificado_admin=False,
                     codigo_admin=codigo_admin
                 )
-                
+                bienestar.set_password(contrasena)  # ✅ Encripta aquí
+                bienestar.save()
                 # ENVIAR NOTIFICACIÓN AL ADMIN
                 enviar_notificacion_admin(nombre, email, 'Bienestar', tipo_documento, numero_documento, codigo_admin)
                 
@@ -320,14 +320,13 @@ def registro_view(request):
                     messages.error(request, '⚠️ El centro formativo es obligatorio para instructores.')
                     return render(request, 'registrar.html', {'form_data': form_data})
                 
-                instructor = Instructor.objects.create(
+                instructor = Instructor(
                     nombre=nombre,
                     tipo_documento=tipo_documento,
                     numero_documento=numero_documento,
                     email=email,
                     centro_formativo=centro_formativo,
                     region=region,
-                    contrasena=contrasena,
                     foto=foto if foto else None,
                     verificado=False,
                     codigo_verificacion=codigo_usuario,
@@ -335,7 +334,8 @@ def registro_view(request):
                     verificado_admin=False,
                     codigo_admin=codigo_admin
                 )
-                
+                instructor.set_password(contrasena)  # ✅ Encripta aquí
+                instructor.save()
                 # ENVIAR NOTIFICACIÓN AL ADMIN
                 enviar_notificacion_admin(nombre, email, 'Instructor', tipo_documento, numero_documento, codigo_admin)
                 
