@@ -693,12 +693,12 @@
                                         🔐 Código de aprobación (6 dígitos)
                                     </label>
                                     <input type="text"
-                                           name="codigo_admin"
-                                           maxlength="6"
-                                           pattern="[0-9]{6}"
-                                           placeholder="0 0 0 0 0 0"
-                                           class="codigo-input"
-                                           required>
+                                        name="codigo_admin"
+                                        maxlength="6"
+                                        pattern="[0-9]{6}"
+                                        placeholder="0 0 0 0 0 0"
+                                        class="codigo-input"
+                                        required>
                                     <p class="text-xs text-amber-700 mt-1.5 flex items-center gap-1">
                                         <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                             <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
@@ -706,14 +706,31 @@
                                         Revisa el código en: <strong>infosena@gmail.com</strong>
                                     </p>
                                 </div>
-                                <button type="submit"
-                                        class="flex-shrink-0 flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 active:scale-95 text-white font-700 px-6 py-3 rounded-xl transition-all shadow-sm hover:shadow-md text-sm w-full sm:w-auto">
-                                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                                        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                    </svg>
-                                    Aprobar cuenta
-                                </button>
+                                <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto flex-shrink-0">
+                                    <button type="submit"
+                                            class="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 active:scale-95 text-white font-700 px-6 py-3 rounded-xl transition-all shadow-sm hover:shadow-md text-sm w-full sm:w-auto">
+                                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                        </svg>
+                                        Aprobar cuenta
+                                    </button>
+                                </div>
                             </div>
+                        </form>
+
+                        <!-- Botón de rechazo FUERA del formulario de aprobación -->
+                        <form method="POST" action="{% url 'registro:rechazar_cuenta' %}"
+                            onsubmit="return confirm('⚠️ ¿Estás seguro de rechazar a {{ usuario.nombre }}? Esta acción eliminará su cuenta permanentemente y no se puede deshacer.')">
+                            {% csrf_token %}
+                            <input type="hidden" name="documento" value="{{ usuario.documento }}">
+                            <button type="submit"
+                                    class="mt-3 w-full flex items-center justify-center gap-2 bg-red-50 hover:bg-red-100 border border-red-200 hover:border-red-300 active:scale-95 text-red-600 font-600 px-6 py-2.5 rounded-xl transition-all text-sm">
+                                <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
+                                </svg>
+                                No cumple con los requisitos — Rechazar y eliminar
+                            </button>
                         </form>
                     </div>
                 </div>

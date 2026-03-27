@@ -637,6 +637,46 @@ def panel_aprobacion_view(request):
     
     return render(request, 'panel_aprobacion.html', context)
 
+def rechazar_cuenta_view(request):
+    """Rechazar y eliminar una cuenta pendiente de aprobación"""
+    
+    if request.method == 'POST':
+        documento = request.POST.get('documento', '').strip()
+        
+        if not documento:
+            messages.error(request, '⚠️ Documento no proporcionado.')
+            return redirect('registro:panel_aprobacion')
+        
+        # Buscar y eliminar en Instructor
+        instructor = Instructor.objects.filter(
+            numero_documento=documento,
+            verificado=True,
+            verificado_admin=False
+        ).first()
+        
+        if instructor:
+            nombre = instructor.nombre
+            instructor.delete()
+            messages.success(request, f'🗑️ La cuenta de {nombre} fue rechazada y eliminada.')
+            return redirect('registro:panel_aprobacion')
+        
+        # Buscar y eliminar en Bienestar
+        bienestar = Bienestar.objects.filter(
+            numero_documento=documento,
+            verificado=True,
+            verificado_admin=False
+        ).first()
+        
+        if bienestar:
+            nombre = bienestar.nombre
+            bienestar.delete()
+            messages.success(request, f'🗑️ La cuenta de {nombre} fue rechazada y eliminada.')
+            return redirect('registro:panel_aprobacion')
+        
+        messages.error(request, '❌ No se encontró la cuenta pendiente.')
+        return redirect('registro:panel_aprobacion')
+    
+    return redirect('registro:panel_aprobacion')
 
 def aprobar_cuenta_view(request):
     """Aprobar una cuenta usando el código administrativo"""
