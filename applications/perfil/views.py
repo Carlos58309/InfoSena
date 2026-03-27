@@ -233,8 +233,15 @@ def eliminar_foto_perfil(request):
         except Exception as e:
             print(f"⚠ Error al eliminar archivo de foto: {e}")
 
-        datos_usuario.foto = None
-        datos_usuario.save()
+        datos_usuario.foto = ''   # ← cadena vacía en vez de None
+        try:
+            datos_usuario.save()
+        except Exception as e:
+            print(f"⚠ Error al guardar tras eliminar foto: {e}")
+            if str(e) == "(0, '')":
+                pass  # Railway/MySQL a veces lanza esto aunque sí guardó
+            else:
+                return JsonResponse({'ok': False, 'error': str(e)}, status=500)
 
     return JsonResponse({'ok': True})
 
