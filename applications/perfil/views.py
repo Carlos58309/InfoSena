@@ -200,6 +200,43 @@ def editar_perfil(request):
     context = {'usuario': datos_usuario, 'tipo_perfil': tipo_perfil}
     return render(request, 'editar_perfil.html', context)
 
+# ========================================
+# VISTA: ELIMINAR FOTO DE PERFIL
+# ========================================
+@sesion_requerida
+@require_POST
+def eliminar_foto_perfil(request):
+    """Elimina la foto de perfil del usuario dejándola en blanco"""
+    usuario_id = request.session.get('usuario_id')
+    tipo_perfil = request.session.get('tipo_usuario')
+
+    if not usuario_id or not tipo_perfil:
+        return JsonResponse({'ok': False, 'error': 'No autenticado'}, status=401)
+
+    try:
+        if tipo_perfil == 'aprendiz':
+            datos_usuario = Aprendiz.objects.get(numero_documento=usuario_id)
+        elif tipo_perfil == 'instructor':
+            datos_usuario = Instructor.objects.get(numero_documento=usuario_id)
+        elif tipo_perfil == 'bienestar':
+            datos_usuario = Bienestar.objects.get(numero_documento=usuario_id)
+        else:
+            return JsonResponse({'ok': False, 'error': 'Tipo de usuario inválido'}, status=400)
+    except (Aprendiz.DoesNotExist, Instructor.DoesNotExist, Bienestar.DoesNotExist):
+        return JsonResponse({'ok': False, 'error': 'Usuario no encontrado'}, status=404)
+
+    # Eliminar el archivo físico del storage
+    if datos_usuario.foto:
+        try:
+            if default_storage.exists(datos_usuario.foto.name):
+                default_storage.delete(datos_usuario.foto.name)
+        except Exception as e:
+            print(f"⚠ Error al eliminar archivo de foto: {e}")
+
+        datos_usuario.foto = None
+        datos_usuario.save()
+
+    return JsonResponse({'ok': True})
 
 # ========================================
 # VISTA: ELIMINAR PERFIL

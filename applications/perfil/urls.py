@@ -28,6 +28,8 @@ urlpatterns = [
     path('privacidad/actualizar/', views.actualizar_privacidad, name='actualizar_privacidad'),
     # ⚠️ IMPORTANTE: Esta URL debe estar AL FINAL
     # Ver perfil de cualquier usuario (por número de documento)
+    # Eliminar foto de perfil
+    path('eliminar-foto/', views.eliminar_foto_perfil, name='eliminar_foto_perfil'),
     path('ver/<str:documento>/', views.ver_perfil, name='ver_perfil'),
     
     # ❌ NO INCLUIR ESTA URL:

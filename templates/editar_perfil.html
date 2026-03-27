@@ -659,7 +659,7 @@
                                 </span>
                                 {% endif %}
 
-                                <!-- Botón cámara -->
+                                <!-- Botón cámara (siempre visible) -->
                                 <button type="button" id="btnCambiarFoto"
                                     class="absolute bottom-2 right-2 bg-gradient-to-r from-green-600 to-green-700 text-white p-2.5 rounded-full shadow-xl hover:shadow-2xl hover:scale-110 transition-all duration-200 z-10">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-4 h-4">
@@ -669,6 +669,36 @@
                                     </svg>
                                 </button>
                             </div>
+
+                            <!-- Botón eliminar foto: solo aparece si hay foto -->
+                            {% if usuario.foto %}
+                            <button type="button" id="btnEliminarFoto"
+                                title="Eliminar foto de perfil"
+                                style="
+                                    position: absolute;
+                                    top: 4px;
+                                    right: 4px;
+                                    width: 28px;
+                                    height: 28px;
+                                    border-radius: 999px;
+                                    background: #ef4444;
+                                    border: 2.5px solid white;
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                    cursor: pointer;
+                                    box-shadow: 0 2px 8px rgba(239,68,68,0.4);
+                                    transition: all 0.2s;
+                                    z-index: 20;
+                                "
+                                onmouseover="this.style.background='#dc2626';this.style.transform='scale(1.15)'"
+                                onmouseout="this.style.background='#ef4444';this.style.transform='scale(1)'">
+                                <svg width="13" height="13" fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 24 24">
+                                    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                                </svg>
+                            </button>
+                            {% endif %}
+
                             <input type="file" id="inputFotoPerfil" name="foto" accept="image/*" class="hidden">
                         </div>
 
@@ -899,11 +929,12 @@
         });
     </script>
 
-    <!-- Previsualización foto de perfil -->
+    <!-- Previsualización foto de perfil + eliminar -->
     <script>
         const inputFoto = document.getElementById('inputFotoPerfil');
         const fotoPerfilDiv = document.getElementById('fotoPerfilDiv');
         const btnCambiarFoto = document.getElementById('btnCambiarFoto');
+        const btnEliminarFoto = document.getElementById('btnEliminarFoto');
 
         btnCambiarFoto.addEventListener('click', function(e) {
             e.preventDefault();
@@ -920,10 +951,69 @@
                     fotoPerfilDiv.style.backgroundPosition = 'center';
                     const emoji = document.getElementById('emojiDefault');
                     if (emoji) emoji.style.display = 'none';
+                    // Si el usuario seleccionó una foto nueva, mostrar el botón eliminar
+                    if (btnEliminarFoto) btnEliminarFoto.style.display = 'flex';
                 };
                 reader.readAsDataURL(this.files[0]);
             }
         });
+
+        // Lógica de eliminar foto
+        if (btnEliminarFoto) {
+            btnEliminarFoto.addEventListener('click', async function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                if (!confirm('¿Eliminar tu foto de perfil? Volverás al avatar por defecto.')) return;
+
+                this.disabled = true;
+                this.style.opacity = '0.6';
+
+                try {
+                    const response = await fetch("{% url 'perfil:eliminar_foto_perfil' %}", {
+                        method: 'POST',
+                        headers: { 'X-CSRFToken': getCookie('csrftoken') },
+                        credentials: 'same-origin'
+                    });
+
+                    const data = await response.json();
+
+                    if (data.ok) {
+                        // Quitar la imagen del div
+                        fotoPerfilDiv.style.backgroundImage = '';
+                        fotoPerfilDiv.style.backgroundSize = '';
+                        fotoPerfilDiv.style.backgroundPosition = '';
+
+                        // Mostrar emoji por defecto
+                        let emoji = document.getElementById('emojiDefault');
+                        if (!emoji) {
+                            emoji = document.createElement('span');
+                            emoji.id = 'emojiDefault';
+                            emoji.className = 'filter drop-shadow-lg';
+                            emoji.textContent = '{% if tipo_perfil == "instructor" %}👨‍🏫{% elif tipo_perfil == "bienestar" %}🏥{% elif tipo_perfil == "aprendiz" %}🎓{% else %}👤{% endif %}';
+                            fotoPerfilDiv.insertBefore(emoji, fotoPerfilDiv.firstChild);
+                        } else {
+                            emoji.style.display = '';
+                        }
+
+                        // Ocultar el botón de eliminar
+                        this.style.display = 'none';
+
+                        // Limpiar el input file por si había algo seleccionado
+                        inputFoto.value = '';
+                    } else {
+                        alert('No se pudo eliminar la foto. Intenta de nuevo.');
+                        this.disabled = false;
+                        this.style.opacity = '1';
+                    }
+                } catch (err) {
+                    console.error(err);
+                    alert('Error de red. Intenta de nuevo.');
+                    this.disabled = false;
+                    this.style.opacity = '1';
+                }
+            });
+        }
     </script>
 
     <!-- Notificaciones en tiempo real -->
