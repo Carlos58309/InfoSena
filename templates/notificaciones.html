@@ -794,16 +794,22 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
             Chat
         </a>
+
+        <!-- ✅ FIX 1: SVG completo con los 4 elementos -->
         <a href="{% url 'sesion:amigos' %}" class="mob-nav-btn">
             <div class="mob-nav-icon">
                 <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <circle cx="7" cy="7" r="4"/>
                     <path d="M1 21v-2a6 6 0 016-6h0a6 6 0 016 6v2"/>
+                    <circle cx="17" cy="9" r="3.5"/>
+                    <path d="M14 21v-2a4 4 0 014-4h0a4 4 0 014 4v2"/>
                 </svg>
             </div>
             Amigos
         </a>
-        <a href="{% url 'notificaciones:lista' %}" class="mob-nav-btn" id="mobNavAlertas">
+
+        <!-- ✅ FIX 2: clase "active" para que se ponga verde -->
+        <a href="{% url 'notificaciones:lista' %}" class="mob-nav-btn active" id="mobNavAlertas">
             <div class="mob-nav-icon" style="position:relative">
                 <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/>
@@ -812,6 +818,7 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
             Alertas
         </a>
+
         <a href="{% url 'perfil:perfiles' %}" class="mob-nav-btn">
             <div class="mob-nav-icon">
                 <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
