@@ -6,6 +6,7 @@ from django.views.decorators.http import require_POST
 from .models import Notificacion
 from applications.usuarios.models import Usuario
 from applications.sesion.decorators import sesion_requerida
+from applications.chat.encryption import desencriptar
 
 def _get_usuario(request):
     """Helper reutilizable para obtener el usuario actual."""
@@ -15,7 +16,19 @@ def _get_usuario(request):
     except Exception:
         return None, None
 
-
+def _desencriptar_mensaje_notif(mensaje: str) -> str:
+    """Si el mensaje de notificación contiene texto encriptado, lo desencripta."""
+    try:
+        # Solo los mensajes de chat tienen contenido encriptado entre comillas
+        import re
+        def reemplazar(m):
+            try:
+                return '"' + desencriptar(m.group(1)) + '"'
+            except Exception:
+                return m.group(0)
+        return re.sub(r'"(gAAAAA[^"]+)"', reemplazar, mensaje)
+    except Exception:
+        return mensaje
 # ─────────────────────────────────────────────────────────────
 #  API: OBTENER NOTIFICACIONES (header)
 # ─────────────────────────────────────────────────────────────
@@ -37,7 +50,7 @@ def obtener_notificaciones(request):
                 {
                     'id': n.id,
                     'tipo': n.tipo,
-                    'mensaje': n.mensaje,
+                    'mensaje': _desencriptar_mensaje_notif(n.mensaje),
                     'emisor_nombre': n.emisor.nombre,
                     'emisor_id': n.emisor.id,
                     'emisor_foto': n.emisor.foto.url if n.emisor.foto else None,
@@ -103,7 +116,9 @@ def lista_notificaciones(request):
     ).select_related('emisor').order_by('-fecha_creacion')
 
     notificaciones.filter(leida=False).update(leida=True)
-
+    for n in notificaciones:
+     n.mensaje = _desencriptar_mensaje_notif(n.mensaje)
+     
     context = {
         'notificaciones': notificaciones,
         'usuario': datos_usuario,

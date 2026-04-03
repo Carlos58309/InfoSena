@@ -229,8 +229,13 @@ def notificar_nuevo_mensaje(sender, instance, created, **kwargs):
 
         destinatarios = chat.participantes.exclude(id=autor.id)
 
-        contenido_corto = instance.contenido[:60] + '...' if len(instance.contenido) > 60 else instance.contenido
-
+        from applications.chat.encryption import desencriptar
+        try:
+            contenido_plano = desencriptar(instance.contenido)
+        except Exception:
+            contenido_plano = instance.contenido
+        contenido_corto = contenido_plano[:60] + '...' if len(contenido_plano) > 60 else contenido_plano
+        
         if chat.is_group:
             nombre_chat = chat.nombre_grupo or "un grupo"
             mensaje_notif = f"💬 {autor.nombre} en {nombre_chat}: \"{contenido_corto}\""
