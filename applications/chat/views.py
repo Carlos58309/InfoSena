@@ -165,11 +165,18 @@ def chat_room(request, chat_id):
 
     chats_enriquecidos = []
     for c in todos_los_chats:
+        ultimo_msg = c.ultimo_mensaje_para_usuario(usuario_actual)
+        if ultimo_msg and ultimo_msg.contenido:
+            try:
+                ultimo_msg.contenido = desencriptar(ultimo_msg.contenido)
+            except Exception:
+                pass
+
         chats_enriquecidos.append({
             "chat": c,
             "nombre": c.obtener_nombre_para_usuario(usuario_actual),
             "foto": c.obtener_foto_para_usuario(usuario_actual),
-            "ultimo_mensaje": c.ultimo_mensaje_para_usuario(usuario_actual),
+            "ultimo_mensaje": ultimo_msg,  # ← ya desencriptado
             "mensajes_no_leidos": c.mensajes_no_leidos_para_usuario(usuario_actual),
             "activo": c.id == chat.id,
             "es_grupo": c.is_group,
